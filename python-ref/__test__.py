@@ -47,4 +47,7 @@ if __name__ == "__main__":
   y = F(3)
   assert_eq(x**3, y)
 
+  assert_eq(util.crt([3, 4], [4, 9]), 31)
+  assert_eq(util.crt([7, 13], [12, 18]), 31)
+
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
