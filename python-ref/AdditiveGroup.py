@@ -11,8 +11,8 @@ class AdditiveGroup:
   def __str__(s):
     return "AdditiveGroup"
 
-  def __call__(s, x):
-    return s.element_class(s, x)
+  def __call__(s, *x):
+    return s.element_class(s, *x)
 
   def _add(s, a, b):
     raise NotImplementedError()
@@ -42,15 +42,17 @@ class AdditiveGroupElement:
 
   def __add__(s, rhs):
     if isinstance(rhs, AdditiveGroupElement):
-      return s.group._add(s.x, rhs.x)
+      d = rhs.x
     else:
-      return s.group._add(s.x, rhs)
+      d = rhs
+    return s.group._add(s.x, d)
 
   def __sub__(s, rhs):
     if isinstance(rhs, AdditiveGroupElement):
-      return s.group._add(s.x, (-rhs).x)
+      d = (-rhs).x
     else:
-      return s.group._add(s.x, -rhs)
+      d = -rhs
+    return s.group._add(s.x, d)
 
   def __neg__(s):
     return s.group._neg(s.x)
@@ -66,9 +68,10 @@ class AdditiveGroupElement:
 
   def __eq__(s, rhs):
     if isinstance(rhs, AdditiveGroupElement):
-      return s.group._equ(s.x, rhs.x)
+      d = rhs.x
     else:
-      return s.group._equ(s.x, rhs)
+      d = rhs
+    return s.group._equ(s.x, d)
 
   def __repr__(s):
     return "%r(%s)" % (s.group, s.x)
