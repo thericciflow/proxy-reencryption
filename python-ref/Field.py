@@ -32,7 +32,7 @@ class Field:
   def order(s):
     return 0
 
-  def _ord(s):
+  def _ord(s, a):
     return 0
 
 class FieldElement:
@@ -44,7 +44,7 @@ class FieldElement:
     return s.__class__(_field, s.x)
 
   def order(s):
-    return s.field._ord(s)
+    return s.field._ord(s.x)
 
   def __add__(s, rhs):
     if isinstance(rhs, FieldElement):
@@ -84,7 +84,7 @@ class FieldElement:
       raise Exception("Unknown Operator")
     if rhs == 0:
       return s.__class__(s.field, 1)
-    if isinstance(rhs, fieldElement):
+    if isinstance(rhs, FieldElement):
       d = rhs.x
     else:
       d = rhs
@@ -93,14 +93,13 @@ class FieldElement:
     if bits[0]:
       res = x
     else:
-      res = s.__class__(s.field, 1)
+      res = s.field(1)
     for cur in bits[1:]:
       if op == "*":
         x *= x
       elif op == "+":
         x += x
       if cur:
-        res *= x
         if op == "*":
           res *= x
         elif op == "+":

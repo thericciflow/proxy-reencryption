@@ -1,8 +1,10 @@
 import math
 from util import egcd, gcd, modinv
+from Field import Field, FieldElement
 
-class FiniteField:
+class FiniteField(Field):
   def __init__(s, p):
+    Field.__init__(s, FiniteFieldElement)
     s.p = p
 
   def __repr__(s):
@@ -11,97 +13,39 @@ class FiniteField:
   def __str__(s):
     return "Finite Field : p = %d" % s.p
 
-  def __call__(s, x):
-    return FiniteFieldElement(s, x)
-
   def order(s):
     return s.p - 1
 
-class FiniteFieldElement:
-  def __init__(s, field, x):
-    s.field = field
-    s.x = x % field.p
-
-  def change_field(s, _field):
-    return s.__class__(_field, s.x)
-
-  def order(s):
+  def _ord(s, a):
     i = 1
-    while i <= s.field.order():
-      if s**i == 1:
+    while i <= s.order():
+      if s.element_class(s, a)**i == 1:
         return i
       i += 1
     return 0
 
-  def __add__(s, rhs):
-    if isinstance(rhs, FiniteFieldElement):
-      return s.__class__(s.field, s.x + rhs.x)
-    else:
-      return s.__class__(s.field, s.x + rhs)
+  def _add(s, a, b):
+    return s.element_class(s, a+b)
 
-  def __sub__(s, rhs):
-    if isinstance(rhs, FiniteFieldElement):
-      return s.__class__(s.field, s.x + (s.field.p-rhs.x))
-    else:
-      return s.__class__(s.field, s.x + (s.field.p-rhs))
+  def _mul(s, a, b):
+    return s.element_class(s, a*b)
 
-  def __neg__(s):
-    return s.__class__(-s.x)
+  def _inv(s, a):
+    return s.element_class(s, modinv(a, s.p))
 
-  def __mul__(s, rhs):
-    if isinstance(rhs, FiniteFieldElement):
-      return s.__class__(s.field, s.x * (rhs.x))
-    else:
-      return s.__class__(s.field, s.x * rhs)
+  def _neg(s, a):
+    return s.element_class(s, s.p-a)
 
-  def __div__(s, rhs):
-    if isinstance(rhs, FiniteFieldElement):
-      return s.__class__(s.field, s * modinv(rhs.x, s.field.p))
-    else:
-      return s.__class__(s.field, s * modinv(rhs, s.field.p))
+  def _equ(s, a, b):
+    return a == b
 
-  def __rdiv__(s, lhs):
-    if isinstance(lhs, FiniteFieldElement):
-      return s.__class__(s.field, modinv(s.x, s.field.p) * lhs.x)
-    else:
-      return s.__class__(s.field, modinv(s.x, s.field.p) * lhs)
+class FiniteFieldElement(FieldElement):
+  def __init__(s, field, x):
+    FieldElement.__init__(s, field, x)
+    s.x = x % field.p
 
   def __pow__(s, rhs):
-    if rhs == 0:
-      return s.__class__(s.field, 1)
-    if isinstance(rhs, FiniteFieldElement):
-      d = rhs.x
-    else:
-      d = rhs
-    bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
-    x = s
-    if bits[0]:
-      res = x
-    else:
-      res = s.__class__(s.field, 1)
-    for cur in bits[1:]:
-      x *= x
-      if cur:
-        res *= x
-    return res
-
-  def __radd__(s, lhs):
-    return s + lhs
-
-  def __rsub__(s, lhs):
-    return -s + lhs
-
-  def __rmul__(s, lhs):
-    return s * lhs
-
-  def __ne__(s, rhs):
-    return not (s == rhs)
-
-  def __eq__(s, rhs):
-    if isinstance(rhs, FiniteFieldElement):
-      return s.x == rhs.x
-    else:
-      return s.x  == rhs
+    return FieldElement.__pow__(s, rhs, "*")
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)
