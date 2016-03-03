@@ -14,6 +14,9 @@ class FiniteField:
   def __call__(s, x):
     return FiniteFieldElement(s, x)
 
+  def order(s):
+    return s.p - 1
+
 class FiniteFieldElement:
   def __init__(s, field, x):
     s.field = field
@@ -21,6 +24,14 @@ class FiniteFieldElement:
 
   def change_field(s, _field):
     return s.__class__(_field, s.x)
+
+  def order(s):
+    i = 1
+    while i <= s.field.order():
+      if s**i == 1:
+        return i
+      i += 1
+    return 0
 
   def __add__(s, rhs):
     if isinstance(rhs, FiniteFieldElement):

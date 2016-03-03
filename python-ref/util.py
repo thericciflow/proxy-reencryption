@@ -29,6 +29,10 @@ def lcm(*a):
 
 def crt(a, n):
   N = reduce(lambda x,y: x*y, n, 1)
+  if gcd_multiple(*n) > 1:
+    # TODO: implement in gcd(modulo > 0
+    print "Warning: gcd(modulo) > 1"
+    return None
   nk = map(lambda x: N/x, n)
-  ik = map(lambda x: modinv(x[1], x[0]), zip(n, nk))
+  ik = map(lambda x: modinv(x[0], x[1]), zip(nk, n))
   return sum(map(lambda x: (x[0]*x[1]*x[2]) % N, zip(a, nk, ik))) % lcm(*n)
