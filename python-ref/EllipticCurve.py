@@ -17,6 +17,12 @@ class EllipticCurve(AdditiveGroup):
   def is_on_curve(s, point):
     return s.field(point.y) ** 2 == s.field(point.x) ** 3 + s.field(s.a) * s.field(point.x) + s.field(s.b)
 
+  def determinant(s):
+    return -16*(4*s.a**3 + 27*s.b**2)
+
+  def j_invariant(s):
+    return -1728*((4*s.a**3) / s.determinant())
+
   def __repr__(s):
     return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
 
