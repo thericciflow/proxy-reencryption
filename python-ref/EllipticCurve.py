@@ -1,4 +1,8 @@
 from AdditiveGroup import AdditiveGroup, AdditiveGroupElement
+from RealField import RealField
+
+def toReal(x):
+  return RealField()(x)
 
 class EllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
@@ -6,9 +10,11 @@ class EllipticCurve(AdditiveGroup):
     s.field = field
     s.a = a
     s.b = b
+    s.O = s.element_class(s, 0, 0)
+    s.O.infinity = True
 
   def is_on_curve(s, point):
-    return point.y ** 2 == point.x**3 + s.a*point.x + s.b
+    return s.field(point.y) ** 2 == s.field(point.x) ** 3 + s.field(s.a) * s.field(point.x) + s.field(s.b)
 
   def __repr__(s):
     return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
@@ -28,52 +34,77 @@ class EllipticCurve(AdditiveGroup):
   def _add(s, P, Q):
     Px, Py = P
     Qx, Qy = Q
+    Px, Py = RealField()(Px), RealField()(Py)
+    if Px == Qx:
+      l = (3*Px**2 + s.a) / (2*Py)
+      l = s.field(((3*Px**3 + s.a) * RealField()((1/s.field((2*Py).x)).x)).x)
+    else:
+      l = s.field(((Qy - Py) * RealField()((1/s.field((Qx - Px).x)).x)).x)
+    Rx = l**2 - (Px + Qx)
+    Ry = -l * (Rx - Px) - Py
+    return s.element_class(s, Rx.x, Ry.x)
+
+  def _equ(s, P, Q):
+    return (P[0] == Q[0]) and (P[1] == Q[1])
 
 
 class EllipticCurvePoint(AdditiveGroupElement):
-  def __init__(s, group, x, y, z=None):
+  def __init__(s, group, x, y):
     AdditiveGroupElement.__init__(s, group, x)
     s.y = y
-    if not z == None:
-      s.z = z
-    else:
-      s.z = None
+    s.infinity = False
     if not s.group.is_on_curve(s):
-      if z == None:
-        raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
-      else:
-        raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
+      raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
 
-  def _add(s, a, b):
-    if a[2] == None: # is euclidean space?
-      Px, Py, _ = a
-      Qx, Qy, _ = b
-      return s.group(s, 0, 0, 0)
-
+  def is_infinity(s):
+    return s.infinity
 
   def __add__(s, rhs):
-    if isinstance(rhs, AdditiveGroupElement):
-      d = (rhs.x, rhs.y, rhs.z)
+    if isinstance(rhs, EllipticCurvePoint):
+      if rhs.is_infinity():
+        return s
+      if s.is_infinity():
+        return rhs
+      d = (rhs.x, rhs.y)
     elif isinstance(rhs, tuple):
       d = rhs
     else:
       raise ArithmeticError("Invalid Parameter")
-    return s.group._add((s.x, s.y, s.z), d)
+    return s.group._add((s.x, s.y), d)
 
   def __sub__(s, rhs):
-    if isinstance(rhs, AdditiveGroupElement):
-      d = (-rhs.x, -rhs.y, -rhs.z)
+    if isinstance(rhs, EllipticCurvePoint):
+      d = (-rhs.x, -rhs.y)
     elif isinstance(rhs, tuple):
       d = -rhs
     else:
       raise ArithmeticError("Invalid Parameter")
     return s.group._add(s.x, d)
 
+  def __mul__(s, rhs):
+    if rhs == 0:
+      return s.group.O
+    d = rhs
+    bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
+    x = s
+    if bits[0]:
+      res = x
+    else:
+      res = s.group.O
+    for cur in bits[1:]:
+      x += x
+      if cur:
+        res += x
+    return res
+
   def __neg__(s):
-    return s.group._neg((s.x, s.y, s.z))
+    return s.group._neg((s.x, s.y))
 
   def __radd__(s, lhs):
     return s + lhs
+
+  def __rmul__(s, lhs):
+    return s * lhs
 
   def __rsub__(s, lhs):
     return -s + lhs
@@ -83,21 +114,15 @@ class EllipticCurvePoint(AdditiveGroupElement):
 
   def __eq__(s, rhs):
     if isinstance(rhs, AdditiveGroupElement):
-      d = (rhs.x, rhs.y, rhs.z)
+      d = (rhs.x, rhs.y)
     elif isinstance(rhs, tuple):
       d = rhs
     else:
       raise ArithmeticError("Invalid Parameter")
-    return s.group._equ(s.x, d)
+    return s.group._equ((s.x, s.y), d)
 
   def __repr__(s):
-    if s.z == None:
-      return "%r(%r, %r)" % (s.group, s.x, s.y)
-    else:
-      return "%r(%r, %r, %r)" % (s.group, s.x, s.y, s.z)
+    return "%r(%r, %r)" % (s.group, s.x, s.y)
 
   def __str__(s):
-    if s.z == None:
-      return "Point (%s, %s) on %s (Euclidean Space)" % (s.x, s.y, s.group)
-    else:
-      return "Point (%s : %s : %r) on %s (Projective Space)" % (s.x, s.y, s.z, s.group)
+    return "Point (%s, %s) on %s (Euclidean Space)" % (s.x, s.y, s.group)

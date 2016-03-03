@@ -23,7 +23,7 @@ class Field:
   def _inv(s, a):
     raise NotImplementedError()
 
-  def _neg(s, a, b):
+  def _neg(s, a):
     raise NotImplementedError()
 
   def _equ(s, a, b):

@@ -7,7 +7,7 @@ wa_count = 0
 
 def _assert(a, b, cond):
   global ac_count, wa_count
-  print ("[+] %r %s %r..." % (a, cond, b)).ljust(80),
+  print ("[+] %r %s %r..." % (a, cond, b)).ljust(100),
   var = {"a":a, "b":b}
   if eval("a %s b" % cond, var):
     print "\x1b[33m[  OK  ]\x1b[0m"
@@ -59,5 +59,7 @@ if __name__ == "__main__":
   Q = E(11, 4)
   assert_eq(P+Q, E(3, 8))
   assert_eq(P+P, E(0, 0))
+  assert_eq(P*2, E(0, 0))
+  assert_eq(2*P, E(0, 0))
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

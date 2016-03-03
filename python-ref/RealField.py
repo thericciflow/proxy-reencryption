@@ -16,8 +16,14 @@ class RealField(Field):
   def _mul(s, a, b):
     return s.element_class(s, a*b)
 
+  def _neg(s, a):
+    return s.element_class(s, -a)
+
   def _inv(s, a):
     return s.element_class(s, 1/a)
+
+  def _equ(s, a, b):
+    return a == b
 
 class RealFieldElement(FieldElement):
   def __init__(s, field, x):
