@@ -19,6 +19,9 @@ class FiniteFieldElement:
     s.field = field
     s.x = x % field.p
 
+  def change_field(s, _field):
+    return s.__class__(_field, s.x)
+
   def __add__(s, rhs):
     if isinstance(rhs, FiniteFieldElement):
       return s.__class__(s.field, s.x + rhs.x)
@@ -51,6 +54,25 @@ class FiniteFieldElement:
       return s.__class__(s.field, modinv(s.x, s.field.p) * lhs.x)
     else:
       return s.__class__(s.field, modinv(s.x, s.field.p) * lhs)
+
+  def __pow__(s, rhs):
+    if rhs == 0:
+      return s.__class__(s.field, 1)
+    if isinstance(rhs, FiniteFieldElement):
+      d = rhs.x
+    else:
+      d = rhs
+    bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
+    x = s
+    if bits[0]:
+      res = x
+    else:
+      res = s.__class__(s.field, 1)
+    for cur in bits[1:]:
+      x *= x
+      if cur:
+        res *= x
+    return res
 
   def __radd__(s, lhs):
     return s + lhs
