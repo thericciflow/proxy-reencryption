@@ -1,5 +1,6 @@
 from AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from RealField import RealField
+from util import ModinvNotFoundError
 
 def toReal(x):
   return RealField()(x)
@@ -35,18 +36,23 @@ class EllipticCurve(AdditiveGroup):
     Px, Py = P
     Qx, Qy = Q
     Px, Py = RealField()(Px), RealField()(Py)
-    if Px == Qx:
-      l = (3*Px**2 + s.a) / (2*Py)
-      l = s.field(((3*Px**3 + s.a) * RealField()((1/s.field((2*Py).x)).x)).x)
-    else:
-      l = s.field(((Qy - Py) * RealField()((1/s.field((Qx - Px).x)).x)).x)
-    Rx = l**2 - (Px + Qx)
-    Ry = -l * (Rx - Px) - Py
-    return s.element_class(s, Rx.x, Ry.x)
+    try:
+      if Px == Qx:
+        l = (3*Px**2 + s.a) / (2*Py)
+        l = s.field(((3*Px**3 + s.a) * RealField()((1/s.field((2*Py).x)).x)).x)
+      else:
+        l = s.field(((Qy - Py) * RealField()((1/s.field((Qx - Px).x)).x)).x)
+      Rx = l**2 - (Px + Qx)
+      Ry = -l * (Rx - Px) - Py
+      return s.element_class(s, Rx.x, Ry.x)
+    except ModinvNotFoundError:
+      return s.O
 
   def _equ(s, P, Q):
     return (P[0] == Q[0]) and (P[1] == Q[1])
 
+  def _neg(s, P):
+    return s.element_class(s, P[0], -P[1])
 
 class EllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y):
@@ -58,6 +64,15 @@ class EllipticCurvePoint(AdditiveGroupElement):
 
   def is_infinity(s):
     return s.infinity
+
+  def order(s):
+    i = 1
+    #while i <= s.order():
+    while i <= s.group.field.order():
+      if (s*i).is_infinity():
+        return i
+      i += 1
+    return 0
 
   def __add__(s, rhs):
     if isinstance(rhs, EllipticCurvePoint):

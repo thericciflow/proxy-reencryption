@@ -61,5 +61,6 @@ if __name__ == "__main__":
   assert_eq(P+P, E(0, 0))
   assert_eq(P*2, E(0, 0))
   assert_eq(2*P, E(0, 0))
+  assert_eq(P.order(), 4)
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

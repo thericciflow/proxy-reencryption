@@ -1,5 +1,8 @@
 import fractions
 
+class ModinvNotFoundError(ArithmeticError):
+  pass
+
 def gcd(x, y):
   while y != 0:
     t = x % y
@@ -21,7 +24,7 @@ def egcd(x, y):
 
 def modinv(a, m):
   if a % m == 0:
-    return None
+    raise ModinvNotFoundError()
   return egcd(a, m)[1] % m
 
 def lcm(*a):
