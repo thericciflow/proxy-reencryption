@@ -79,9 +79,7 @@ class FieldElement:
     else:
       return s.field._mul(s.field._inv(s.x).x, lhs)
 
-  def __pow__(s, rhs, op="*"):
-    if op not in "+*":
-      raise Exception("Unknown Operator")
+  def __pow__(s, rhs):
     if rhs == 0:
       return s.__class__(s.field, 1)
     if isinstance(rhs, FieldElement):
@@ -95,15 +93,9 @@ class FieldElement:
     else:
       res = s.field(1)
     for cur in bits[1:]:
-      if op == "*":
-        x *= x
-      elif op == "+":
-        x += x
+      x *= x
       if cur:
-        if op == "*":
-          res *= x
-        elif op == "+":
-          res += x
+        res *= x
     return res
 
   def __radd__(s, lhs):

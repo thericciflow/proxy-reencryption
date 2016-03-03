@@ -44,9 +44,6 @@ class FiniteFieldElement(FieldElement):
     FieldElement.__init__(s, field, x)
     s.x = x % field.p
 
-  def __pow__(s, rhs):
-    return FieldElement.__pow__(s, rhs, "*")
-
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)
 
