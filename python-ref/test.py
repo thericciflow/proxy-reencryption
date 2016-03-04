@@ -1,6 +1,4 @@
-import util
-from FiniteField import FiniteField
-from EllipticCurve import EllipticCurve
+from ecpy import *
 from random import randint
 
 ac_count = 0
@@ -39,10 +37,12 @@ if __name__ == "__main__":
   assert_eq(x*y, 1)
   x = F(2)
   y = F(3)
+  print x, y
   # x is element of F, y is invert element of x
   assert_eq(x*y, 1)
   # commutive!
   assert_eq(1/x, y)
+  assert_eq(util.modinv(x.x, F.p), y)
   assert_eq(1/y, x)
 
   assert_eq(x**3, y)

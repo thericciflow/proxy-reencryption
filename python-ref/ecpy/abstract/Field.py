@@ -75,14 +75,14 @@ class FieldElement:
       d = rhs.x
     else:
       d = rhs
-    return s.field._mul(d, s.field._inv(s.x).x)
+    return s.field._mul(s.field._inv(d).x, s.x)
 
   def __rdiv__(s, lhs):
     if isinstance(lhs, FieldElement):
       d = lhs.x
     else:
       d = lhs
-    return s.field._mul(s.field._inv(d).x, s.x)
+    return s.field._mul(d, s.field._inv(s.x).x)
 
   def __pow__(s, rhs):
     if rhs == 0:
