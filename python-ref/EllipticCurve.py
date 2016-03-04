@@ -1,6 +1,6 @@
 from AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from RealField import RR
-from util import ModinvNotFoundError
+from util import modinv,ModinvNotFoundError
 
 class EllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
@@ -38,16 +38,14 @@ class EllipticCurve(AdditiveGroup):
   def _add(s, P, Q):
     Px, Py = P
     Qx, Qy = Q
-    Px, Py = RR(Px), RR(Py)
     try:
       if Px == Qx:
-        l = (3*Px**2 + s.a) / (2*Py)
-        l = s.field(((3*Px**3 + s.a) * RR((1/s.field((2*Py).x)).x)).x)
+        l = (3*Px**2 + s.a) * s.field._inv(2*Py).x
       else:
-        l = s.field(((Qy - Py) * RR((1/s.field((Qx - Px).x)).x)).x)
+        l = (Qy-Py) * s.field._inv(Qx - Px).x
       Rx = l**2 - (Px + Qx)
       Ry = -l * (Rx - Px) - Py
-      return s.element_class(s, Rx.x, Ry.x)
+      return s.element_class(s, Rx, Ry)
     except ModinvNotFoundError:
       return s.O
 
@@ -77,18 +75,22 @@ class EllipticCurvePoint(AdditiveGroupElement):
       i += 1
     return 0
 
+  def change_group(s, _group):
+    return s.__class__(_group, s.x, s.y)
+
   def __add__(s, rhs):
     if isinstance(rhs, EllipticCurvePoint):
       if rhs.is_infinity():
         return s
-      if s.is_infinity():
-        return rhs
       d = (rhs.x, rhs.y)
     elif isinstance(rhs, tuple):
       d = rhs
     else:
       raise ArithmeticError("Invalid Parameter")
-    return s.group._add((s.x, s.y), d)
+    if s.is_infinity():
+      return s.__class__(s.group, d[0], d[1])
+    else:
+      return s.group._add((s.x, s.y), d)
 
   def __sub__(s, rhs):
     if isinstance(rhs, EllipticCurvePoint):
