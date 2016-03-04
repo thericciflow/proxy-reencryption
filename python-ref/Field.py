@@ -11,8 +11,8 @@ class Field:
   def __str__(s):
     return "Field"
 
-  def __call__(s, x):
-    return s.element_class(s, x)
+  def __call__(s, *x):
+    return s.element_class(s, *x)
 
   def _add(s, a, b):
     raise NotImplementedError()
@@ -48,36 +48,41 @@ class FieldElement:
 
   def __add__(s, rhs):
     if isinstance(rhs, FieldElement):
-      return s.field._add(s.x, rhs.x)
+      d = rhs.x
     else:
-      return s.field._add(s.x, rhs)
+      d = rhs
+    return s.field._add(s.x, d)
 
   def __sub__(s, rhs):
     if isinstance(rhs, FieldElement):
-      return s.field._add(s.x, (-rhs).x)
+      d = (-rhs).x
     else:
-      return s.field._add(s.x, -rhs)
+      d = -rhs
+    return s.field._add(s.x, d)
 
   def __neg__(s):
     return s.field._neg(s.x)
 
   def __mul__(s, rhs):
     if isinstance(rhs, FieldElement):
-      return s.field._mul(rhs.x, s.x)
+      d = s.x
     else:
-      return s.field._mul(rhs, s.x)
+      d = rhs
+    return s.field._mul(rhs.x, d)
 
   def __div__(s, rhs):
     if isinstance(rhs, FieldElement):
-      return s.field._mul(rhs.x, s.field._inv(s.x).x)
+      d = rhs.x
     else:
-      return s.field._mul(rhs, s.field._inv(s.x).x)
+      d = rhs
+    return s.field._mul(d, s.field._inv(s.x).x)
 
   def __rdiv__(s, lhs):
     if isinstance(lhs, FieldElement):
-      return s.field._mul(s.field._inv(s.x).x, lhs.x)
+      d = lhs.x
     else:
-      return s.field._mul(s.field._inv(s.x).x, lhs)
+      d = lhs
+    return s.field._mul(s.field._inv(s.x).x, d)
 
   def __pow__(s, rhs):
     if rhs == 0:
@@ -112,9 +117,10 @@ class FieldElement:
 
   def __eq__(s, rhs):
     if isinstance(rhs, FieldElement):
-      return s.field._equ(s.x, rhs.x)
+      d = rhs.x
     else:
-      return s.field._equ(s.x, rhs)
+      d = rhs
+    return s.field._equ(s.x, d)
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)

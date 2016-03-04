@@ -43,9 +43,10 @@ class EllipticCurve(AdditiveGroup):
         l = (3*Px**2 + s.a) * s.field._inv(2*Py).x
       else:
         l = (Qy-Py) * s.field._inv(Qx - Px).x
+      l = s.field(l).x
       Rx = l**2 - (Px + Qx)
       Ry = -l * (Rx - Px) - Py
-      return s.element_class(s, Rx, Ry)
+      return s.element_class(s, s.field(Rx).x, s.field(Ry).x)
     except ModinvNotFoundError:
       return s.O
 
