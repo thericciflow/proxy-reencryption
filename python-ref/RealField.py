@@ -29,6 +29,8 @@ class RealFieldElement(FieldElement):
   def __init__(s, field, x):
     FieldElement.__init__(s, field, x)
 
+def RR(x):
+  return RealField()(x)
 
 if __name__ == "__main__":
   RR = RealField()

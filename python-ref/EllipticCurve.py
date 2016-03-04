@@ -1,9 +1,6 @@
 from AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from RealField import RealField
+from RealField import RR
 from util import ModinvNotFoundError
-
-def toReal(x):
-  return RealField()(x)
 
 class EllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
@@ -11,7 +8,7 @@ class EllipticCurve(AdditiveGroup):
     s.field = field
     s.a = a
     s.b = b
-    s.O = s.element_class(s, 0, 0)
+    s.O = s.element_class(s, None, None)
     s.O.infinity = True
 
   def is_on_curve(s, point):
@@ -41,13 +38,13 @@ class EllipticCurve(AdditiveGroup):
   def _add(s, P, Q):
     Px, Py = P
     Qx, Qy = Q
-    Px, Py = RealField()(Px), RealField()(Py)
+    Px, Py = RR(Px), RR(Py)
     try:
       if Px == Qx:
         l = (3*Px**2 + s.a) / (2*Py)
-        l = s.field(((3*Px**3 + s.a) * RealField()((1/s.field((2*Py).x)).x)).x)
+        l = s.field(((3*Px**3 + s.a) * RR((1/s.field((2*Py).x)).x)).x)
       else:
-        l = s.field(((Qy - Py) * RealField()((1/s.field((Qx - Px).x)).x)).x)
+        l = s.field(((Qy - Py) * RR((1/s.field((Qx - Px).x)).x)).x)
       Rx = l**2 - (Px + Qx)
       Ry = -l * (Rx - Px) - Py
       return s.element_class(s, Rx.x, Ry.x)
@@ -64,8 +61,8 @@ class EllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y):
     AdditiveGroupElement.__init__(s, group, x)
     s.y = y
-    s.infinity = False
-    if not s.group.is_on_curve(s):
+    s.infinity = x == None
+    if not (s.infinity or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
 
   def is_infinity(s):
@@ -143,7 +140,11 @@ class EllipticCurvePoint(AdditiveGroupElement):
     return s.group._equ((s.x, s.y), d)
 
   def __repr__(s):
+    if s.infinity:
+      return "%r.O" % s.group
     return "%r(%r, %r)" % (s.group, s.x, s.y)
 
   def __str__(s):
-    return "Point (%s, %s) on %s (Euclidean Space)" % (s.x, s.y, s.group)
+    if s.infinity:
+      return "Infinity Point (0 : 1 : 0) on %s" % s.group
+    return "Point (%s, %s) on %s" % (s.x, s.y, s.group)
