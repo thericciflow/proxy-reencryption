@@ -82,7 +82,7 @@ class FieldElement:
       d = lhs.x
     else:
       d = lhs
-    return s.field._mul(s.field._inv(s.x).x, d)
+    return s.field._mul(s.field._inv(d).x, s.x)
 
   def __pow__(s, rhs):
     if rhs == 0:
