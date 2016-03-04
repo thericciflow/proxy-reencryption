@@ -1,6 +1,7 @@
 import util
 from FiniteField import FiniteField
 from EllipticCurve import EllipticCurve
+from random import randint
 
 ac_count = 0
 wa_count = 0
@@ -62,5 +63,17 @@ if __name__ == "__main__":
   assert_eq(P*2, E(0, 0))
   assert_eq(2*P, E(0, 0))
   assert_eq(P.order(), 4)
+
+  print "Random Test: modinv"
+  i = 0
+  while i < 10:
+    r = randint(-50, 50)
+    if r == 0:
+      continue
+    print "[+] Random: %d" % r
+    assert_eq((util.modinv(r, 101) * r) % 101, 1)
+    i += 1
+
+
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

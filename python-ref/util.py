@@ -25,6 +25,7 @@ def egcd(x, y):
 def modinv(a, m):
   if a % m == 0:
     raise ModinvNotFoundError()
+  a %= m
   return egcd(a, m)[1] % m
 
 def lcm(*a):
