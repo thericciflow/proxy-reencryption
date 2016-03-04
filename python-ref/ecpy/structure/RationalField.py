@@ -1,5 +1,5 @@
-from Field import Field, FieldElement
-from util import gcd, lcm
+from ..abstract.Field import Field, FieldElement
+from ..util import gcd, lcm
 
 class RealField(Field):
   def __init__(s):

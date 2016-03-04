@@ -1,6 +1,6 @@
 import math
-from util import egcd, gcd, modinv
-from Field import Field, FieldElement
+from ..util import egcd, gcd, modinv
+from ..abstract.Field import Field, FieldElement
 
 class FiniteField(Field):
   def __init__(s, p):

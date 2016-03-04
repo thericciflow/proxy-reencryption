@@ -1,5 +1,5 @@
 import math
-from util import egcd, gcd, modinv
+from ..util import egcd, gcd, modinv
 
 class Field:
   def __init__(s, element_class):

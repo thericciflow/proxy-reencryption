@@ -1,4 +1,4 @@
-from Field import Field, FieldElement
+from ..abstract.Field import Field, FieldElement
 
 class RealField(Field):
   def __init__(s):

@@ -1,6 +1,6 @@
-from AdditiveGroup import AdditiveGroup, AdditiveGroupElement
+from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from RealField import RR
-from util import modinv,ModinvNotFoundError
+from ..util import modinv,ModinvNotFoundError
 
 class EllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
