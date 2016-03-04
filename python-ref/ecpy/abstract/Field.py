@@ -65,10 +65,10 @@ class FieldElement:
 
   def __mul__(s, rhs):
     if isinstance(rhs, FieldElement):
-      d = s.x
+      d = rhs.x
     else:
       d = rhs
-    return s.field._mul(rhs.x, d)
+    return s.field._mul(s.x, d)
 
   def __div__(s, rhs):
     if isinstance(rhs, FieldElement):
