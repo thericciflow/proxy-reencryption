@@ -40,3 +40,11 @@ def crt(a, n):
   nk = map(lambda x: N/x, n)
   ik = map(lambda x: modinv(x[0], x[1]), zip(nk, n))
   return sum(map(lambda x: (x[0]*x[1]*x[2]) % N, zip(a, nk, ik))) % lcm(*n)
+
+def legendre_symbol(a, p):
+  if gcd(a, p) != 1:
+    return 0
+  d = pow(a, (p-1)/2, p)
+  if d == p-1:
+    return -1
+  return 1

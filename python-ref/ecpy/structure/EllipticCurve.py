@@ -1,6 +1,7 @@
 from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from RealField import RR
-from ..util import modinv,ModinvNotFoundError
+from ..util import modinv,ModinvNotFoundError,legendre_symbol
+from random import randint
 
 class EllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
