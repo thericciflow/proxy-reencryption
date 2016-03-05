@@ -40,11 +40,7 @@ class EllipticCurve(AdditiveGroup):
     Px, Py = P
     Qx, Qy = Q
     try:
-      if Px == Qx:
-        l = (3*Px**2 + s.a) * s.field._inv(2*Py).x
-      else:
-        l = (Qy-Py) * s.field._inv(Qx - Px).x
-      l = s.field(l).x
+      l = s.element_class(s, *P).line_coeff(s.element_class(s, *Q))
       Rx = l**2 - (Px + Qx)
       Ry = -l * (Rx - Px) - Py
       return s.element_class(s, s.field(Rx).x, s.field(Ry).x)
@@ -79,6 +75,14 @@ class EllipticCurvePoint(AdditiveGroupElement):
 
   def change_group(s, _group):
     return s.__class__(_group, s.x, s.y)
+
+  def line_coeff(s, Q):
+    P = s
+    if P.x == Q.x:
+      l = (3*P.x**2 + P.group.a) * s.group.field._inv(2*P.y).x
+    else:
+      l = (Q.y-P.y) * s.group.field._inv(Q.x - P.x).x
+    return s.group.field(l).x
 
   def __add__(s, rhs):
     if isinstance(rhs, EllipticCurvePoint):
