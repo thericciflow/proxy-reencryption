@@ -1,7 +1,7 @@
 from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from RealField import RR
 from ..util import modinv,ModinvNotFoundError,legendre_symbol, gcd
 from random import randint
+from RealField import RR
 
 class EllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
@@ -43,7 +43,7 @@ class EllipticCurve(AdditiveGroup):
     Px, Py = P
     Qx, Qy = Q
     try:
-      l = s.element_class(s, *P).line_coeff(s.element_class(s, *Q))
+      l = int(s.element_class(s, *P).line_coeff(s.element_class(s, *Q)))
       Rx = l**2 - (Px + Qx)
       Ry = -l * (Rx - Px) - Py
       return s.element_class(s, s.field(Rx).x, s.field(Ry).x)
@@ -158,13 +158,13 @@ class EllipticCurvePoint(AdditiveGroupElement):
     return not (s == rhs)
 
   def __eq__(s, rhs):
+    if rhs == None:
+      return False
     if isinstance(rhs, AdditiveGroupElement):
       d = (rhs.x, rhs.y)
     elif isinstance(rhs, tuple):
       d = rhs
     else:
-      if rhs == None:
-        return False
       raise ArithmeticError("Invalid Parameter")
     return s.group._equ((s.x, s.y), d)
 

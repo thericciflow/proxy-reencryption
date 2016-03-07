@@ -1,3 +1,2 @@
-from Miller import miller
-from weil_pairing import weil_pairing
-from tate_pairing import tate_pairing
+from pairing import miller, weil_pairing, tate_pairing
+from sssa_attack import SSSA_Attack

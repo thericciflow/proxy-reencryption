@@ -5,8 +5,7 @@ from .structure.RationalField import QQ
 from .structure.EllipticCurve import EllipticCurve
 from .structure.FiniteField import FiniteField
 from .structure.Zmod import Zmod
-from .algorithm.Miller import miller
-from .algorithm.weil_pairing import weil_pairing
-from .algorithm.tate_pairing import tate_pairing
+from .algorithm.pairing import miller, weil_pairing, tate_pairing
+from .algorithm.sssa_attack import SSSA_Attack
 from .structure.ComplexField import CC
 import util

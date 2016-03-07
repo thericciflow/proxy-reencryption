@@ -26,16 +26,16 @@ def miller(E, P, Q, m):
     i -= 1
   return int(f)
 
-if __name__ == "__main__":
-  F = FiniteField(631)
-  E = EllipticCurve(F, 30, 34)
-  m = 5
+def weil_pairing(E, P, Q, m, S = None):
+  if S == None:
+    S = E.random_point()
+  fpqs = miller(E, P, Q+S, m)
+  fps  = miller(E, P, S, m)
+  fqps = miller(E, Q, P-S, m)
+  fqs  = miller(E, Q, -S, m)
+  return int((E.field._inv(fps) * fpqs) * E.field._inv(int(E.field._inv(fqs)) * fqps))
 
-  P = E(36, 60)
-  Q = E(121, 387)
-  S = E(0, 36)
-
-  print miller(E, P, Q+S, m), 103
-  print miller(E, P, S, m), 219
-  print miller(E, Q, P-S, m), 284
-  print miller(E, Q, -S, m), 204
+def tate_pairing(E, P, Q, m):
+  k = E.embedding_degree(m)
+  f = E.field(miller(E, P, Q, m))
+  return f ** (((E.field.p ** k) - 1) / m)
