@@ -100,12 +100,12 @@ class EllipticCurvePoint(AdditiveGroupElement):
 
   def __sub__(s, rhs):
     if isinstance(rhs, EllipticCurvePoint):
-      d = (-rhs.x, -rhs.y)
+      d = ((-rhs).x, (-rhs).y)
     elif isinstance(rhs, tuple):
       d = -rhs
     else:
       raise ArithmeticError("Invalid Parameter")
-    return s.group._add(s.x, d)
+    return s.group._add((s.x, s.y), d)
 
   def __mul__(s, rhs):
     if rhs == 0:

@@ -42,7 +42,10 @@ class FiniteField(Field):
 class FiniteFieldElement(FieldElement):
   def __init__(s, field, x):
     FieldElement.__init__(s, field, x)
-    s.x = x % field.p
+    if isinstance(x, s.__class__):
+      s.x = x.x % field.p
+    else:
+      s.x = x % field.p
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)
