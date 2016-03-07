@@ -74,6 +74,20 @@ if __name__ == "__main__":
     assert_eq((util.modinv(r, 101) * r) % 101, 1)
     i += 1
 
+  # The arithmetic of elliptic curves: p.397 example of miller algorithm
+  F = FiniteField(631)
+  E = EllipticCurve(F, 30, 34)
+  m = 5
+
+  P = E(36, 60)
+  Q = E(121, 387)
+  S = E(0, 36)
+
+  assert_eq(miller(E, P, Q+S, m), 103)
+  assert_eq(miller(E, P, S, m), 219)
+  assert_eq(miller(E, Q, P-S, m), 284)
+  assert_eq(miller(E, Q, -S, m), 204)
+
 
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
