@@ -1,10 +1,14 @@
 import math
-from ..util import egcd, gcd, modinv
+from ..util import egcd, gcd, modinv, is_prime
 from ..abstract.Field import Field, FieldElement
+from .FiniteField import FiniteFieldElement
 
 class Zmod(Field):
   def __init__(s, n):
-    Field.__init__(s, ZmodElement)
+    if is_prime(n):
+      Field.__init__(s, FiniteFieldElement)
+    else:
+      Field.__init__(s, ZmodElement)
     s.n = n
 
   def __repr__(s):

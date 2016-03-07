@@ -1,11 +1,13 @@
 import math
-from ..util import egcd, gcd, modinv
+from ..util import egcd, gcd, modinv, is_prime
 from ..abstract.Field import Field, FieldElement
 
 class FiniteField(Field):
   def __init__(s, p):
     Field.__init__(s, FiniteFieldElement)
     s.p = p
+    if not is_prime(p):
+      raise ArithmeticError("Invalid Prime : %d" % p)
 
   def __repr__(s):
     return "FiniteField(%s)" % s.p

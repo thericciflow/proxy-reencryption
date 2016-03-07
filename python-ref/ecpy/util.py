@@ -1,4 +1,4 @@
-import fractions
+import random
 
 class ModinvNotFoundError(ArithmeticError):
   pass
@@ -48,3 +48,22 @@ def legendre_symbol(a, p):
   if d == p-1:
     return -1
   return 1
+
+def is_prime(x):
+  try:
+    import gmpy
+    return gmpy.is_prime(x) >= 1
+  except:
+    return miller_rabin(x)
+
+def miller_rabin(x):
+  s = 0
+  while (x-1) % 2**(s+1) == 0:
+    s += 1
+  d = x / (2**s)
+  prime = 0
+  for i in xrange(10): # k = 10
+    a = random.randint(1, x-1)
+    if not (pow(a, d, x) != 1 and all([pow(a, 2**r * d, x) != x-1 for r in xrange(0, s)])):
+      prime += 1
+  return prime > 6
