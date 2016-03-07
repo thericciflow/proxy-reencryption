@@ -83,6 +83,7 @@ if __name__ == "__main__":
   Q = E(121, 387)
   S = E(0, 36)
 
+  assert_eq(E.embedding_degree(m), 1)
   assert_eq(miller(E, P, Q+S, m), 103)
   assert_eq(miller(E, P, S, m), 219)
   assert_eq(miller(E, Q, P-S, m), 284)

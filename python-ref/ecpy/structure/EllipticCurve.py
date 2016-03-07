@@ -1,6 +1,6 @@
 from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from RealField import RR
-from ..util import modinv,ModinvNotFoundError,legendre_symbol
+from ..util import modinv,ModinvNotFoundError,legendre_symbol, gcd
 from random import randint
 
 class EllipticCurve(AdditiveGroup):
@@ -62,6 +62,12 @@ class EllipticCurve(AdditiveGroup):
       y = randint(0, s.field.order())
       if s._is_on_curve(x, y):
         return s.element_class(s, x, y)
+
+  def embedding_degree(s, m):
+    k = 1
+    while True:
+      if (s.field.p ** k - 1) % m == 0:
+        return k
 
 class EllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y):
