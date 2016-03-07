@@ -89,6 +89,7 @@ if __name__ == "__main__":
   assert_eq(miller(E, Q, P-S, m), 284)
   assert_eq(miller(E, Q, -S, m), 204)
   assert_eq(weil_pairing(E, P, Q, m, S), 242)
+  assert_eq(tate_pairing(E, P, Q, m), 279)
 
   for x in xrange(10):
     print "Random Point:", E.random_point()
