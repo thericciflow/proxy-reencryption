@@ -6,10 +6,10 @@ class Field:
     s.element_class = element_class
 
   def __repr__(s):
-    return "Field()"
+    return "%s()" % s.__class__.__name__
 
   def __str__(s):
-    return "Field"
+    return "%s" % s.__class__.__name__
 
   def __call__(s, *x):
     return s.element_class(s, *x)
@@ -47,14 +47,14 @@ class FieldElement:
     return s.field._ord(s.x)
 
   def __add__(s, rhs):
-    if isinstance(rhs, FieldElement):
+    if isinstance(rhs, s.__class__):
       d = rhs.x
     else:
       d = rhs
     return s.field._add(s.x, d)
 
   def __sub__(s, rhs):
-    if isinstance(rhs, FieldElement):
+    if isinstance(rhs, s.__class__):
       d = (-rhs).x
     else:
       d = -rhs
@@ -64,21 +64,21 @@ class FieldElement:
     return s.field._neg(s.x)
 
   def __mul__(s, rhs):
-    if isinstance(rhs, FieldElement):
+    if isinstance(rhs, s.__class__):
       d = rhs.x
     else:
       d = rhs
     return s.field._mul(s.x, d)
 
   def __div__(s, rhs):
-    if isinstance(rhs, FieldElement):
+    if isinstance(rhs, s.__class__):
       d = rhs.x
     else:
       d = rhs
     return s.field._mul(s.field._inv(d).x, s.x)
 
   def __rdiv__(s, lhs):
-    if isinstance(lhs, FieldElement):
+    if isinstance(lhs, s.__class__):
       d = lhs.x
     else:
       d = lhs
@@ -87,7 +87,7 @@ class FieldElement:
   def __pow__(s, rhs):
     if rhs == 0:
       return s.__class__(s.field, 1)
-    if isinstance(rhs, FieldElement):
+    if isinstance(rhs, s.__class__):
       d = rhs.x
     else:
       d = rhs
@@ -116,7 +116,7 @@ class FieldElement:
     return not (s == rhs)
 
   def __eq__(s, rhs):
-    if isinstance(rhs, FieldElement):
+    if isinstance(rhs, s.__class__):
       d = rhs.x
     else:
       d = rhs

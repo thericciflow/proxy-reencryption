@@ -7,7 +7,7 @@ wa_count = 0
 def _assert(a, b, msg, cond):
   global ac_count, wa_count
   msg = msg.ljust(16)
-  print ("[+] %s: %r %s %r..." % (msg, a, cond, b)).ljust(100),
+  print ("[+] %s: %r %s %r..." % (msg, a, cond, b)).ljust(140),
   var = {"a":a, "b":b}
   if eval("a %s b" % cond, var):
     print "\x1b[33m[  OK  ]\x1b[0m"
@@ -106,6 +106,14 @@ if __name__ == "__main__":
   Q = E(2609506039090139098835068603396546214836589143940493046, 8637771092812212464887027788957801177574860926032421582)
 
   assert_eq(SSSA_Attack(F, E, P, Q), 6418297401790414921245298353021109182464447715712434176, "SSSA-Attack")
+
+  z = CC(1, 2) # 1+2i
+  w = CC(5, 1) # 5+i
+  print "z, w = %r, %r" % (z, w)
+  assert_eq(z+w, CC(6, 3), "z+w")
+  assert_eq(z-w, CC(-4, 1), "z-w")
+  assert_eq(z*w, CC(3, 11), "z*w")
+  assert_eq(z/w, CC(0.2692307692307693, 0.34615384615384615), "z/w")
 
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
