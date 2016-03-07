@@ -127,3 +127,9 @@ class FieldElement:
 
   def __str__(s):
     return "%s" % s.x
+
+  def int(s):
+    return int(s.x)
+
+  def __int__(s):
+    return s.int()

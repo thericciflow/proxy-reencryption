@@ -78,11 +78,14 @@ class EllipticCurvePoint(AdditiveGroupElement):
 
   def line_coeff(s, Q):
     P = s
-    if P.x == Q.x:
-      l = (3*P.x**2 + P.group.a) * s.group.field._inv(2*P.y).x
+    F = s.group.field
+    x1, y1 = F(P.x), F(P.y)
+    x2, y2 = F(Q.x), F(Q.y)
+    if x1 == x2:
+      l = (3*x1**2 + s.group.a) / (2*y1)
     else:
-      l = (Q.y-P.y) * s.group.field._inv(Q.x - P.x).x
-    return s.group.field(l).x
+      l = (y2-y1) / (x2 - x1)
+    return l
 
   def __add__(s, rhs):
     if isinstance(rhs, EllipticCurvePoint):

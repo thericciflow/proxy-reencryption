@@ -1,7 +1,7 @@
 from ..abstract.Field import Field, FieldElement
 from ..util import gcd, lcm
 
-class RealField(Field):
+class RationalField(Field):
   def __init__(s):
     Field.__init__(s, RationalFieldElement)
 
@@ -102,7 +102,7 @@ class RationalFieldElement(FieldElement):
     return "%s/%s" % (s.p, s.q)
 
 def QQ(p, q):
-  return RealField()(p, q)
+  return RationalField()(p, q)
 
 if __name__ == "__main__":
   q = QQ(1, 2)
