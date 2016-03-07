@@ -87,7 +87,9 @@ if __name__ == "__main__":
   assert_eq(miller(E, P, S, m), 219)
   assert_eq(miller(E, Q, P-S, m), 284)
   assert_eq(miller(E, Q, -S, m), 204)
+  assert_eq(weil_pairing(E, P, Q, m, S), 242)
 
-
+  for x in xrange(10):
+    print "Random Point:", E.random_point()
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

@@ -6,4 +6,5 @@ from .structure.EllipticCurve import EllipticCurve
 from .structure.FiniteField import FiniteField
 from .structure.Zmod import Zmod
 from .algorithm.Miller import miller
+from .algorithm.weil_pairing import weil_pairing
 import util

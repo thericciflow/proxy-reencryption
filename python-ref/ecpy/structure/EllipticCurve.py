@@ -13,7 +13,10 @@ class EllipticCurve(AdditiveGroup):
     s.O.infinity = True
 
   def is_on_curve(s, point):
-    return s.field(point.y) ** 2 == s.field(point.x) ** 3 + s.field(s.a) * s.field(point.x) + s.field(s.b)
+    return s._is_on_curve(point.x, point.y)
+
+  def _is_on_curve(s, x, y):
+    return s.field(y) ** 2 == s.field(x) ** 3 + s.field(s.a) * s.field(x) + s.field(s.b)
 
   def determinant(s):
     return -16*(4*s.a**3 + 27*s.b**2)
@@ -52,6 +55,13 @@ class EllipticCurve(AdditiveGroup):
 
   def _neg(s, P):
     return s.element_class(s, P[0], -P[1])
+
+  def random_point(s):
+    while True:
+      x = randint(0, s.field.order())
+      y = randint(0, s.field.order())
+      if s._is_on_curve(x, y):
+        return s.element_class(s, x, y)
 
 class EllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y):
@@ -147,6 +157,8 @@ class EllipticCurvePoint(AdditiveGroupElement):
     elif isinstance(rhs, tuple):
       d = rhs
     else:
+      if rhs == None:
+        return False
       raise ArithmeticError("Invalid Parameter")
     return s.group._equ((s.x, s.y), d)
 
