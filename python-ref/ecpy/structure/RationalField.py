@@ -48,51 +48,6 @@ class RationalFieldElement(FieldElement):
   def __repr__(s):
     return "%r(%r, %r)" % (s.field, s.p, s.q)
 
-  def __add__(s, rhs):
-    if isinstance(rhs, RationalFieldElement):
-      d = (rhs.p, rhs.q)
-    else:
-      d = s.field(rhs, 1)
-      d = (s.p, s.q)
-    return s.field._add(s.x, d)
-
-  def __sub__(s, rhs):
-    if isinstance(rhs, RationalFieldElement):
-      d = ((-rhs).p, (-rhs).q)
-    else:
-      d = s.field(-rhs, 1)
-      d = (s.p, s.q)
-    return s.field._add(s.x, d)
-
-  def __neg__(s):
-    return s.field._neg((s.p, s.q))
-
-  def __mul__(s, rhs):
-    if isinstance(rhs, RationalFieldElement):
-      d = (rhs.p, rhs.q)
-    else:
-      d = s.field(rhs, 1)
-      d = (d.p, d.q)
-    return s.field._mul(d, (s.p, s.q))
-
-  def __div__(s, rhs):
-    if isinstance(rhs, RationalFieldElement):
-      d = (rhs.p, rhs.q)
-    else:
-      d = s.field(rhs, 1)
-      d = (d.p, d.q)
-    d = s.field._inv(d)
-    return s.field._mul((d.p, d.q), (s.p, s.q))
-
-  def __rdiv__(s, lhs):
-    if isinstance(lhs, RationalFieldElement):
-      d = (lhs.p, lhs.q)
-    else:
-      d = s.field(lhs, 1)
-      d = (d.p, d.q)
-    sf = s.field._inv((s.p, s.q))
-    return s.field._mul(d, (sf.p, sf.q))
-
   def __mod__(s, rhs):
     return s.field(s.p % rhs, s.q % rhs)
 
@@ -101,13 +56,16 @@ class RationalFieldElement(FieldElement):
       return "%s" % s.p
     return "%s/%s" % (s.p, s.q)
 
+  def __iter__(s):
+    return (s.p, s.q).__iter__()
+
+  def _to_tuple(s, d):
+    if isinstance(d, s.__class__):
+      return tuple(d)
+    elif isinstance(d, tuple):
+      return d
+    else:
+      return (d, 1)
+
 def QQ(p, q):
   return RationalField()(p, q)
-
-if __name__ == "__main__":
-  q = QQ(1, 2)
-  print q
-  print repr(q)
-  print q.int()
-  print q.real()
-  print 1/q

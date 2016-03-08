@@ -31,16 +31,3 @@ class RealFieldElement(FieldElement):
 
 def RR(x):
   return RealField()(x)
-
-if __name__ == "__main__":
-  RR = RealField()
-  print RR
-  a = RR(1)
-  b = RR(2)
-  print a
-  print b
-  print a+b
-  print a*b
-  print "%r" % (a+b)
-  print RR(5) * RR(65537)
-  print RR(123.456) / 3

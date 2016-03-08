@@ -68,6 +68,7 @@ class EllipticCurve(AdditiveGroup):
     while True:
       if (s.field.p ** k - 1) % m == 0:
         return k
+      k += 1
 
 class EllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y):
@@ -104,32 +105,21 @@ class EllipticCurvePoint(AdditiveGroupElement):
     return l
 
   def __add__(s, rhs):
-    if isinstance(rhs, EllipticCurvePoint):
-      if rhs.is_infinity():
+    if isinstance(rhs, EllipticCurvePoint) and rhs.is_infinity():
         return s
-      d = (rhs.x, rhs.y)
-    elif isinstance(rhs, tuple):
-      d = rhs
-    else:
-      raise ArithmeticError("Invalid Parameter")
+    d = s._to_tuple(rhs)
     if s.is_infinity():
       return s.__class__(s.group, d[0], d[1])
     else:
-      return s.group._add((s.x, s.y), d)
+      return s.group._add(tuple(s), d)
 
   def __sub__(s, rhs):
-    if isinstance(rhs, EllipticCurvePoint):
-      d = ((-rhs).x, (-rhs).y)
-    elif isinstance(rhs, tuple):
-      d = -rhs
-    else:
-      raise ArithmeticError("Invalid Parameter")
-    return s.group._add((s.x, s.y), d)
+    return s.group._add(tuple(s), s._to_tuple(-rhs))
 
   def __mul__(s, rhs):
     if rhs == 0:
       return s.group.O
-    d = rhs
+    d = int(rhs)
     bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
     x = s
     if bits[0]:
@@ -143,7 +133,7 @@ class EllipticCurvePoint(AdditiveGroupElement):
     return res
 
   def __neg__(s):
-    return s.group._neg((s.x, s.y))
+    return s.group._neg(tuple(s))
 
   def __radd__(s, lhs):
     return s + lhs
@@ -160,13 +150,18 @@ class EllipticCurvePoint(AdditiveGroupElement):
   def __eq__(s, rhs):
     if rhs == None:
       return False
-    if isinstance(rhs, AdditiveGroupElement):
-      d = (rhs.x, rhs.y)
-    elif isinstance(rhs, tuple):
-      d = rhs
+    return s.group._equ(tuple(s), s._to_tuple(rhs))
+
+  def _to_tuple(s, d):
+    if isinstance(d, s.__class__):
+      return tuple(d)
+    elif isinstance(d, tuple):
+      return d
     else:
       raise ArithmeticError("Invalid Parameter")
-    return s.group._equ((s.x, s.y), d)
+
+  def __iter__(s):
+    return (s.x, s.y).__iter__()
 
   def __repr__(s):
     if s.infinity:
