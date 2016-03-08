@@ -9,7 +9,7 @@ class Field:
     return "%s()" % s.__class__.__name__
 
   def __str__(s):
-    return "%s" % s.__class__.__name__
+    return s.__class__.__name__
 
   def __call__(s, *x):
     return s.element_class(s, *x)
@@ -41,56 +41,36 @@ class FieldElement:
     s.x = x
 
   def change_field(s, _field):
-    return s.__class__(_field, s.x)
+    return s.__class__(_field, *tuple(s))
 
   def order(s):
-    return s.field._ord(s.x)
+    return s.field._ord(tuple(s))
+
+  def int(s):
+    return int(s.x)
 
   def __add__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = rhs.x
-    else:
-      d = rhs
-    return s.field._add(s.x, d)
+    return s.field._add(tuple(s), s._to_tuple(rhs))
 
   def __sub__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = (-rhs).x
-    else:
-      d = -rhs
-    return s.field._add(s.x, d)
+    return s.field._add(tuple(s), s._to_tuple(rhs))
 
   def __neg__(s):
-    return s.field._neg(s.x)
+    return s.field._neg(tuple(s))
 
   def __mul__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = rhs.x
-    else:
-      d = rhs
-    return s.field._mul(s.x, d)
+    return s.field._mul(tuple(s), s._to_tuple(rhs))
 
   def __div__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = rhs.x
-    else:
-      d = rhs
-    return s.field._mul(s.field._inv(d).x, s.x)
+    return s.field._mul(tuple(s.field._inv(s._to_tuple(rhs))), tuple(s))
 
   def __rdiv__(s, lhs):
-    if isinstance(lhs, s.__class__):
-      d = lhs.x
-    else:
-      d = lhs
-    return s.field._mul(d, s.field._inv(s.x).x)
+    return s.field._mul(s._to_tuple(lhs), tuple(s.field._inv(tuple(s))))
 
   def __pow__(s, rhs):
     if rhs == 0:
       return s.__class__(s.field, 1)
-    if isinstance(rhs, s.__class__):
-      d = rhs.x
-    else:
-      d = rhs
+    d = int(rhs)
     bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
     x = s
     if bits[0]:
@@ -116,11 +96,7 @@ class FieldElement:
     return not (s == rhs)
 
   def __eq__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = rhs.x
-    else:
-      d = rhs
-    return s.field._equ(s.x, d)
+    return s.field._equ(tuple(s.x), s._to_tuple(rhs))
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)
@@ -128,8 +104,16 @@ class FieldElement:
   def __str__(s):
     return "%s" % s.x
 
-  def int(s):
-    return int(s.x)
+  def _to_tuple(s, d):
+    if isinstance(d, s.__class__):
+      return tuple(d)
+    elif isinstance(d, tuple):
+      return d
+    else:
+      return (d, )
+
+  def __iter__(s):
+    return (s.x, ).__iter__()
 
   def __int__(s):
     return s.int()

@@ -35,24 +35,16 @@ class AdditiveGroupElement:
     s.x = x
 
   def change_group(s, _group):
-    return s.__class__(_group, s.x)
+    return s.__class__(_group, *tuple(s))
 
   def order(s):
-    return s.group._ord(s.x)
+    return s.group._ord(tuple(s))
 
   def __add__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = rhs.x
-    else:
-      d = rhs
-    return s.group._add(s.x, d)
+    return s.group._add(tuple(s), s._to_tuple(rhs))
 
   def __sub__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = (-rhs).x
-    else:
-      d = -rhs
-    return s.group._add(s.x, d)
+    return s.group._add(tuple(s), s._to_tuple(-rhs))
 
   def __neg__(s):
     return s.group._neg(s.x)
@@ -67,14 +59,21 @@ class AdditiveGroupElement:
     return not (s == rhs)
 
   def __eq__(s, rhs):
-    if isinstance(rhs, s.__class__):
-      d = rhs.x
-    else:
-      d = rhs
-    return s.group._equ(s.x, d)
+    return s.group._equ(tuple(s), s._to_tuple(rhs))
 
   def __repr__(s):
     return "%r(%s)" % (s.group, s.x)
 
   def __str__(s):
     return "%s" % s.x
+
+  def _to_tuple(s, d):
+    if isinstance(d, s.__class__):
+      return tuple(d)
+    elif isinstance(d, tuple):
+      return d
+    else:
+      return (d, )
+
+  def __iter__(s):
+    return (s.x, ).__iter__()
