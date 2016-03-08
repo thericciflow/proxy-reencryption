@@ -7,8 +7,7 @@ import math
 class ExtendedFiniteField(FiniteField):
   def __init__(s, p):
     FiniteField.__init__(s, p)
-    s.n = s.p ** 2
-    s.p = s.n
+    s.p = p
     Field.__init__(s, ExtendedFiniteFieldElement)
 
   def __str__(s):
@@ -31,8 +30,13 @@ class ExtendedFiniteField(FiniteField):
     u = s._inv([c**2 + d**2])
     return s.element_class(s, (a*c + b*d)*u, (b*c-a*d)*u)
 
+  def degree(s):
+    return 2
+
 class ExtendedFiniteFieldElement(FiniteFieldElement):
   def __init__(s, field, x, y=0):
+    if isinstance(x, s.__class__):
+      x, y = x.x, x.y
     FiniteFieldElement.__init__(s, field, y)
     s.y = s.x
     FiniteFieldElement.__init__(s, field, x)
@@ -41,7 +45,16 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
     return "%r(%r, %r)" % (s.field, s.x, s.y)
 
   def __str__(s):
-    return "%r + %ri" % (s.x, s.y)
+    res = ""
+    if s.x != 0:
+      res += "%r" % s.x
+    if s.y != 0:
+      if s.x != 0:
+        res += " + "
+      if s.y != 1:
+        res += "%r" % s.y
+      res += "i"
+    return res
 
   def __add__(s, rhs):
     return s.field._add(tuple(s), s._to_tuple(rhs))

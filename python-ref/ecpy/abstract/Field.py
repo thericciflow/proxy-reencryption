@@ -29,11 +29,17 @@ class Field:
   def _equ(s, a, b):
     raise NotImplementedError()
 
+  def _mod(s, a, b):
+    raise NotImplementedError()
+
   def order(s):
     return 0
 
   def _ord(s, a):
     return 0
+
+  def degree(s):
+    return 1
 
 class FieldElement:
   def __init__(s, field, x):
@@ -82,6 +88,12 @@ class FieldElement:
       if cur:
         res *= x
     return res
+
+  def __mod__(s, rhs):
+    return s.field._mod(tuple(s), s._to_tuple(lhs))
+
+  def __rmod__(s, rhs):
+    return s.field._mod(s._to_tuple(lhs), tuple(s))
 
   def __radd__(s, lhs):
     return s + lhs

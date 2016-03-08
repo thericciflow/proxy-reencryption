@@ -101,9 +101,6 @@ if __name__ == "__main__":
   assert_eq(weil_pairing(E, P, Q, m, S), 242, "weil_pairing")
   assert_eq(tate_pairing(E, P, Q, m), 279, "tate_pairing")
 
-  for x in xrange(10):
-    print "Random Point:", E.random_point()
-
   print "[+] SSSA-Attack"
   F = FiniteField(16857450949524777441941817393974784044780411511252189319)
 
@@ -125,9 +122,14 @@ if __name__ == "__main__":
   assert_eq(z*w, CC(3, 11), "z*w")
   assert_eq(z/w, CC(0.2692307692307693, 0.34615384615384615), "z/w")
 
-  F = ExtendedFiniteField(631)
-  print F
-  a = F(1, 3)
-  print a
+  F = ExtendedFiniteField(59)
+  a = F(0, 1)
+  E = EllipticCurve(F, 1, 0)
+  P = E(25, 30)
+  assert_eq(tuple(P), (25, 30, 1), "extended field EC")
+  Q = P.distorsion_map()
+  assert_eq(tuple(Q), (F(34), F(0, 30), 1), "extended field EC 2")
+  print Q.distorsion_map().distorsion_map()
+  assert_eq(Q.distorsion_map(), P, "distorsion map")
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

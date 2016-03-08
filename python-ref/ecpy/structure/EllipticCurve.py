@@ -13,9 +13,9 @@ class EllipticCurve(AdditiveGroup):
     s.O.infinity = True
 
   def is_on_curve(s, point):
-    return s._is_on_curve(point.x, point.y, point.z)
+    return s._is_on_curve(point.x, point.y)
 
-  def _is_on_curve(s, x, y, z=1):
+  def _is_on_curve(s, x, y):
     return s.field(y) ** 2 == s.field(x) ** 3 + s.field(s.a) * s.field(x) + s.field(s.b)
 
   def determinant(s):
@@ -88,15 +88,43 @@ class EllipticCurve(AdditiveGroup):
 
 class EllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y, z = 1):
-    AdditiveGroupElement.__init__(s, group, x)
-    s.y = y
-    s.z = z
+    if isinstance(x, tuple):
+      AdditiveGroupElement.__init__(s, group, None)
+      s.x = group.field(*x)
+    else:
+      AdditiveGroupElement.__init__(s, group, x)
+      s.x = x
+    if isinstance(y, tuple):
+      s.y = group.field(*y)
+    else:
+      s.y = y
+    if isinstance(z, tuple):
+      s.z = group.field(*z)
+    else:
+      s.z = z
     s.infinity = (x, y, z) == (0, 1, 0)
     if not (s.infinity or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
 
   def is_infinity(s):
     return s.infinity
+
+  def distorsion_map(s):
+    if s.group.field.degree() == 2:
+      x = s.x
+      y = s.y
+      if isinstance(x, int) or isinstance(x, long):
+        x = (x, 0)
+      else:
+        x = tuple(x)
+      if isinstance(y, int) or isinstance(y, long):
+        y = (y, 0)
+      else:
+        y = tuple(y)
+
+      x = (-x[0], -x[1])
+      y = (y[1], y[0])
+      return s.__class__(s.group, x, y)
 
   def order(s):
     i = 1
