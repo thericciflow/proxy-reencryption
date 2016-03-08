@@ -53,7 +53,7 @@ class FieldElement:
     return s.field._add(tuple(s), s._to_tuple(rhs))
 
   def __sub__(s, rhs):
-    return s.field._add(tuple(s), s._to_tuple(rhs))
+    return s.field._add(tuple(s), s._to_tuple(-rhs))
 
   def __neg__(s):
     return s.field._neg(tuple(s))
@@ -96,7 +96,7 @@ class FieldElement:
     return not (s == rhs)
 
   def __eq__(s, rhs):
-    return s.field._equ(tuple(s.x), s._to_tuple(rhs))
+    return s.field._equ(tuple(s), s._to_tuple(rhs))
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)

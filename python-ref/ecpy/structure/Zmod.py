@@ -21,6 +21,7 @@ class Zmod(Field):
     return s.n - 1
 
   def _ord(s, a):
+    a = a[0]
     i = 1
     while i <= s.order():
       if s.element_class(s, a)**i == 1:
@@ -29,19 +30,19 @@ class Zmod(Field):
     return 0
 
   def _add(s, a, b):
-    return s.element_class(s, a+b)
+    return s.element_class(s, a[0]+b[0])
 
   def _mul(s, a, b):
-    return s.element_class(s, a*b)
+    return s.element_class(s, a[0]*b[0])
 
   def _inv(s, a):
-    return s.element_class(s, modinv(a, s.n))
+    return s.element_class(s, modinv(a[0], s.n))
 
   def _neg(s, a):
-    return s.element_class(s, s.n-a)
+    return s.element_class(s, s.n-a[0])
 
   def _equ(s, a, b):
-    return a == b
+    return a[0] == b[0]
 
 class ZmodElement(FieldElement):
   def __init__(s, field, x):
