@@ -66,13 +66,21 @@ if __name__ == "__main__":
   assert_eq(2*P, E(0, 0), "2*P")
   assert_eq(P.order(), 4, "|P| = 4")
 
-  print "Random Test: modinv"
+  print "Random Test: "
   i = 0
   while i < 10:
-    r = randint(-50, 50)
-    if r == 0:
-      continue
-    assert_eq((util.modinv(r, 101) * r) % 101, 1, "random: %d" % r)
+    while True:
+      r = randint(-50, 50)
+      if r != 0:
+        break
+    print "[+] random 1 = %d" % r
+    assert_eq((util.modinv(r, 101) * r) % 101, 1, "modinv")
+    while True:
+      q = randint(-50, 50)
+      if q != 0:
+        break
+    print "[+] random 2 = %d" % q
+    assert_eq(r*(q*P), q*(r*P), "ECDH test")
     i += 1
 
   # The arithmetic of elliptic curves: p.397 example of miller algorithm
