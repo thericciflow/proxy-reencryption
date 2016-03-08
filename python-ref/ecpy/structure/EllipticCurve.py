@@ -44,7 +44,7 @@ class EllipticCurve(AdditiveGroup):
     Qx, Qy, Qz = map(int, Q)
     Rx, Ry, Rz = (0, 1, 0)
     try:
-      if Px != Qx:
+      if not s._equ(P, Q):
         u = Qy*Pz - Py*Qz
         v = Qx*Pz - Px*Qz
         w = u**2 * Pz * Qz - v**2 * (v + 2*Px*Qz)
@@ -67,7 +67,7 @@ class EllipticCurve(AdditiveGroup):
       return s.O
 
   def _equ(s, P, Q):
-    return (P[0] == Q[0]) and (P[1] == Q[1]) and (P[2] == Q[2])
+    return P[0] * Q[1] == P[1] * Q[0]
 
   def _neg(s, P):
     return s.element_class(s, P[0], -P[1])

@@ -8,4 +8,5 @@ from .structure.Zmod import Zmod
 from .algorithm.pairing import miller, weil_pairing, tate_pairing
 from .algorithm.sssa_attack import SSSA_Attack
 from .structure.ComplexField import CC
+from .structure.ExtendedFiniteField import ExtendedFiniteField
 import util

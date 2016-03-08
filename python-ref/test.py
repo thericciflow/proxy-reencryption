@@ -125,5 +125,9 @@ if __name__ == "__main__":
   assert_eq(z*w, CC(3, 11), "z*w")
   assert_eq(z/w, CC(0.2692307692307693, 0.34615384615384615), "z/w")
 
+  F = ExtendedFiniteField(631)
+  print F
+  a = F(1, 3)
+  print a
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
