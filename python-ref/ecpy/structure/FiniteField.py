@@ -1,56 +1,18 @@
 import math
 from ..util import egcd, gcd, modinv, is_prime
 from ..abstract.Field import Field, FieldElement
+from Zmod import Zmod, ZmodElement
 
-class FiniteField(Field):
+class FiniteField(Zmod):
   def __init__(s, p):
-    Field.__init__(s, FiniteFieldElement)
-    s.p = p
-    if not is_prime(p):
+    Zmod.__init__(s, p)
+    if s.element_class != FiniteFieldElement:
       raise ArithmeticError("Invalid Prime : %d" % p)
-
-  def __repr__(s):
-    return "FiniteField(%s)" % s.p
+    s.p = p
 
   def __str__(s):
-    return "Finite Field : p = %d" % s.p
+    return Zmod.__str__(s, "p")
 
-  def order(s):
-    return s.p - 1
-
-  def _ord(s, a):
-    i = 1
-    while i <= s.order():
-      if s.element_class(s, a)**i == 1:
-        return i
-      i += 1
-    return 0
-
-  def _add(s, a, b):
-    return s.element_class(s, a+b)
-
-  def _mul(s, a, b):
-    return s.element_class(s, a*b)
-
-  def _inv(s, a):
-    return s.element_class(s, modinv(a, s.p))
-
-  def _neg(s, a):
-    return s.element_class(s, s.p-a)
-
-  def _equ(s, a, b):
-    return a == b
-
-class FiniteFieldElement(FieldElement):
+class FiniteFieldElement(ZmodElement):
   def __init__(s, field, x):
-    FieldElement.__init__(s, field, x)
-    if isinstance(x, s.__class__):
-      s.x = x.x % field.p
-    else:
-      s.x = x % field.p
-
-  def __repr__(s):
-    return "%r(%s)" % (s.field, s.x)
-
-  def __str__(s):
-    return "%s" % s.x
+    ZmodElement.__init__(s, field, x)

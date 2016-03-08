@@ -28,9 +28,11 @@ if __name__ == "__main__":
   y = F(203)
   assert_neq(x, 1, "x != 1")
   assert_eq(x, 2, "x == 2")
+
   F = FiniteField(5)
   x = F(3)
   y = F(7) # = 2
+  print F
   print "[+] x, y = %s, %s" % (x, y)
   assert_eq(x+y, F(0), "x+y == F(0)")
   assert_eq(x+y, 0, "x+y == 0")

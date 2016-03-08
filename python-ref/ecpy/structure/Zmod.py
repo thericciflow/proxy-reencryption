@@ -1,21 +1,21 @@
 import math
 from ..util import egcd, gcd, modinv, is_prime
 from ..abstract.Field import Field, FieldElement
-from .FiniteField import FiniteFieldElement
+import FiniteField
 
 class Zmod(Field):
   def __init__(s, n):
     if is_prime(n):
-      Field.__init__(s, FiniteFieldElement)
+      Field.__init__(s, FiniteField.FiniteFieldElement)
     else:
       Field.__init__(s, ZmodElement)
     s.n = n
 
   def __repr__(s):
-    return "Zmod(%s)" % s.n
+    return "%s(%s)" % (s.__class__.__name__, s.n)
 
-  def __str__(s):
-    return "Zmod : n = %d" % s.n
+  def __str__(s, var="n"):
+    return "%s : %s = %d" % (s.__class__.__name__, var, s.n)
 
   def order(s):
     return s.n - 1
@@ -46,7 +46,10 @@ class Zmod(Field):
 class ZmodElement(FieldElement):
   def __init__(s, field, x):
     FieldElement.__init__(s, field, x)
-    s.x = x % field.n
+    if isinstance(x, s.__class__):
+      s.x = x.x % field.n
+    else:
+      s.x = x % field.n
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)
