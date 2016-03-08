@@ -5,13 +5,17 @@ from .Zmod import Zmod
 import math
 
 class ExtendedFiniteField(FiniteField):
-  def __init__(s, p):
+  def __init__(s, p, degree=2):
+    if degree == 2:
+      assert p % 4 == 3
+    elif degree == 3:
+      assert p % 3 == 2
     FiniteField.__init__(s, p)
-    s.p = p
+    s.degree = degree
     Field.__init__(s, ExtendedFiniteFieldElement)
 
   def __str__(s):
-    return Zmod.__str__(s, "p^2")
+    return Zmod.__str__(s, "p^%d" % s.degree)
 
   def _add(s, a, b):
     return s.element_class(s, a[0] + b[0], a[1] + b[1])
@@ -87,7 +91,4 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
       return d
     else:
       return (d, d)
-
-def GF2(p, x, y=0):
-  return ExtendedFiniteField(p)(x, y)
 

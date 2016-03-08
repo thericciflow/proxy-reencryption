@@ -49,10 +49,6 @@ def legendre_symbol(a, p):
   return 1
 
 def is_prime(x):
-  try:
-    import gmpy
-    return gmpy.is_prime(x) >= 1
-  except:
     return miller_rabin(x)
 
 def miller_rabin(x):

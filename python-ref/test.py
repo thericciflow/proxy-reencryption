@@ -129,7 +129,6 @@ if __name__ == "__main__":
   assert_eq(tuple(P), (25, 30, 1), "extended field EC")
   Q = P.distorsion_map()
   assert_eq(tuple(Q), (F(34), F(0, 30), 1), "extended field EC 2")
-  print Q.distorsion_map().distorsion_map()
   assert_eq(Q.distorsion_map(), P, "distorsion map")
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
