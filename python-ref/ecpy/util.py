@@ -59,3 +59,48 @@ def is_prime(x):
     if not (pow(a, d, x) != 1 and all([pow(a, 2**r * d, x) != x-1 for r in xrange(0, s)])):
       prime += 1
   return prime > 6
+
+def modular_square_root(a, m):
+  if m == 2:
+    return a
+  if m % 4 == 3:
+    r = pow(a, (m+1) / 4, m)
+    return [r, m-r]
+  if m % 8 == 5:
+    v = pow(2*a, (m-5) / 8, m)
+    i = 2*a*v**2 % m
+    r = a*v*(i-1) % m
+    return [r, m-r]
+  if m % 8 == 1:
+    e = 0
+    while True:
+      k = 2**(e+1)
+      if (m-1) % k != 0:
+        break
+      e += 1
+    q = (m-1)/2**e
+    while True:
+      x = random.randint(1, m)
+      z = pow(x, q, m)
+      if pow(z, 2**(e-1), m) != 1:
+        break
+    y = z
+    r = e
+    x = pow(a, (q-1)/2, m)
+    v = a*x % m
+    w = v*x % m
+    while True:
+      if w == 1:
+        return [v, m-v]
+      k = 0
+      while True:
+        k += 1
+        if pow(w, 2**k, m) == 1:
+          break
+      d = pow(y, 2**(r-k-1), m)
+      y = pow(d, 2, m)
+      r = k
+      v = d*v % m
+      w = w*y % m
+
+
