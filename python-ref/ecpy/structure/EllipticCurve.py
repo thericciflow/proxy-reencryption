@@ -206,7 +206,7 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
 
   def random_point(s):
     while True:
-      x = randint(0, s.field.order()+1)
+      x = s.field(*tuple([randint(0, s.field.order()+1) for _ in xrange(s.field.degree())]))
       y = s.get_corresponding_y(x)
       if y != None:
         for i in [0, 1]:
@@ -274,10 +274,13 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       raise ArithmeticError("Invalid Parameter")
 
   def order(s):
-    i = 1
+    i = 2
     #while i <= s.order():
-    while i <= s.group.field.order():
-      if (s*i).is_infinity():
+    while True:
+      r = (s*i)
+      if r == s:
+        return i
+      if r.is_infinity():
         return i
       i += 1
     return 0

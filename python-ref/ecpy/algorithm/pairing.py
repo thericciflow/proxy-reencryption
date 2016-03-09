@@ -14,7 +14,7 @@ def miller(E, P, Q, m):
 
   b = map(int, bin(m)[2:])
   s = len(b) - 1
-  assert b[s] == 1
+  assert b[0] == 1
   f = E.field(1)
   T = P
   for i in xrange(1, len(b)):

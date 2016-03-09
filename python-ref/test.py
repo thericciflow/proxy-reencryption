@@ -139,15 +139,15 @@ if __name__ == "__main__":
   F = ExtendedFiniteField(353, "x^2+x+1")
 
   E = EllipticCurve(F, 0, 1)
+  m = 118
   while True:
     P = E.random_point()
     o = P.order()
     print o
-    if o == 11:
+    if o == m:
       break
   Q = P.distortion_map()
   print P, Q
-  m = 11
   g = tate_pairing(E, P, Q, m)
 
   assert_eq(tate_pairing(E,   P, 2*Q, m), g**2, "e(P, 2Q) == g^2")
