@@ -49,9 +49,6 @@ def legendre_symbol(a, p):
   return 1
 
 def is_prime(x):
-    return miller_rabin(x)
-
-def miller_rabin(x):
   s = 0
   while (x-1) % 2**(s+1) == 0:
     s += 1

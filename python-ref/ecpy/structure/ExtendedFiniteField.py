@@ -5,17 +5,13 @@ from .Zmod import Zmod
 import math
 
 class ExtendedFiniteField(FiniteField):
-  def __init__(s, p, degree=2):
-    if degree == 2:
-      assert p % 4 == 3
-    elif degree == 3:
-      assert p % 3 == 2
+  def __init__(s, p):
+    assert p % 4 == 3
     FiniteField.__init__(s, p)
-    s.degree = degree
     Field.__init__(s, ExtendedFiniteFieldElement)
 
   def __str__(s):
-    return Zmod.__str__(s, "p^%d" % s.degree)
+    return Zmod.__str__(s, "p^%d" % s.degree) + " : Polynomial is i^2+1 = 0"
 
   def _add(s, a, b):
     return s.element_class(s, a[0] + b[0], a[1] + b[1])
@@ -59,27 +55,6 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
         res += "%r" % s.y
       res += "i"
     return res
-
-  def __add__(s, rhs):
-    return s.field._add(tuple(s), s._to_tuple(rhs))
-
-  def __sub__(s, rhs):
-    return s.field._add(tuple(s), s._to_tuple(-rhs))
-
-  def __neg__(s):
-    return s.field._neg(tuple(s))
-
-  def __mul__(s, rhs):
-    return s.field._mul(tuple(s), s._to_tuple(rhs))
-
-  def __div__(s, rhs):
-    return s.field._div(tuple(s), s._to_tuple(rhs))
-
-  def __rdiv__(s, lhs):
-    return s.field._mul(s._to_tuple(lhs), tuple(s.field._inv(tuple(s))))
-
-  def __eq__(s, rhs):
-    return s.field._equ(tuple(s), s._to_tuple(rhs))
 
   def __iter__(s):
     return (s.x, s.y).__iter__()

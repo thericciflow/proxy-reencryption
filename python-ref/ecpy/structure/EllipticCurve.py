@@ -82,7 +82,7 @@ class EllipticCurve(AdditiveGroup):
   def embedding_degree(s, m):
     k = 1
     while True:
-      if (s.field.p ** k - 1) % m == 0:
+      if (s.field.p ** (k * s.field.degree()) - 1) % m == 0:
         return k
       k += 1
 
@@ -102,12 +102,11 @@ class EllipticCurvePoint(AdditiveGroupElement):
       s.z = group.field(*z)
     else:
       s.z = z
-    s.infinity = (x, y, z) == (0, 1, 0)
-    if not (s.infinity or s.group.is_on_curve(s)):
+    if not (s.is_infinity() or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
 
   def is_infinity(s):
-    return s.infinity
+    return s.x == 0 and s.y == 1 and s.z == 0
 
   def distorsion_map(s):
     if s.group.field.degree() == 2:
@@ -180,17 +179,8 @@ class EllipticCurvePoint(AdditiveGroupElement):
   def __neg__(s):
     return s.group._neg(tuple(s))
 
-  def __radd__(s, lhs):
-    return s + lhs
-
   def __rmul__(s, lhs):
     return s * lhs
-
-  def __rsub__(s, lhs):
-    return -s + lhs
-
-  def __ne__(s, rhs):
-    return not (s == rhs)
 
   def __eq__(s, rhs):
     if rhs == None:
@@ -209,11 +199,11 @@ class EllipticCurvePoint(AdditiveGroupElement):
     return (s.x, s.y, s.z).__iter__()
 
   def __repr__(s):
-    if s.infinity:
+    if s.is_infinity():
       return "%r.O" % s.group
     return "%r(%r, %r, %r)" % (s.group, s.x, s.y, s.z)
 
   def __str__(s):
-    if s.infinity:
+    if s.is_infinity():
       return "Infinity Point (0 : 1 : 0) on %s" % s.group
     return "Point (%s : %s : %s) on %s" % (s.x, s.y, s.z, s.group)
