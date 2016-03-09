@@ -2,10 +2,19 @@ from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from ..util import modinv,ModinvNotFoundError,jacobi_symbol, gcd, modular_square_root
 from random import randint
 from RealField import RR
+from FiniteField import FiniteField
+from ExtendedFiniteField import ExtendedFiniteField
 
-class EllipticCurve(AdditiveGroup):
+
+def EllipticCurve(field, a, b):
+  if isinstance(field, FiniteField) or isinstance(field, ExtendedFiniteField):
+    return FiniteFieldEllipticCurve(field, a, b)
+  else:
+    return GenericEllipticCurve(field, a, b)
+
+class GenericEllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
-    AdditiveGroup.__init__(s, EllipticCurvePoint)
+    AdditiveGroup.__init__(s, GenericEllipticCurvePoint)
     s.field = field
     s.a = a
     s.b = b
@@ -23,13 +32,6 @@ class EllipticCurve(AdditiveGroup):
 
   def j_invariant(s):
     return -1728*((4*s.a**3) / s.determinant())
-
-  def get_corresponding_y(s, x):
-    y_square = int(s.field(x) ** 3 + s.a * x + s.b)
-    if jacobi_symbol(y_square, s.field.p) == 1:
-      print x, y_square
-      return modular_square_root(y_square, s.field.p)
-    return None
 
   def __repr__(s):
     return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
@@ -70,7 +72,7 @@ class EllipticCurve(AdditiveGroup):
       Ry = Ry * z
       Rz = Rz * z
       return s.element_class(s, int(Rx), int(Ry), int(Rz))
-    except ModinvNotFoundError:
+    except:
       return s.O
 
   def _equ(s, P, Q):
@@ -79,23 +81,7 @@ class EllipticCurve(AdditiveGroup):
   def _neg(s, P):
     return s.element_class(s, P[0], -P[1])
 
-  def embedding_degree(s, m):
-    k = 1
-    while True:
-      if (s.field.p ** (k * s.field.degree()) - 1) % m == 0:
-        return k
-      k += 1
-
-  def random_point(s):
-    while True:
-      x = randint(0, s.field.order()+1)
-      y = s.get_corresponding_y(x)
-      if y != None:
-        for i in [0, 1]:
-          if s._is_on_curve(x, y[i]):
-            return s.element_class(s, x, y[i])
-
-class EllipticCurvePoint(AdditiveGroupElement):
+class GenericEllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y, z = 1):
     if isinstance(x, tuple):
       AdditiveGroupElement.__init__(s, group, None)
@@ -116,23 +102,6 @@ class EllipticCurvePoint(AdditiveGroupElement):
 
   def is_infinity(s):
     return s.x == 0 and s.y == 1 and s.z == 0
-
-  def distorsion_map(s):
-    if s.group.field.degree() == 2:
-      x = s.x
-      y = s.y
-      if isinstance(x, int) or isinstance(x, long):
-        x = (x, 0)
-      else:
-        x = tuple(x)
-      if isinstance(y, int) or isinstance(y, long):
-        y = (y, 0)
-      else:
-        y = tuple(y)
-
-      x = (-x[0], -x[1])
-      y = (y[1], y[0])
-      return s.__class__(s.group, x, y)
 
   def order(s):
     i = 1
@@ -158,7 +127,7 @@ class EllipticCurvePoint(AdditiveGroupElement):
     return l
 
   def __add__(s, rhs):
-    if isinstance(rhs, EllipticCurvePoint) and rhs.is_infinity():
+    if isinstance(rhs, GenericEllipticCurvePoint) and rhs.is_infinity():
         return s
     d = s._to_tuple(rhs)
     if s.is_infinity():
@@ -216,3 +185,78 @@ class EllipticCurvePoint(AdditiveGroupElement):
     if s.is_infinity():
       return "Infinity Point (0 : 1 : 0) on %s" % s.group
     return "Point (%s : %s : %s) on %s" % (s.x, s.y, s.z, s.group)
+
+class FiniteFieldEllipticCurve(GenericEllipticCurve):
+  def __init__(s, field, a, b):
+    GenericEllipticCurve.__init__(s, field, a, b)
+    AdditiveGroup.__init__(s, FiniteFieldEllipticCurvePoint)
+
+  def get_corresponding_y(s, x):
+    y_square = int(s.field(x) ** 3 + s.a * x + s.b)
+    if jacobi_symbol(y_square, s.field.p) == 1:
+      return modular_square_root(y_square, s.field.p)
+    return None
+
+  def embedding_degree(s, m):
+    k = 1
+    while True:
+      if (s.field.p ** (k * s.field.degree()) - 1) % m == 0:
+        return k
+      k += 1
+
+  def random_point(s):
+    while True:
+      x = randint(0, s.field.order()+1)
+      y = s.get_corresponding_y(x)
+      if y != None:
+        for i in [0, 1]:
+          if s._is_on_curve(x, y[i]):
+            return s.element_class(s, x, y[i])
+
+class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
+  def __init__(s, group, x, y, z = 1):
+    if isinstance(x, tuple):
+      AdditiveGroupElement.__init__(s, group, None)
+      s.x = group.field(*x)
+    else:
+      AdditiveGroupElement.__init__(s, group, x)
+      s.x = x
+    if isinstance(y, tuple):
+      s.y = group.field(*y)
+    else:
+      s.y = y
+    if isinstance(z, tuple):
+      s.z = group.field(*z)
+    else:
+      s.z = z
+    if not (s.is_infinity() or s.group.is_on_curve(s)):
+      raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
+
+  def is_infinity(s):
+    return s.x == 0 and s.y == 1 and s.z == 0
+
+  def distorsion_map(s):
+    if s.group.field.degree() == 2:
+      x = s.x
+      y = s.y
+      if isinstance(x, int) or isinstance(x, long):
+        x = (x, 0)
+      else:
+        x = tuple(x)
+      if isinstance(y, int) or isinstance(y, long):
+        y = (y, 0)
+      else:
+        y = tuple(y)
+
+      x = (-x[0], -x[1])
+      y = (y[1], y[0])
+      return s.__class__(s.group, x, y)
+
+  def order(s):
+    i = 1
+    #while i <= s.order():
+    while i <= s.group.field.order():
+      if (s*i).is_infinity():
+        return i
+      i += 1
+    return 0
