@@ -1,5 +1,5 @@
 from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from ..util import modinv,ModinvNotFoundError,legendre_symbol, gcd
+from ..util import modinv,ModinvNotFoundError,jacobi_symbol, gcd, modular_square_root
 from random import randint
 from RealField import RR
 
@@ -23,6 +23,13 @@ class EllipticCurve(AdditiveGroup):
 
   def j_invariant(s):
     return -1728*((4*s.a**3) / s.determinant())
+
+  def get_corresponding_y(s, x):
+    y_square = int(s.field(x) ** 3 + s.a * x + s.b)
+    if jacobi_symbol(y_square, s.field.p) == 1:
+      print x, y_square
+      return modular_square_root(y_square, s.field.p)
+    return None
 
   def __repr__(s):
     return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
@@ -72,19 +79,21 @@ class EllipticCurve(AdditiveGroup):
   def _neg(s, P):
     return s.element_class(s, P[0], -P[1])
 
-  def random_point(s):
-    while True:
-      x = randint(0, s.field.order())
-      y = randint(0, s.field.order())
-      if s._is_on_curve(x, y):
-        return s.element_class(s, x, y)
-
   def embedding_degree(s, m):
     k = 1
     while True:
       if (s.field.p ** (k * s.field.degree()) - 1) % m == 0:
         return k
       k += 1
+
+  def random_point(s):
+    while True:
+      x = randint(0, s.field.order()+1)
+      y = s.get_corresponding_y(x)
+      if y != None:
+        for i in [0, 1]:
+          if s._is_on_curve(x, y[i]):
+            return s.element_class(s, x, y[i])
 
 class EllipticCurvePoint(AdditiveGroupElement):
   def __init__(s, group, x, y, z = 1):

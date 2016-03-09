@@ -44,6 +44,9 @@ class Zmod(Field):
   def _equ(s, a, b):
     return a[0] == b[0]
 
+  def _mod(s, a, b):
+    return s.element_class(s, a[0] % b[0])
+
 class ZmodElement(FieldElement):
   def __init__(s, field, x):
     FieldElement.__init__(s, field, x)

@@ -1,5 +1,12 @@
 import random
 
+try:
+  import gmpy
+  is_prime = gmpy.is_prime
+  print "[+] found gmpy! use gmpy.is_prime"
+except:
+  is_prime = miller_rabin
+
 class ModinvNotFoundError(ArithmeticError):
   pass
 
@@ -41,14 +48,28 @@ def crt(a, n):
   return sum(map(lambda x: (x[0]*x[1]*x[2]) % N, zip(a, nk, ik))) % lcm(*n)
 
 def legendre_symbol(a, p):
+  assert is_prime(p)
   if gcd(a, p) != 1:
     return 0
-  d = pow(a, (p-1)/2, p)
+  d = pow(a, ((p-1)/2), p)
   if d == p-1:
     return -1
   return 1
 
-def is_prime(x):
+def jacobi_symbol(a, n):
+  if is_prime(n):
+    return legendre_symbol(a, n)
+  if a == 0:
+    if n == 1:
+      return 1
+    else:
+      return 0
+    if a % 2 == 1:
+        return (-1) ** ( (a-1)*(n-1) / 4) * jacobi_symbol(n%a, a)
+    else:
+        return (-1) ** ( (n*n-1) / 8) * jacobi_symbol(a/2, n)
+
+def miller_rabin(x):
   s = 0
   while (x-1) % 2**(s+1) == 0:
     s += 1
@@ -61,6 +82,8 @@ def is_prime(x):
   return prime > 6
 
 def modular_square_root(a, m):
+  if is_prime(m):
+    return tonelli_shanks(a, m)
   if m == 2:
     return a
   if m % 4 == 3:
@@ -68,7 +91,7 @@ def modular_square_root(a, m):
     return [r, m-r]
   if m % 8 == 5:
     v = pow(2*a, (m-5) / 8, m)
-    i = 2*a*v**2 % m
+    i = pow(2*a*v, 2, m)
     r = a*v*(i-1) % m
     return [r, m-r]
   if m % 8 == 1:
@@ -103,4 +126,37 @@ def modular_square_root(a, m):
       v = d*v % m
       w = w*y % m
 
-
+def tonelli_shanks(n, p):
+  assert is_prime(p)
+  assert legendre_symbol(n, p)
+  if p % 4 == 3:
+    r = pow(n, (p+1)/4, p)
+    return [r, p-r]
+  s = 0
+  while True:
+    k = 2**(s+1)
+    if (p-1) % k != 0:
+      break
+    s += 1
+  q = (p-1)/2**s
+  while True:
+    z = random.randint(1, p)
+    if legendre_symbol(z, p) == -1:
+      break
+  c = pow(z, q, p)
+  r = pow(n, (q+1)/2, p)
+  t = pow(n, q, p)
+  m = s
+  while True:
+    if t % p == 1:
+      return [r, p-r]
+    i = 1
+    while True:
+      if pow(t, 2 ** i, p) == 1:
+        break
+      i += 1
+    b = pow(c, 2 ** (m - i - 1), p)
+    r = (r * b) % p
+    t = (t * (b**2)) % p
+    c = pow(b, 2, p)
+    m = i

@@ -95,7 +95,7 @@ class FieldElement:
   def __mod__(s, rhs):
     return s.field._mod(tuple(s), s._to_tuple(rhs))
 
-  def __rmod__(s, rhs):
+  def __rmod__(s, lhs):
     return s.field._mod(s._to_tuple(lhs), tuple(s))
 
   def __radd__(s, lhs):
