@@ -32,6 +32,9 @@ class Field:
   def _mod(s, a, b):
     raise NotImplementedError()
 
+  def _div(s, a, b):
+    return s._mul(a, tuple(s._inv(b)))
+
   def order(s):
     return 0
 
@@ -68,10 +71,10 @@ class FieldElement:
     return s.field._mul(tuple(s), s._to_tuple(rhs))
 
   def __div__(s, rhs):
-    return s.field._mul(tuple(s.field._inv(s._to_tuple(rhs))), tuple(s))
+    return s.field._div(tuple(s), s._to_tuple(rhs))
 
   def __rdiv__(s, lhs):
-    return s.field._mul(s._to_tuple(lhs), tuple(s.field._inv(tuple(s))))
+    return s.field._div(s._to_tuple(lhs), tuple(s))
 
   def __pow__(s, rhs):
     if rhs == 0:
@@ -90,7 +93,7 @@ class FieldElement:
     return res
 
   def __mod__(s, rhs):
-    return s.field._mod(tuple(s), s._to_tuple(lhs))
+    return s.field._mod(tuple(s), s._to_tuple(rhs))
 
   def __rmod__(s, rhs):
     return s.field._mod(s._to_tuple(lhs), tuple(s))

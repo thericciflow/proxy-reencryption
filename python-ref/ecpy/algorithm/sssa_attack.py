@@ -29,13 +29,13 @@ def SSSA_Attack(F, E, P, Q):
   lP = lE(x1, y1)
   lQ = lE(x2, y2)
 
-  print "[+] Lifted Curve : %s" % lE
-  print "[+] Lifted P : %r" % lP
-  print "[+] Lifted Q : %r" % lQ
+  #print "[+] Lifted Curve : %s" % lE
+  #print "[+] Lifted P : %r" % lP
+  #print "[+] Lifted Q : %r" % lQ
 
-  print "[+] Calculate U..."
+  #print "[+] Calculate U..."
   lU = (F.p - 1) * lP
-  print "[+] Calculate V..."
+  #print "[+] Calculate V..."
   lV = (F.p - 1) * lQ
 
   dx1 = ((lU.x - lP.x) / F.p) % F.p

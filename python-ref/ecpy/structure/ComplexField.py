@@ -48,24 +48,6 @@ class ComplexFieldElement(FieldElement):
   def __str__(s):
     return "%r + %ri" % (s.x, s.y)
 
-  def __add__(s, rhs):
-    return s.field._add(tuple(s), s._to_tuple(rhs))
-
-  def __sub__(s, rhs):
-    return s.field._add(tuple(s), s._to_tuple(-rhs))
-
-  def __neg__(s):
-    return s.field._neg(tuple(s))
-
-  def __mul__(s, rhs):
-    return s.field._mul(tuple(s), s._to_tuple(rhs))
-
-  def __div__(s, rhs):
-    return s.field._div(tuple(s), s._to_tuple(rhs))
-
-  def __rdiv__(s, lhs):
-    return s.field._mul(s._to_tuple(lhs), tuple(s.field._inv(tuple(s))))
-
   def __eq__(s, rhs):
     return s.field._equ(tuple(s), s._to_tuple(rhs))
 

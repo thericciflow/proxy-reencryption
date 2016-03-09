@@ -23,6 +23,8 @@ class ExtendedFiniteField(FiniteField):
     return s.element_class(s, a[0] * b[0] - a[1] * b[1], a[0]*b[1] + a[1] * b[0])
 
   def _equ(s, a, b):
+    if len(b) == 1:
+      return a[0] == b[0] and a[1] == 0
     return a[0] == b[0] and a[1] == b[1]
 
   def _div(s, z, w):

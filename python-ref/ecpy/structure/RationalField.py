@@ -32,6 +32,9 @@ class RationalField(Field):
   def _equ(s, a, b):
     return a[0] == b[0] and a[1] == b[1]
 
+  def _mod(s, a, b):
+    return s.element_class(s, a[0] % b[0], a[1] % b[0])
+
 class RationalFieldElement(FieldElement):
   def __init__(s, field, p, q):
     FieldElement.__init__(s, field, p)
@@ -47,9 +50,6 @@ class RationalFieldElement(FieldElement):
 
   def __repr__(s):
     return "%r(%r, %r)" % (s.field, s.p, s.q)
-
-  def __mod__(s, rhs):
-    return s.field(s.p % rhs, s.q % rhs)
 
   def __str__(s):
     if s.q == 1:

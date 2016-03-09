@@ -33,7 +33,7 @@ def weil_pairing(E, P, Q, m, S = None):
   fps  = miller(E, P, S, m)
   fqps = miller(E, Q, P-S, m)
   fqs  = miller(E, Q, -S, m)
-  return int((E.field._inv([fps]) * fpqs) * E.field._inv([int(E.field._inv([fqs])) * fqps]))
+  return int((E.field._inv([fps]) * fpqs) * E.field._inv(tuple(E.field._inv([fqs]) * fqps)))
 
 def tate_pairing(E, P, Q, m):
   k = E.embedding_degree(m)

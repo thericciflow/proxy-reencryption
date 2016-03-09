@@ -20,7 +20,7 @@ class RealField(Field):
     return s.element_class(s, -a)
 
   def _inv(s, a):
-    return s.element_class(s, 1/a)
+    return s.element_class(s, 1./a)
 
   def _equ(s, a, b):
     return a == b
