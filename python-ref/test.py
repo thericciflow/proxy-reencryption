@@ -7,13 +7,13 @@ wa_count = 0
 def _assert(a, b, msg, cond):
   global ac_count, wa_count
   msg = msg.ljust(16)
-  print ("[+] %s: %r %s %r..." % (msg, a, cond, b)).ljust(140),
+  print ("[+] %s..." % (msg)).ljust(30),
   var = {"a":a, "b":b}
   if eval("a %s b" % cond, var):
-    print "\x1b[33m[  OK  ]\x1b[0m"
+    print "\x1b[33m[  OK  ]\x1b[0m %r" % (b, )
     ac_count += 1
   else:
-    print "\x1b[31m[ Fail ]\x1b[0m"
+    print "\x1b[31m[ Fail ]\x1b[0m Expected: %r, Result: %r" % (b, a)
     wa_count += 1
 
 def assert_neq(a, b, m):
@@ -132,8 +132,26 @@ if __name__ == "__main__":
   E = EllipticCurve(F, 1, 0)
   P = E(25, 30)
   assert_eq(tuple(P), (25, 30, 1), "extended field EC")
-  Q = P.distorsion_map()
+  Q = P.distortion_map()
   assert_eq(tuple(Q), (F(34), F(0, 30), 1), "extended field EC 2")
-  assert_eq(Q.distorsion_map(), P, "distorsion map")
+  assert_eq(Q.distortion_map(), P, "distortion map")
+
+  F = ExtendedFiniteField(353, "x^2+x+1")
+
+  E = EllipticCurve(F, 0, 1)
+  while True:
+    P = E.random_point()
+    o = P.order()
+    print o
+    if o == 11:
+      break
+  Q = P.distortion_map()
+  print P, Q
+  m = 11
+  g = tate_pairing(E, P, Q, m)
+
+  assert_eq(tate_pairing(E,   P, 2*Q, m), g**2, "e(P, 2Q) == g^2")
+  assert_eq(tate_pairing(E, 2*P,   Q, m), g**2, "e(2P, Q) == g^2")
+  assert_eq(tate_pairing(E,   P,   Q, m)**2, g**2, "e(P, Q)^2 == g^2")
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

@@ -19,13 +19,12 @@ class GenericEllipticCurve(AdditiveGroup):
     s.a = a
     s.b = b
     s.O = s.element_class(s, 0, 1, 0)
-    s.O.infinity = True
 
   def is_on_curve(s, point):
     return s._is_on_curve(point.x, point.y)
 
   def _is_on_curve(s, x, y):
-    return s.field(y) ** 2 == s.field(x) ** 3 + s.field(s.a) * s.field(x) + s.field(s.b)
+    return s.field(y) ** 2, s.field(x) ** 3 + s.a * s.field(x) + s.b
 
   def determinant(s):
     return -16*(4*s.a**3 + 27*s.b**2)
@@ -190,6 +189,7 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
   def __init__(s, field, a, b):
     GenericEllipticCurve.__init__(s, field, a, b)
     AdditiveGroup.__init__(s, FiniteFieldEllipticCurvePoint)
+    s.O = s.element_class(s, 0, 1, 0)
 
   def get_corresponding_y(s, x):
     y_square = int(s.field(x) ** 3 + s.a * x + s.b)
@@ -230,12 +230,12 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     else:
       s.z = z
     if not (s.is_infinity() or s.group.is_on_curve(s)):
-      raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
+      raise ArithmeticError("Invalid Point: (%r, %r)" % (s.x, s.y))
 
   def is_infinity(s):
     return s.x == 0 and s.y == 1 and s.z == 0
 
-  def distorsion_map(s):
+  def distortion_map(s):
     if s.group.field.degree() == 2:
       x = s.x
       y = s.y
@@ -247,10 +247,31 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
         y = (y, 0)
       else:
         y = tuple(y)
-
       x = (-x[0], -x[1])
       y = (y[1], y[0])
       return s.__class__(s.group, x, y)
+    elif s.group.field.degree() == 3:
+      x = s.x
+      y = s.y
+      if isinstance(x, int) or isinstance(x, long):
+        x = (x, 0, 0)
+      else:
+        x = tuple(x)
+      if isinstance(y, int) or isinstance(y, long):
+        y = (y, 0, 0)
+      else:
+        y = tuple(y)
+      x = (x[2], x[0], x[1])
+      y = (y[0], y[1], y[2])
+      return s.__class__(s.group, x, y)
+
+  def _to_tuple(s, d):
+    if isinstance(d, s.__class__):
+      return tuple(d)
+    elif isinstance(d, tuple):
+      return d
+    else:
+      raise ArithmeticError("Invalid Parameter")
 
   def order(s):
     i = 1
