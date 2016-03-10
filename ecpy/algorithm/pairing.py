@@ -7,7 +7,7 @@ def miller(E, P, Q, m):
       return R.x - P.x
     p = R.y - P.y - P.line_coeff(Q) * (R.x - P.x)
     q = R.x + P.x + Q.x - P.line_coeff(Q) ** 2
-    return E.field(p) / E.field(q)
+    return E.field(p) / q
 
   if P == Q:
     return 1
@@ -33,9 +33,10 @@ def weil_pairing(E, P, Q, m, S = None):
   fps  = miller(E, P, S, m)
   fqps = miller(E, Q, P-S, m)
   fqs  = miller(E, Q, -S, m)
-  return int((E.field._inv([fps]) * fpqs) * E.field._inv(tuple(E.field._inv([fqs]) * fqps)))
+  return (E.field._inv([fps]) * fpqs) * E.field._inv(tuple(E.field._inv([fqs]) * fqps))
 
-def tate_pairing(E, P, Q, m):
-  k = E.embedding_degree(m)
+def tate_pairing(E, P, Q, m, k = None):
+  if k == None:
+    k = E.embedding_degree(m)
   f = E.field(miller(E, P, Q, m))
   return f ** (((E.field.p ** k) - 1) / m)

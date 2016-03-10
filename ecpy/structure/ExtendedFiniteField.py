@@ -2,7 +2,7 @@ from ..abstract.Field import Field, FieldElement
 from .RationalField import QQ
 from .FiniteField import FiniteField, FiniteFieldElement
 from .Zmod import Zmod
-from ..util import is_prime
+from ..util import is_prime, modinv
 import math
 
 class ExtendedFiniteField(FiniteField):
@@ -56,6 +56,9 @@ class ExtendedFiniteField(FiniteField):
       x = a**2*c-b**2*c+a**2*d+b**2*d
       y = a*b*d-b**2*c-a*b*c
       return s.element_class(s, x*u, y*u)
+
+  def _inv(s, a):
+    return s.element_class(s, modinv(a[0], s.n**2))
 
 
   def degree(s):

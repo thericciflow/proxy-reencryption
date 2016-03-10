@@ -120,7 +120,7 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     F = s.group.field
     x1, y1, z1 = map(F, tuple(P))
     x2, y2, z2 = map(F, tuple(Q))
-    if x1 == x2:
+    if x1*z2 == x2*z1:
       l = (3*x1**2 + s.group.a) / (2*y1)
     else:
       l = (y2*z1-y1*z2) / (x2*z1-x1*z2)
