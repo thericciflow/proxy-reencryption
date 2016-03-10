@@ -148,7 +148,6 @@ if __name__ == "__main__":
   F = ExtendedFiniteField(p, "x^2+x+1")
 
   E = EllipticCurve(F, 0, 1)
-  b = F(0, 1)
   i = 3
   while True:
     if E.get_corresponding_y(i) != None:
@@ -159,13 +158,18 @@ if __name__ == "__main__":
         P = 6*P
         break
     i += 1
-
-  print "P is", P
   Q = P.distortion_map()
-  g = weil_pairing(E, P, Q, m)
+  g = tate_pairing(E, P, Q, l)
 
-  assert_eq(weil_pairing(E, 2*P,   Q, m)   , g**2, "e(2P, Q) == g^2")
-  assert_eq(weil_pairing(E,   P, 2*Q, m)   , g**2, "e(P, 2Q) == g^2")
-  assert_eq(weil_pairing(E,   P,   Q, m)**2, g**2, "e(P, Q)^2 == g^2")
+  assert_eq(tate_pairing(E, 2*P,   Q, l)   , g**2, "e(2P, Q) == g^2")
+  assert_eq(tate_pairing(E,   P, 2*Q, l)   , g**2, "e(P, 2Q) == g^2")
+  assert_eq(tate_pairing(E,   P,   Q, l)**2, g**2, "e(P, Q)^2 == g^2")
+
+  g = weil_pairing(E, P, Q, l)
+
+  assert_eq(weil_pairing(E, 2*P,   Q, l)   , g**2, "e(2P, Q) == g^2")
+  assert_eq(weil_pairing(E,   P, 2*Q, l)   , g**2, "e(P, 2Q) == g^2")
+  assert_eq(weil_pairing(E,   P,   Q, l)**2, g**2, "e(P, Q)^2 == g^2")
+
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
