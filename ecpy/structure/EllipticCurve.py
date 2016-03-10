@@ -103,10 +103,11 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return s.x == 0 and s.y == 1 and s.z == 0
 
   def order(s):
-    i = 1
-    #while i <= s.order():
-    while i <= s.group.field.order():
-      if (s*i).is_infinity():
+    i = 0
+    t = s
+    while i <= s.group.field.order() ** s.group.field.degree():
+      t *= s
+      if t.is_infinity():
         return i
       i += 1
     return 0
@@ -236,7 +237,7 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     return s.x == 0 and s.y == 1 and s.z == 0
 
   def distortion_map(s):
-    if s.group.field.degree() == 2:
+    if s.group.field.t == 1:
       x = s.x
       y = s.y
       if isinstance(x, int) or isinstance(x, long):
@@ -250,19 +251,19 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       x = (-x[0], -x[1])
       y = (y[1], y[0])
       return s.__class__(s.group, x, y)
-    elif s.group.field.degree() == 3:
+    elif s.group.field.t == 2:
       x = s.x
       y = s.y
       if isinstance(x, int) or isinstance(x, long):
-        x = (x, 0, 0)
+        x = (x, 0)
       else:
         x = tuple(x)
       if isinstance(y, int) or isinstance(y, long):
-        y = (y, 0, 0)
+        y = (y, 0)
       else:
         y = tuple(y)
-      x = (x[2], x[0], x[1])
-      y = (y[0], y[1], y[2])
+      x = (x[1], x[0])
+      y = (y[0], y[1])
       return s.__class__(s.group, x, y)
 
   def _to_tuple(s, d):

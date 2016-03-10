@@ -100,6 +100,11 @@ if __name__ == "__main__":
   assert_eq(miller(E, Q, -S, m), 204, "miller(Q, -S)")
   assert_eq(weil_pairing(E, P, Q, m, S), 242, "weil_pairing")
   assert_eq(tate_pairing(E, P, Q, m), 279, "tate_pairing")
+  g = tate_pairing(E, P, Q, m)
+  print "[+] g = %s" % g
+  assert_eq(tate_pairing(E, 2*P, Q, m), g**2, "e(2P, Q) == g^2")
+  assert_eq(tate_pairing(E, P, 2*Q, m), g**2, "e(P, 2Q) == g^2")
+  assert_eq(tate_pairing(E, P, Q, m)**2, g**2, "e(P, Q)^2 == g^2")
 
   print "[+] SSSA-Attack"
   F = FiniteField(16857450949524777441941817393974784044780411511252189319)
@@ -134,24 +139,25 @@ if __name__ == "__main__":
   assert_eq(tuple(P), (25, 30, 1), "extended field EC")
   Q = P.distortion_map()
   assert_eq(tuple(Q), (F(34), F(0, 30), 1), "extended field EC 2")
+
   assert_eq(Q.distortion_map(), P, "distortion map")
 
-  F = ExtendedFiniteField(353, "x^2+x+1")
+  F = ExtendedFiniteField(7841, "x^2+x+1")
 
   E = EllipticCurve(F, 0, 1)
-  m = 118
+  m = 3
   while True:
     P = E.random_point()
     o = P.order()
     print o
-    if o == m:
+    if o % m == 0:
       break
+
   Q = P.distortion_map()
-  print P, Q
   g = tate_pairing(E, P, Q, m)
 
-  assert_eq(tate_pairing(E,   P, 2*Q, m), g**2, "e(P, 2Q) == g^2")
-  assert_eq(tate_pairing(E, 2*P,   Q, m), g**2, "e(2P, Q) == g^2")
+  assert_eq(tate_pairing(E, 2*P,   Q, m)   , g**2, "e(2P, Q) == g^2")
+  assert_eq(tate_pairing(E,   P, 2*Q, m)   , g**2, "e(P, 2Q) == g^2")
   assert_eq(tate_pairing(E,   P,   Q, m)**2, g**2, "e(P, Q)^2 == g^2")
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
