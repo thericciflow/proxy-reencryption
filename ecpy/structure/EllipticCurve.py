@@ -275,13 +275,11 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       raise ArithmeticError("Invalid Parameter")
 
   def order(s):
+    r = s.change_group(s.group)
     i = 2
-    #while i <= s.order():
     while True:
-      r = (s*i)
-      if r == s:
-        return i
       if r.is_infinity():
         return i
+      r += s
       i += 1
     return 0

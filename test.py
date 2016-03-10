@@ -64,7 +64,7 @@ if __name__ == "__main__":
   assert_eq(P+P, E(0, 0), "P+P")
   assert_eq(P*2, E(0, 0), "P*2")
   assert_eq(2*P, E(0, 0), "2*P")
-  assert_eq(P.order(), 2, "|P| = 2")
+  assert_eq(P.order(), 4, "|P| = 4")
 
   print "Random Test: "
   i = 0
