@@ -5,12 +5,14 @@ import gmpy
 
 secret = 0xdeadbeef
 
-def hash_to_point(E, m):
-  h = int(E.field(int(hashlib.sha512(m).hexdigest(), 16)))
+def hash_to_point(E, m, l):
+  h = int(E.field(int(hashlib.sha1(m).hexdigest(), 16)))
   while True:
     r = E.get_corresponding_y(h)
     if r != None:
-      return E(h, r[0])
+      P = E(h, r[0])
+      if (P*l).is_infinity():
+        return P
     h += 1
 
 def hash_to_field(F, m):
@@ -59,12 +61,16 @@ def encrypt(E, P, sP, id, m):
 def decrypt(E, P, sP, id, c):
   return c[1] ^ hash_to_field(E.field, weil_pairing(E, get_user_key(E, id)[1], c[0], 5))
 
+def modified_pairing(E, P, Q, m):
+  return tate_pairing(E, P, Q.distortion_map(), m)
+
 if __name__ == "__main__":
   E, F, l = gen_supersingular_ec()
   print E
   P = get_point(E, l)
-  Q = P.distortion_map()
-  print weil_pairing(E, P, Q, l) ** 2
-  print weil_pairing(E, 2*P, Q, l)
-  print weil_pairing(E, P, 2*Q, l)
+  Q = hash_to_point(E, "aaaa", l)
+  print Q
+  print modified_pairing(E, P, Q, l) ** 2
+  print modified_pairing(E, 2*P, Q, l)
+  print modified_pairing(E, P, 2*Q, l)
 
