@@ -159,11 +159,11 @@ if __name__ == "__main__":
         break
     i += 1
   Q = P.distortion_map()
-  g = tate_pairing(E, P, Q, l)
+  g = tate_pairing(E, P, Q, l, 3)
 
-  assert_eq(tate_pairing(E, 2*P,   Q, l)   , g**2, "e(2P, Q) == g^2")
-  assert_eq(tate_pairing(E,   P, 2*Q, l)   , g**2, "e(P, 2Q) == g^2")
-  assert_eq(tate_pairing(E,   P,   Q, l)**2, g**2, "e(P, Q)^2 == g^2")
+  assert_eq(tate_pairing(E, 2*P,   Q, l, 3)   , g**2, "e(2P, Q) == g^2")
+  assert_eq(tate_pairing(E,   P, 2*Q, l, 3)   , g**2, "e(P, 2Q) == g^2")
+  assert_eq(tate_pairing(E,   P,   Q, l, 3)**2, g**2, "e(P, Q)^2 == g^2")
 
   g = weil_pairing(E, P, Q, l)
 
