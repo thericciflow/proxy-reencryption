@@ -150,7 +150,7 @@ if __name__ == "__main__":
     P = E.random_point()
     o = P.order()
     print o
-    if o % m == 0:
+    if o == m:
       break
 
   Q = P.distortion_map()
