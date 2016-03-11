@@ -58,11 +58,15 @@ class ExtendedFiniteField(FiniteField):
     a, b = map(int, a)
     if s.t == 1:
       u = a**2 + b**2
-      u = modinv(u, s.n ** 2)
+      u = modinv(u, s.n)
       return s.element_class(s, a * u, -b * u)
     elif s.t == 2:
-      u = modinv(a**3+b**3, s.n ** 2)
-      return s.element_class(s, (a**2-b**2) * u, -(a*b+b**2) * u)
+      if (a+b) % s.n == 0:
+        u = modinv(3*a, s.n)
+        return s.element_class(s, 2 * u, u)
+      else:
+        u = modinv(a**3+b**3, s.n)
+        return s.element_class(s, (a**2-b**2) * u, -(a*b+b**2) * u)
 
   def degree(s):
     if s.t == 1 or s.t == 2:

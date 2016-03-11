@@ -58,3 +58,10 @@ if __name__ == "__main__":
     vrpr=vector(r/prev_r)
     print "assert_eq(F(%s, %s)/F(%s, %s), F(%s, %s), \"r/prev_r test: %d\")" % (vr[0], vr[1], vpr[0], vpr[1], vrpr[0], vrpr[1], x)
     prev_r = r
+
+  w = F.gen()
+  x = 338714 + 3*w
+  print "[+] x = %s" % x
+  vx = vector(x)
+  vix= vector(1/x)
+  print "assert_eq(1/F(%s, %s), F(%s, %s), \"1/x\")" % (vx[0], vx[1], vix[0], vix[1])

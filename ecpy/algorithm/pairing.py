@@ -5,10 +5,9 @@ def miller(E, P, Q, m):
   def h(P, Q, R):
     if (P == Q and P.y == 0) or (P != Q and P.x == Q.x): # if \lambda is infinity
       return R.x - P.x
-    p = R.y - P.y - int(P.line_coeff(Q)) * (R.x - P.x)
-    q = R.x + P.x + Q.x - int(P.line_coeff(Q)) ** 2
-    #print "[+] p, q = %s, %s" % (p, q)
-    return E.field(p) / q
+    p = R.y - P.y - P.line_coeff(Q) * (R.x - P.x)
+    q = R.x + P.x + Q.x - P.line_coeff(Q) ** 2
+    return p / q
 
   if P == Q:
     return 1
@@ -16,20 +15,14 @@ def miller(E, P, Q, m):
   b = map(int, bin(m)[2:])
   s = len(b) - 1
   assert b[0] == 1
-  f = E.field(1)
+  f = 2
   T = P
-  pr_f = 1
   for i in b[1:]:
-    #print "[+] f, f^2, h_T(T, Q) = %s, %s, %s" % (f, f**2, h(T, T, Q))
     f = f ** 2 * h(T, T, Q)
     T = 2*T
     if i == 1:
-      #print "[+] h_T(P, Q), f = %s, %s" % (h(T, P, Q), f)
       f = f * h(T, P, Q)
-      #print "[+] f = %s" % f
       T = T + P
-  #print "[+] final f = %s" % f
-  #print "[+] prev f = %s" % pr_f
   return f
 
 def weil_pairing(E, P, Q, m, S = None):

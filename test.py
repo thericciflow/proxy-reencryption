@@ -93,7 +93,7 @@ if __name__ == "__main__":
   S = E(0, 36)
 
   print "P, Q, S = %r, %r, %r" % (P, Q, S)
-  assert_eq(E.embedding_degree(m), 1, "embed degree")
+  assert_eq(E.embedding_degree(m), 1, "embedding degree")
   assert_eq(miller(E, P, Q+S, m), 103, "miller(P, Q+S)")
   assert_eq(miller(E, P, S, m), 219, "miller(P, S)")
   assert_eq(miller(E, Q, P-S, m), 284, "miller(Q, P-S)")
@@ -184,10 +184,10 @@ if __name__ == "__main__":
   assert_eq(F(326035, 114920)/F(311516, 184895), F(213234, 100495), "r/prev_r test: 7")
   assert_eq(F(294922, 165746)/F(326035, 114920), F(113566, 200451), "r/prev_r test: 8")
   assert_eq(F(73542, 195813)/F(294922, 165746), F(201397, 252614), "r/prev_r test: 9")
+  assert_eq(1/F(338714, 3), F(37635, 188176), "division by b = -a")
 
   assert_eq(F(302128, 326350) * F(39563, 131552), F(151684, 28719), "multiple test")
 
   assert_eq(miller(E, P, P.distortion_map(), m), F(28800, 239744), "miller function check")
-  assert_eq(1/F(338714, 3), F(37635, 188176), "1/x")
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
