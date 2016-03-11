@@ -146,6 +146,14 @@ if __name__ == "__main__":
   m = l
   p = l*6-1
   F = ExtendedFiniteField(p, "x^2+x+1")
+  print "Random Test 2:"
+  for x in xrange(10):
+    r1 = randint(0, p)
+    r2 = randint(0, p)
+    r = F(r1, r2)
+    print "[+] r = %s" % r
+    assert_eq(r ** (p ** 2), r, "r^(p^2) == r")
+
   E = EllipticCurve(F, 0, 1)
   P = E(3, 1164)
   print P

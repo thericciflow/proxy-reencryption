@@ -40,3 +40,10 @@ if __name__ == "__main__":
   assert_eq(modified_pairing(E, F, 2*P,   P, m), g^2, "e(2P, P) == g^2")
   assert_eq(modified_pairing(E, F,   P,   P, m)^2, g^2, "e(P, P)^2== g^2")
   print g^2
+
+  for x in xrange(10):
+    r1 = ZZ.random_element(0, p)
+    r2 = ZZ.random_element(0, p)
+    r = r1 + F.gen() * r2
+    print r
+    print r^p^2 == r
