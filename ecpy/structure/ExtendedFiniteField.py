@@ -51,11 +51,13 @@ class ExtendedFiniteField(FiniteField):
       u = s._inv([c**2 + d**2])
       return s.element_class(s, (a*c + b*d)*u, (b*c-a*d)*u)
     elif s.t == 2:
-      a, b, c, d = w[0], w[1], z[0], z[1]
-      u = s._inv([a**3 + b**3])
-      x = a**2*c-b**2*c+a**2*d+b**2*d
-      y = a*b*d-b**2*c-a*b*c
-      return s.element_class(s, x*u, y*u)
+      a, b, c, d = z[0], z[1], w[0], w[1]
+      u = c**3 + d**3
+      u = int(s._inv([u]))
+      x = ((a*c*c+b*d*d-a*d*d+b*c*d) * u) % s.n
+      y = (-(a*d*d-b*c*c+a*c*d-b*c*d) * u) % s.n
+      r = s.element_class(s, x, y)
+      return r
 
   def _inv(s, a):
     return s.element_class(s, modinv(a[0], s.n**2))
