@@ -23,7 +23,6 @@ def miller(E, P, Q, m):
     if b[i] == 1:
       f = f * h(T, P, Q)
       T = T + P
-    i -= 1
   return int(f)
 
 def weil_pairing(E, P, Q, m, S = None):
