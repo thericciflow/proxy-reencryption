@@ -27,7 +27,7 @@ def egcd(x, y):
   return (g, x-(b/a)*y, y)
 
 def modinv(a, m):
-  if a % m == 0:
+  if gcd(a, m) != 1:
     raise ModinvNotFoundError()
   a %= m
   return egcd(a, m)[1] % m

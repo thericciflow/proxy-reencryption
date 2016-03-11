@@ -34,6 +34,7 @@ if __name__ == "__main__":
         break
   print P
   print distortion_map(E, F, P)
+  print P._miller_(distortion_map(E, F, P), m)
   g = modified_pairing(E, F, P, P, m)
   print "base g = %r" % g
   assert_eq(modified_pairing(E, F,   P, 2*P, m), g^2, "e(P, 2P) == g^2")

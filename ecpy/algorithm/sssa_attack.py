@@ -4,7 +4,7 @@ from ..structure.Zmod import Zmod
 from ..util import modinv
 
 def hensel_lift(curve, P):
-  x, y = P.x,P.y
+  x, y, _ = map(int, tuple(P))
   t = (((x**3 + curve.a * x + curve.b) - y**2)/curve.field.p) % curve.field.p
   t *= modinv(2*y, curve.field.p) 
   t %= curve.field.p

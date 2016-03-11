@@ -36,7 +36,7 @@ class Zmod(Field):
     return s.element_class(s, a[0]*b[0])
 
   def _inv(s, a):
-    return s.element_class(s, modinv(a[0], s.n))
+    return s.element_class(s, modinv(a[0], s.n ** s.degree()))
 
   def _neg(s, a):
     return s.element_class(s, s.n-a[0])
@@ -51,9 +51,9 @@ class ZmodElement(FieldElement):
   def __init__(s, field, x):
     FieldElement.__init__(s, field, x)
     if isinstance(x, s.__class__):
-      s.x = x.x % field.n
+      s.x = x.x % (field.n)
     else:
-      s.x = x % field.n
+      s.x = x % (field.n)
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)

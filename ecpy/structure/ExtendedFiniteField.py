@@ -36,7 +36,10 @@ class ExtendedFiniteField(FiniteField):
     if s.t == 1:
       return s.element_class(s, a[0] * b[0] - a[1] * b[1], a[0]*b[1] + a[1] * b[0])
     elif s.t == 2:
-      return s.element_class(s, a[0]*b[0] - a[1] * b[1], a[0]*b[1]+a[1]*b[0]+a[1]*b[1])
+      a, _b = a
+      c, d = b
+      b = _b
+      return s.element_class(s, a*c - b*d, a*d + b*c - b*d)
 
   def _equ(s, a, b):
     if s.degree() == 2:
@@ -46,21 +49,20 @@ class ExtendedFiniteField(FiniteField):
     return x
 
   def _div(s, z, w):
-    if s.t == 1:
-      a, b, c, d = z[0], z[1], w[0], w[1]
-      u = s._inv([c**2 + d**2])
-      return s.element_class(s, (a*c + b*d)*u, (b*c-a*d)*u)
-    elif s.t == 2:
-      a, b, c, d = z[0], z[1], w[0], w[1]
-      u = c**3 + d**3
-      u = int(s._inv([u]))
-      x = ((a*c*c+b*d*d-a*d*d+b*c*d) * u) % s.n
-      y = (-(a*d*d-b*c*c+a*c*d-b*c*d) * u) % s.n
-      r = s.element_class(s, x, y)
-      return r
+    r = s._inv(w) * z
+    return r
 
   def _inv(s, a):
-    return s.element_class(s, modinv(a[0], s.n**2))
+    if len(a) == 1:
+      return Zmod._inv(s, a)
+    a, b = map(int, a)
+    if s.t == 1:
+      u = a**2 + b**2
+      u = modinv(u, s.n ** 2)
+      return s.element_class(s, a * u, -b * u)
+    elif s.t == 2:
+      u = modinv(a**3+b**3, s.n ** 2)
+      return s.element_class(s, (a**2-b**2) * u, -(a*b+b**2) * u)
 
   def degree(s):
     if s.t == 1 or s.t == 2:
@@ -80,6 +82,8 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
 
   def __str__(s):
     res = None
+    if s == 0:
+      return "0"
     if s.field.t == 1:
       res = ""
       if s.x != 0:

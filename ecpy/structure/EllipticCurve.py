@@ -221,11 +221,11 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       s.x = group.field(*x)
     else:
       AdditiveGroupElement.__init__(s, group, x)
-      s.x = x
+      s.x = group.field(x)
     if isinstance(y, tuple):
       s.y = group.field(*y)
     else:
-      s.y = y
+      s.y = group.field(y)
     if isinstance(z, tuple):
       s.z = group.field(*z)
     else:
