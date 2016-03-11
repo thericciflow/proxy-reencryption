@@ -60,7 +60,6 @@ class ExtendedFiniteField(FiniteField):
   def _inv(s, a):
     return s.element_class(s, modinv(a[0], s.n**2))
 
-
   def degree(s):
     if s.t == 1 or s.t == 2:
       return 2

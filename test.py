@@ -174,4 +174,15 @@ if __name__ == "__main__":
   assert_eq(modified_tate_pairing(E, P, 2*P, m), g**2, "e(P, 2P) == g^2")
   assert_eq(modified_tate_pairing(E, 2*P, P, m), g**2, "e(2P, 2P) == g^2")
 
+
+  assert_eq(F(53521, 219283)/F(297512, 101495), F(333099, 288028), "r/prev_r test: 0")
+  assert_eq(F(281317, 98371)/F(53521, 219283), F(323815, 46359), "r/prev_r test: 1")
+  assert_eq(F(31851, 95658)/F(281317, 98371), F(5298, 9638), "r/prev_r test: 2")
+  assert_eq(F(92937, 215632)/F(31851, 95658), F(278130, 175879), "r/prev_r test: 3")
+  assert_eq(F(61703, 173508)/F(92937, 215632), F(189715, 176788), "r/prev_r test: 4")
+  assert_eq(F(80979, 72727)/F(61703, 173508), F(15407, 212022), "r/prev_r test: 5")
+  assert_eq(F(311516, 184895)/F(80979, 72727), F(225531, 44087), "r/prev_r test: 6")
+  assert_eq(F(326035, 114920)/F(311516, 184895), F(213234, 100495), "r/prev_r test: 7")
+  assert_eq(F(294922, 165746)/F(326035, 114920), F(113566, 200451), "r/prev_r test: 8")
+  assert_eq(F(73542, 195813)/F(294922, 165746), F(201397, 252614), "r/prev_r test: 9")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

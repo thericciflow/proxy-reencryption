@@ -7,7 +7,7 @@ def distortion_map(E, F, P):
 
 def modified_pairing(E, F, P, Q, m):
   Q = distortion_map(E, F, Q)
-  return P.tate_pairing(Q, m, 2)
+  return P.weil_pairing(Q, m)
 
 def assert_eq(a, b, m):
   print "[+] %s..."%m, 
@@ -41,9 +41,19 @@ if __name__ == "__main__":
   assert_eq(modified_pairing(E, F,   P,   P, m)^2, g^2, "e(P, P)^2== g^2")
   print g^2
 
+  prev_r = g
+
   for x in xrange(10):
     r1 = ZZ.random_element(0, p)
     r2 = ZZ.random_element(0, p)
     r = r1 + F.gen() * r2
-    print r
-    print r^p^2 == r
+    """
+    print "[+] r = %s" % r
+    print "r^(p^2) == r?: %s" % (r^p^2 == r)
+    print "[+] r/prev_r = %s" % (r/prev_r)
+    """
+    vr = vector(r)
+    vpr= vector(prev_r)
+    vrpr=vector(r/prev_r)
+    print "assert_eq(F(%s, %s)/F(%s, %s), F(%s, %s), \"r/prev_r test: %d\")" % (vr[0], vr[1], vpr[0], vpr[1], vrpr[0], vrpr[1], x)
+    prev_r = r
