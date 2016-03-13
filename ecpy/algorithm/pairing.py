@@ -15,7 +15,7 @@ def miller(E, P, Q, m):
   b = map(int, bin(m)[2:])
   s = len(b) - 1
   assert b[0] == 1
-  f = 2
+  f = 1
   T = P
   for i in b[1:]:
     f = f ** 2 * h(T, T, Q)
@@ -32,7 +32,12 @@ def weil_pairing(E, P, Q, m, S = None):
   fps  = miller(E, P, S, m)
   fqps = miller(E, Q, P-S, m)
   fqs  = miller(E, Q, -S, m)
-  return (E.field._inv([fps]) * fpqs) * E.field._inv(tuple(E.field._inv([(fqs)]) * fqps))
+  print tuple(fqs)
+  u = E.field._inv(tuple(fqs))
+  print u
+  print tuple(u)
+  u = E.field._inv(tuple(u * fqps))
+  return (E.field._inv(tuple(fps)) * fpqs) * u
 
 def tate_pairing(E, P, Q, m, k = None):
   if k == None:
