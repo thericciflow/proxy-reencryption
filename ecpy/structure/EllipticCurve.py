@@ -24,7 +24,9 @@ class GenericEllipticCurve(AdditiveGroup):
     return s._is_on_curve(point.x, point.y)
 
   def _is_on_curve(s, x, y):
-    return s.field(y) ** 2 == s.field(x) ** 3 + s.a * s.field(x) + s.b
+    x = s.field(x)
+    y = s.field(y)
+    return  y*y == x*x*x + s.a * x + s.b
 
   def determinant(s):
     return -16*(4*s.a**3 + 27*s.b**2)
@@ -54,24 +56,23 @@ class GenericEllipticCurve(AdditiveGroup):
     try:
       if s._equ(P, Q):
         X, Y, Z = Px, Py, Pz
-        u = 3*X**2+s.a*Z**2
+        u = 3*X*X+s.a*Z*Z
         v = Y*Z
-        w = u**2-8*X*Y*v
+        w = u*u-8*X*Y*v
         Rx = 2*v*w
-        Ry = u*(4*X*Y*v - w) - 8*(Y*v)**2
-        Rz = 8*v**3
+        a = Y*v
+        Ry = u*(4*X*Y*v - w) - 8*a*a
+        Rz = 8*v*v*v
       else:
         u = (Qy*Pz - Py*Qz)
         v = (Qx * Pz - Px * Qz)
-        w = u**2*Pz*Qz - v**3-2*v**2*Px*Qz
+        w = u*u*Pz*Qz - v*v*v-2*v*v*Px*Qz
         Rx = v*w
-        Ry = u*(v**2*Px*Qz - w) - v**3*Py*Qz
-        Rz = v**3 * Pz * Qz
-      if type(Rx) is long:
+        Ry = u*(v*v*Px*Qz - w) - v*v*v*Py*Qz
+        Rz = v*v*v * Pz * Qz
+      if isinstance(Rx, long):
         Rx = s.field(Rx)
-      if type(Ry) is long:
         Ry = s.field(Ry)
-      if type(Rz) is long:
         Rz = s.field(Rz)
       return s.element_class(s, Rx/Rz, Ry/Rz, 1)
     except ModinvNotFoundError:
@@ -121,10 +122,10 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
   def line_coeff(s, Q):
     P = s
     F = s.group.field
-    x1, y1, z1 = map(F, tuple(P))
-    x2, y2, z2 = map(F, tuple(Q))
+    x1, y1, z1 = map(F, P)
+    x2, y2, z2 = map(F, Q)
     if x1*z2 == x2*z1:
-      l = (3*x1**2 + s.group.a) / (2*y1)
+      l = (3*x1*x1 + s.group.a) / (2*y1)
     else:
       l = (y2*z1-y1*z2) / (x2*z1-x1*z2)
     return l

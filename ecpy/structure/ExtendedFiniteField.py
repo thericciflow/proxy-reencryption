@@ -57,7 +57,7 @@ class ExtendedFiniteField(FiniteField):
       return Zmod._inv(s, a)
     a, b = map(int, a)
     if s.t == 1:
-      u = a**2 + b**2
+      u = a*a + b*b
       u = modinv(u, s.n)
       return s.element_class(s, a * u, -b * u)
     elif s.t == 2:
@@ -119,3 +119,5 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
       if s.field.t == 1 or s.field.t == 2:
         return (d, 0)
 
+  def __hash__(s):
+    return s.x * s.y * s.field.p

@@ -6,8 +6,9 @@ def miller(E, P, Q, m):
   def h(P, Q, R):
     if (P == Q and P.y == 0) or (P != Q and P.x == Q.x): # if \lambda is infinity
       return R.x - P.x
-    p = R.y - P.y - P.line_coeff(Q) * (R.x - P.x)
-    q = R.x + P.x + Q.x - P.line_coeff(Q) ** 2
+    L = P.line_coeff(Q)
+    p = R.y - P.y - L * (R.x - P.x)
+    q = R.x + P.x + Q.x - L * L
     return p / q
 
   if P == Q:
@@ -19,8 +20,8 @@ def miller(E, P, Q, m):
   f = 1
   T = P
   for i in b[1:]:
-    f = f ** 2 * h(T, T, Q)
-    T = 2*T
+    f = f * f * h(T, T, Q)
+    T = T+T
     if i == 1:
       f = f * h(T, P, Q)
       T = T + P

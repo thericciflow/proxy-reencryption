@@ -132,3 +132,6 @@ class FieldElement:
 
   def __int__(s):
     return s.int()
+
+  def __hash__(s):
+    return s.x
