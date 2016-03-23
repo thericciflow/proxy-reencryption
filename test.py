@@ -159,7 +159,7 @@ if __name__ == "__main__":
   print P
   print P.distortion_map()
   modified_weil_pairing = lambda E, P, Q, m: weil_pairing(E, P, Q.distortion_map(), m)
-  modified_tate_pairing = lambda E, P, Q, m: tate_pairing(E, P, Q.distortion_map(), m)
+  modified_tate_pairing = lambda E, P, Q, m: tate_pairing(E, P, Q.distortion_map(), m, 2)
 
   g = modified_weil_pairing(E, P, P, m)
   print "[+] g = %s" % g

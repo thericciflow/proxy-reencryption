@@ -1,5 +1,6 @@
 from ..structure.EllipticCurve import EllipticCurve
 from ..structure.RationalField import QQ
+from ..structure.RealField import RR
 from ..structure.Zmod import Zmod
 from ..util import modinv
 
@@ -38,10 +39,10 @@ def SSSA_Attack(F, E, P, Q):
   #print "[+] Calculate V..."
   lV = (F.p - 1) * lQ
 
-  dx1 = ((lU.x - lP.x) / F.p) % F.p
-  dx2 = QQ((lU.y - lP.y), F.p)
-  dy1 = (lV.x - lQ.x)
-  dy2 = (lV.y - lQ.y) % F.p
+  dx1 = ((int(lU.x) - int(lP.x)) / F.p) % F.p
+  dx2 = QQ((int(lU.y) - int(lP.y)), F.p)
+  dy1 = (int(lV.x) - int(lQ.x))
+  dy2 = (int(lV.y) - int(lQ.y)) % F.p
 
   m = dy1 * modinv(dx1, F.p) * dx2 * modinv(dy2, F.p)
   m %= F.p

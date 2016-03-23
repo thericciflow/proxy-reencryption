@@ -171,7 +171,6 @@ def extended_legendre_symbol(a):
   return legendre_symbol(b, p)
 
 def modular_square_roots_extended(x):
-  print "[+] start"
   if extended_legendre_symbol(x) != 1:
     return []
   a = x
@@ -199,7 +198,6 @@ def modular_square_roots_extended(x):
       else:
         x0 = modular_square_root(b**2*a*f, q, force=True)[0]
         x = x0 * b ** q * e
-      print "[+] end"
       return [x]
     elif pow(q, m/2, 4) == 3:
       pass

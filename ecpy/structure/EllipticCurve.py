@@ -48,30 +48,33 @@ class GenericEllipticCurve(AdditiveGroup):
     return res
 
   def _add(s, P, Q):
-    Px, Py, Pz = map(int, P)
-    Qx, Qy, Qz = map(int, Q)
-    Rx, Ry, Rz = (0, 1, 0)
+    Px, Py, Pz = P
+    Qx, Qy, Qz = Q
+    Rx, Ry, Rz = s.O
     try:
-      if not s._equ(P, Q):
-        u = Qy*Pz - Py*Qz
-        v = Qx*Pz - Px*Qz
-        w = u**2 * Pz * Qz - v**2 * (v + 2*Px*Qz)
-        Rx = v*w
-        Ry = u * (v**2 * Px * Qz - w) - v**3 * Py * Qz
-        Rz = v**3 * Pz * Qz
-      else:
-        u = 3*Px**2 + s.a * Pz**2
-        v = Py * Pz
-        w = u**2 - 8*Px*Py*v
+      if s._equ(P, Q):
+        X, Y, Z = Px, Py, Pz
+        u = 3*X**2+s.a*Z**2
+        v = Y*Z
+        w = u**2-8*X*Y*v
         Rx = 2*v*w
-        Ry = u * (4 * Px * Py * v - w) - 8 * (Py * v) ** 2
+        Ry = u*(4*X*Y*v - w) - 8*(Y*v)**2
         Rz = 8*v**3
-      z = s.field._inv([Rz])
-      Rx = Rx * z
-      Ry = Ry * z
-      Rz = Rz * z
-      return s.element_class(s, int(Rx), int(Ry), int(Rz))
-    except:
+      else:
+        u = (Qy*Pz - Py*Qz)
+        v = (Qx * Pz - Px * Qz)
+        w = u**2*Pz*Qz - v**3-2*v**2*Px*Qz
+        Rx = v*w
+        Ry = u*(v**2*Px*Qz - w) - v**3*Py*Qz
+        Rz = v**3 * Pz * Qz
+      if type(Rx) is long:
+        Rx = s.field(Rx)
+      if type(Ry) is long:
+        Ry = s.field(Ry)
+      if type(Rz) is long:
+        Rz = s.field(Rz)
+      return s.element_class(s, Rx/Rz, Ry/Rz, 1)
+    except ModinvNotFoundError:
       return s.O
 
   def _equ(s, P, Q):
@@ -97,7 +100,7 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     else:
       s.z = z
     if not (s.is_infinity() or s.group.is_on_curve(s)):
-      raise ArithmeticError("Invalid Point: (%s, %s)" % (s.x, s.y))
+      raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
 
   def is_infinity(s):
     return s.x == 0 and s.y == 1 and s.z == 0
@@ -194,9 +197,7 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
 
   def get_corresponding_y(s, x):
     y_square = s.field(x) ** 3 + s.a * x + s.b
-    print modular_square_root(y_square, s.field.p ** s.field.degree())
     for y in modular_square_root(y_square, s.field.p ** s.field.degree()):
-      print x, y**2, y_square
       if pow(y, 2, s.field.p ** s.field.degree()) == y_square:
         return y
     return None

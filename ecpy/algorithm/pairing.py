@@ -28,10 +28,6 @@ def miller(E, P, Q, m):
 def weil_pairing(E, P, Q, m, S = None):
   if S == None:
     S = E.random_point()
-  print "[+] S = %s" % S
-  print P, Q
-  print Q+S
-  print P-S
   fpqs = miller(E, P, Q+S, m)
   fps  = miller(E, P, S, m)
   fqps = miller(E, Q, P-S, m)
