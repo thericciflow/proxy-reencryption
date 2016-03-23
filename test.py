@@ -22,6 +22,29 @@ def assert_neq(a, b, m):
 def assert_eq(a, b, m):
   _assert(a, b, m, "==")
 
+def gen_supersingular_ec():
+  import gmpy
+  def gen_prime():
+    while True:
+      p = int(gmpy.next_prime(randint(2**31, 2**32)))
+      if util.is_prime(p*6-1):
+        break
+    return p*6-1, p
+
+  p, l = gen_prime()
+  F = ExtendedFiniteField(p, "x^2+x+1")
+  return EllipticCurve(F, 0, 1), F, l
+
+def get_point(E, l):
+  i = 3
+  while True:
+    r = E.get_corresponding_y(i)
+    if r != None:
+      P = E(i, r)
+      if (P*l).is_infinity():
+        return P
+    i += 1
+
 if __name__ == "__main__":
   F = FiniteField(101)
   x = F(2)
@@ -203,5 +226,21 @@ if __name__ == "__main__":
   assert_eq(a*a*a*a, F(31723, 160374), "a*a*a*a")
   assert_eq(a**4, F(31723, 160374), "a^4")
   assert_eq(a*a*b*b*a*a*b, b*a*a*b*b*a*a, "a^4")
+
+  E, F, l = gen_supersingular_ec()
+  P = get_point(E, l)
+  Q = P.distortion_map()
+  g = weil_pairing(E, P, Q, l)
+  for x in xrange(10):
+    a = randint(2**15, 2**16)
+    b = randint(2**15, 2**16)
+    gab = g**(a*b)
+    assert_eq(weil_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(weil_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(weil_pairing(E, a*P, Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(weil_pairing(E, b*P, Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(weil_pairing(E, P, a*Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(weil_pairing(E, P, b*Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(weil_pairing(E, P, Q, l)**(a*b), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

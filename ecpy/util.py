@@ -1,12 +1,5 @@
 import random
 
-try:
-  import gmpy
-  is_prime = gmpy.is_prime
-  print "[+] found gmpy! use gmpy.is_prime"
-except:
-  is_prime = miller_rabin
-
 class ModinvNotFoundError(ArithmeticError):
   pass
 
@@ -80,6 +73,13 @@ def miller_rabin(x):
     if not (pow(a, d, x) != 1 and all([pow(a, 2**r * d, x) != x-1 for r in xrange(0, s)])):
       prime += 1
   return prime > 6
+
+try:
+  import gmpy
+  is_prime = gmpy.is_prime
+  print "[+] found gmpy! use gmpy.is_prime"
+except:
+  is_prime = miller_rabin
 
 def modular_square_root(a, m, force=False):
   from .structure.ExtendedFiniteField import ExtendedFiniteFieldElement
