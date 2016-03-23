@@ -81,7 +81,10 @@ def miller_rabin(x):
       prime += 1
   return prime > 6
 
-def modular_square_root(a, m):
+def modular_square_root(a, m, force=False):
+  from .structure.ExtendedFiniteField import ExtendedFiniteFieldElement
+  if isinstance(a, ExtendedFiniteFieldElement) and not force:
+    return modular_square_roots_extended(a)
   if is_prime(m):
     return tonelli_shanks(a, m)
   if m == 2:
@@ -160,3 +163,48 @@ def tonelli_shanks(n, p):
     t = (t * (b**2)) % p
     c = pow(b, 2, p)
     m = i
+
+def extended_legendre_symbol(a):
+  m = a.field.degree()
+  p = a.field.p
+  b = pow(a, sum([p**i for i in xrange(0, m)]), p)
+  return legendre_symbol(b, p)
+
+def modular_square_roots_extended(x):
+  print "[+] start"
+  if extended_legendre_symbol(x) != 1:
+    return []
+  a = x
+
+  m = a.field.degree()
+  p = a.field.p
+  q = p**(m/2)
+  if m % 2 == 0:
+    if pow(q, m/2, 4) == 1:
+      c0 = 1
+      while c0 == 1:
+        c = x.field(random.randint(0, q**2), random.randint(0, q**2))
+        c0 = extended_legendre_symbol(c)
+      d = pow(c, (q-1)/2)
+      e = 1/(c*d)
+      f = (c*d)**2
+
+      b = pow(a, (q-1)/4)
+      a0 = (b**2) ** q * b**2
+      if a0 == -1:
+        return []
+      if b ** q * b == 1:
+        x0 = modular_square_root(b**2 * a, q, force=True)[0]
+        x = x0 * b ** q
+      else:
+        x0 = modular_square_root(b**2*a*f, q, force=True)[0]
+        x = x0 * b ** q * e
+      print "[+] end"
+      return [x]
+    elif pow(q, m/2, 4) == 3:
+      pass
+    else:
+      pass
+  else:
+    raise NotImplementedError("If you want to use function, please implement Shanks, Atkin, Kong et al, Mueller, Tonelli-Shanks, ... algorithm.")
+  raise NotImplementedError()

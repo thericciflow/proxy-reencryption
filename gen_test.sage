@@ -65,3 +65,5 @@ if __name__ == "__main__":
   vx = vector(x)
   vix= vector(1/x)
   print "assert_eq(1/F(%s, %s), F(%s, %s), \"1/x\")" % (vx[0], vx[1], vix[0], vix[1])
+
+

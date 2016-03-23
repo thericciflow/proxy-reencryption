@@ -188,6 +188,20 @@ if __name__ == "__main__":
 
   assert_eq(F(302128, 326350) * F(39563, 131552), F(151684, 28719), "multiple test")
 
-  assert_eq(miller(E, P, P.distortion_map(), m), F(28800, 239744), "miller function check")
+  assert_eq(miller(E, P, P.distortion_map(), m), F(239139, 508), "miller function check")
+
+  a = F(234687, 190012)
+  b = F(218932, 251221)
+
+  print "[+] a = %s" % a
+  print "[+] b = %s" % b
+
+  assert_eq(a+b, F(114902, 102516), "a+b")
+  assert_eq(a-b, F(15755, 277508), "a-b")
+  assert_eq(a*b, F(217278, 89209), "a*b")
+  assert_eq(a/b, F(167345, 81997), "a/b")
+  assert_eq(a*a*a*a, F(31723, 160374), "a*a*a*a")
+  assert_eq(a**4, F(31723, 160374), "a^4")
+  assert_eq(a*a*b*b*a*a*b, b*a*a*b*b*a*a, "a^4")
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)

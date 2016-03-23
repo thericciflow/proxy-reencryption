@@ -76,7 +76,7 @@ class FieldElement:
   def __rdiv__(s, lhs):
     return s.field._div(s._to_tuple(lhs), tuple(s))
 
-  def __pow__(s, rhs):
+  def __pow__(s, rhs, mod=None):
     if rhs == 0:
       return s.__class__(s.field, 1)
     d = int(rhs)

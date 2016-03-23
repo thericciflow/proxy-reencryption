@@ -24,7 +24,7 @@ class GenericEllipticCurve(AdditiveGroup):
     return s._is_on_curve(point.x, point.y)
 
   def _is_on_curve(s, x, y):
-    return s.field(y) ** 2, s.field(x) ** 3 + s.a * s.field(x) + s.b
+    return s.field(y) ** 2 == s.field(x) ** 3 + s.a * s.field(x) + s.b
 
   def determinant(s):
     return -16*(4*s.a**3 + 27*s.b**2)
@@ -193,9 +193,12 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
     s.O = s.element_class(s, 0, 1, 0)
 
   def get_corresponding_y(s, x):
-    y_square = int(s.field(x) ** 3 + s.a * x + s.b)
-    if jacobi_symbol(y_square, s.field.p) == 1:
-      return modular_square_root(y_square, s.field.p)
+    y_square = s.field(x) ** 3 + s.a * x + s.b
+    print modular_square_root(y_square, s.field.p ** s.field.degree())
+    for y in modular_square_root(y_square, s.field.p ** s.field.degree()):
+      print x, y**2, y_square
+      if pow(y, 2, s.field.p ** s.field.degree()) == y_square:
+        return y
     return None
 
   def embedding_degree(s, m):
@@ -206,13 +209,13 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
       k += 1
 
   def random_point(s):
+    x = s.field(*tuple([randint(0, s.field.order()+1) for _ in xrange(s.field.degree())]))
     while True:
-      x = s.field(*tuple([randint(0, s.field.order()+1) for _ in xrange(s.field.degree())]))
       y = s.get_corresponding_y(x)
       if y != None:
-        for i in [0, 1]:
-          if s._is_on_curve(x, y[i]):
-            return s.element_class(s, x, y[i])
+        if s._is_on_curve(x, y):
+          return s.element_class(s, x, y)
+      x += 1
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
   def __init__(s, group, x, y, z = 1):
