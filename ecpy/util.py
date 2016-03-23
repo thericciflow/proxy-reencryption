@@ -3,6 +3,14 @@ import random
 class ModinvNotFoundError(ArithmeticError):
   pass
 
+def memoize(f):
+  cache = {}
+  def helper(*args):
+    if args not in cache:
+      cache[args] = f(*args)
+    return cache[args]
+  return helper
+
 def gcd(x, y):
   while y != 0:
     t = x % y
@@ -12,16 +20,20 @@ def gcd(x, y):
 def gcd_multiple(*a):
   return reduce(gcd, a)
 
-def egcd(x, y):
-  if x == 0:
-    return (y, 0, 1)
-  a, b = x, y
-  g, y, x = egcd(y%x, x)
-  return (g, x-(b/a)*y, y)
+def egcd(a, b):
+  x, y, u, v = 0, 1, 1, 0
+  while a != 0:
+    q, r = b // a, b % a
+    m, n = x - u * q, y - v * q
+    b, a, x, y, u, v = a, r, u, v, m, n
+  g = b
+  return (g, x, y)
 
 def modinv(a, m):
   if gcd(a, m) != 1:
     raise ModinvNotFoundError()
+  if is_prime(m):
+    return pow(a, m-2, m)
   a %= m
   return egcd(a, m)[1] % m
 

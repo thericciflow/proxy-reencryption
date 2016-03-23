@@ -16,7 +16,7 @@ class ExtendedFiniteField(FiniteField):
     else:
       raise ValueError("Invalid Polynomial: %s" % poly)
     FiniteField.__init__(s, p)
-    Field.__init__(s, ExtendedFiniteFieldElement)
+    s.element_class = ExtendedFiniteFieldElement
 
   def __str__(s):
     if s.t == 1:
@@ -73,9 +73,8 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
   def __init__(s, field, x, y=0):
     if isinstance(x, s.__class__):
       x, y = x.x, x.y
-    FiniteFieldElement.__init__(s, field, y)
-    s.y = s.x
     FiniteFieldElement.__init__(s, field, x)
+    s.y = y % s.field.p
 
   def __repr__(s):
     if s.field.t == 1 or s.field.t == 2:

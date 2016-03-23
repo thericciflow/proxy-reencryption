@@ -1,5 +1,6 @@
 from ..structure.EllipticCurve import EllipticCurve
 from ..structure.FiniteField import FiniteField
+from ..util import memoize
 
 def miller(E, P, Q, m):
   def h(P, Q, R):
