@@ -61,15 +61,16 @@ class GenericEllipticCurve(AdditiveGroup):
         w = u*u-8*X*Y*v
         Rx = 2*v*w
         a = Y*v
-        Ry = u*(4*X*Y*v - w) - 8*a*a
+        Ry = u*(4*X*a - w) - 8*a*a
         Rz = 8*v*v*v
       else:
-        u = (Qy*Pz - Py*Qz)
-        v = (Qx * Pz - Px * Qz)
-        w = u*u*Pz*Qz - v*v*v-2*v*v*Px*Qz
+        u = Qy*Pz - Py*Qz
+        v = Qx * Pz - Px * Qz
+        v3 = v*v*v
+        w = u*u*Pz*Qz - v3 - 2*v*v*Px*Qz
         Rx = v*w
-        Ry = u*(v*v*Px*Qz - w) - v*v*v*Py*Qz
-        Rz = v*v*v * Pz * Qz
+        Ry = u*(v*v*Px*Qz - w) - v3*Py*Qz
+        Rz = v3 * Pz * Qz
       if isinstance(Rz, (int, long)):
         z = 1/s.field(Rz)
       else:
