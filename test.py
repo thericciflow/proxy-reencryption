@@ -45,7 +45,6 @@ def get_point(E, l):
         return P
     i += 1
 
-#@profile
 def test():
   F = FiniteField(101)
   x = F(2)
@@ -123,7 +122,7 @@ def test():
   assert_eq(miller(E, Q, P-S, m), 284, "miller(Q, P-S)")
   assert_eq(miller(E, Q, -S, m), 204, "miller(Q, -S)")
   assert_eq(weil_pairing(E, P, Q, m, S), 242, "weil_pairing")
-  assert_eq(tate_pairing(E, P, Q, m), 279, "tate_pairing")
+  assert_eq(tate_pairing(E, P, Q, m, 1), 279, "tate_pairing")
   g = tate_pairing(E, P, Q, m)
   print "[+] g = %s" % g
   assert_eq(tate_pairing(E, 2*P, Q, m), g**2, "e(2P, Q) == g^2")
@@ -231,18 +230,18 @@ def test():
   E, F, l = gen_supersingular_ec()
   P = get_point(E, l)
   Q = P.distortion_map()
-  g = weil_pairing(E, P, Q, l)
+  g = tate_pairing(E, P, Q, l)
   for x in xrange(10):
     a = randint(2**15, 2**16)
     b = randint(2**15, 2**16)
     gab = g**(a*b)
-    assert_eq(weil_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(weil_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(weil_pairing(E, a*P, Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(weil_pairing(E, b*P, Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(weil_pairing(E, P, a*Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(weil_pairing(E, P, b*Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(weil_pairing(E, P, Q, l)**(a*b), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(tate_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(tate_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(tate_pairing(E, a*P, Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(tate_pairing(E, b*P, Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(tate_pairing(E, P, a*Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(tate_pairing(E, P, b*Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    assert_eq(tate_pairing(E, P, Q, l)**(a*b), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
 

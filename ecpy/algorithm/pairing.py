@@ -41,8 +41,6 @@ def weil_pairing(E, P, Q, m, S = None):
   u = E.field._inv(tuple(u * fqps))
   return (E.field._inv(tuple(fps)) * fpqs) * u
 
-def tate_pairing(E, P, Q, m, k = None):
-  if k == None:
-    k = E.embedding_degree(m)
+def tate_pairing(E, P, Q, m, k = 2):
   f = E.field(miller(E, P, Q, m))
   return f ** (((E.field.p ** k) - 1) / m)
