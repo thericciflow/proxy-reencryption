@@ -24,6 +24,15 @@ class ExtendedFiniteField(FiniteField):
     elif s.t == 2:
       return Zmod.__str__(s, "p^%d" % s.degree()) + " : Polynomial is w^2+w+1 = 0"
 
+  def __repr__(s):
+    res = "%s(%s, " % (s.__class__.__name__, s.n)
+    if s.t == 1:
+      res += '"x^2+1"'
+    elif s.t == 2:
+      res += '"x^2+x+1"'
+    res += ")"
+    return res
+
   #@profile
   def _add(s, a, b):
     if s.t == 1 or s.t == 2:

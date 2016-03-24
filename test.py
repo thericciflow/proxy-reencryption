@@ -23,10 +23,17 @@ def assert_eq(a, b, m):
   _assert(a, b, m, "==")
 
 def gen_supersingular_ec():
-  import gmpy
+  def _next_prime(n):
+    while not util.is_prime(n):
+      n += 1
+    return n
+  try:
+    from gmpy import next_prime
+  except:
+    next_prime = _next_prime
   def gen_prime():
     while True:
-      p = int(gmpy.next_prime(randint(2**31, 2**32)))
+      p = int(next_prime(randint(2**31, 2**32)))
       if util.is_prime(p*6-1):
         break
     return p*6-1, p
@@ -231,6 +238,7 @@ def test():
   P = get_point(E, l)
   Q = P.distortion_map()
   g = weil_pairing(E, P, Q, l)
+  print E
   for x in xrange(10):
     a = randint(2**15, 2**16)
     b = randint(2**15, 2**16)
