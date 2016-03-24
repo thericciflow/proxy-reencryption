@@ -33,7 +33,7 @@ def gen_supersingular_ec():
     next_prime = _next_prime
   def gen_prime():
     while True:
-      p = int(next_prime(randint(2**31, 2**32)))
+      p = int(next_prime(randint(2**71, 2**72)))
       if util.is_prime(p*6-1):
         break
     return p*6-1, p
