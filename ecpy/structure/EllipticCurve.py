@@ -70,11 +70,11 @@ class GenericEllipticCurve(AdditiveGroup):
         Rx = v*w
         Ry = u*(v*v*Px*Qz - w) - v*v*v*Py*Qz
         Rz = v*v*v * Pz * Qz
-      if isinstance(Rx, long):
-        Rx = s.field(Rx)
-        Ry = s.field(Ry)
-        Rz = s.field(Rz)
-      return s.element_class(s, Rx/Rz, Ry/Rz, 1)
+      if isinstance(Rz, (int, long)):
+        z = 1/s.field(Rz)
+      else:
+        z = 1/Rz
+      return s.element_class(s, Rx * z, Ry * z, 1)
     except ModinvNotFoundError:
       return s.O
 
@@ -91,11 +91,10 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
       s.x = group.field(*x)
     else:
       AdditiveGroupElement.__init__(s, group, x)
-      s.x = x
     if isinstance(y, tuple):
       s.y = group.field(*y)
     else:
-      s.y = y
+      s.y = y 
     if isinstance(z, tuple):
       s.z = group.field(*z)
     else:
@@ -222,11 +221,9 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
   def __init__(s, group, x, y, z = 1):
     if isinstance(x, tuple):
-      AdditiveGroupElement.__init__(s, group, None)
-      s.x = group.field(*x)
+      AdditiveGroupElement.__init__(s, group, group.field(*x))
     else:
-      AdditiveGroupElement.__init__(s, group, x)
-      s.x = group.field(x)
+      AdditiveGroupElement.__init__(s, group, group.field(x))
     if isinstance(y, tuple):
       s.y = group.field(*y)
     else:
@@ -234,9 +231,9 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     if isinstance(z, tuple):
       s.z = group.field(*z)
     else:
-      s.z = z
+      s.z = group.field(z)
     if not (s.is_infinity() or s.group.is_on_curve(s)):
-      raise ArithmeticError("Invalid Point: (%r, %r)" % (s.x, s.y))
+      raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
 
   def is_infinity(s):
     return s.x == 0 and s.y == 1 and s.z == 0

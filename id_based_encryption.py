@@ -19,7 +19,7 @@ def hash_to_field(F, m):
   d = hex(m)[2:].replace("L", "")
   if len(d) % 2 == 1:
     d = "0" + d
-  return int(E.field(int(hashlib.sha512(d.decode("hex")).hexdigest(), 16)))
+  return int(F(int(hashlib.sha512(d.decode("hex")).hexdigest(), 16)))
 
 def H2(x):
   return x.x * x.field.p + x.y
@@ -36,13 +36,15 @@ def gen_supersingular_ec():
   F = ExtendedFiniteField(p, "x^2+x+1")
   return EllipticCurve(F, 0, 1), F, l
 
+@profile
 def get_point(E, l):
   i = 3
   while True:
     r = E.get_corresponding_y(i)
     if r != None:
       P = E(i, r)
-      if (P*l).is_infinity():
+      pl = P*l
+      if pl.is_infinity():
         return P
     i += 1
 
@@ -67,10 +69,9 @@ def decrypt(E, K, c, l):
   return c[1] ^ H2(modified_pairing(E, c[0], K, l))
 
 def modified_pairing(E, P, Q, m):
-  ret = tate_pairing(E, P, Q.distortion_map(), m, 2)
-  return ret
+  return tate_pairing(E, P, Q.distortion_map(), m, 2)
 
-if __name__ == "__main__":
+def main():
   E, F, l = gen_supersingular_ec()
   P, sP = master_point(E, l)
   ID = "@elliptic_shiho"
@@ -82,3 +83,6 @@ if __name__ == "__main__":
   g = modified_pairing(E, P, Q, l)
   print decrypt(E, sQ, C, l)
 
+
+if __name__ == "__main__":
+  main()

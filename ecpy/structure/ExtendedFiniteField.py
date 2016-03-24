@@ -54,7 +54,6 @@ class ExtendedFiniteField(FiniteField):
     r = s._inv(w) * z
     return r
 
-  #@profile
   def _inv(s, a):
     if len(a) == 1:
       return Zmod._inv(s, a)
