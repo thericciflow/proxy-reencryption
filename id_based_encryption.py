@@ -36,7 +36,6 @@ def gen_supersingular_ec():
   F = ExtendedFiniteField(p, "x^2+x+1")
   return EllipticCurve(F, 0, 1), F, l
 
-@profile
 def get_point(E, l):
   i = 3
   while True:
