@@ -11,7 +11,6 @@ def memoize(f):
     return cache[args]
   return helper
 
-@memoize
 def gcd(x, y):
   while y != 0:
     t = x % y
@@ -33,8 +32,6 @@ def egcd(a, b):
 def modinv(a, m):
   if gcd(a, m) != 1:
     raise ModinvNotFoundError()
-  #if is_prime(m):
-  #  return pow(a, m-2, m)
   a %= m
   return egcd(a, m)[1] % m
 
@@ -62,7 +59,6 @@ def legendre_symbol(a, p):
     return -1
   return 1
 
-@memoize
 def jacobi_symbol(a, n):
   if is_prime(n):
     return legendre_symbol(a, n)
@@ -176,7 +172,6 @@ def tonelli_shanks(n, p):
     c = pow(b, 2, p)
     m = i
 
-@memoize
 def extended_legendre_symbol(a):
   m = a.field.degree()
   p = a.field.p

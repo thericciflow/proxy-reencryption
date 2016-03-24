@@ -1,7 +1,7 @@
 from ..abstract.Field import Field, FieldElement
 from .RationalField import QQ
 from .FiniteField import FiniteField, FiniteFieldElement
-from .Zmod import Zmod
+from .Zmod import Zmod, ZmodElement
 from ..util import is_prime, modinv
 import math
 
@@ -24,6 +24,7 @@ class ExtendedFiniteField(FiniteField):
     elif s.t == 2:
       return Zmod.__str__(s, "p^%d" % s.degree()) + " : Polynomial is w^2+w+1 = 0"
 
+  #@profile
   def _add(s, a, b):
     if s.t == 1 or s.t == 2:
       return s.element_class(s, a[0] + b[0], a[1] + b[1])
@@ -32,6 +33,7 @@ class ExtendedFiniteField(FiniteField):
     if s.t == 1 or s.t == 2:
       return s.element_class(s, s.p-a[0], s.p-a[1])
 
+  #@profile
   def _mul(s, a, b):
     if s.t == 1:
       return s.element_class(s, a[0] * b[0] - a[1] * b[1], a[0]*b[1] + a[1] * b[0])
@@ -52,6 +54,7 @@ class ExtendedFiniteField(FiniteField):
     r = s._inv(w) * z
     return r
 
+  #@profile
   def _inv(s, a):
     if len(a) == 1:
       return Zmod._inv(s, a)
@@ -70,10 +73,12 @@ class ExtendedFiniteField(FiniteField):
       return 2
 
 class ExtendedFiniteFieldElement(FiniteFieldElement):
+  #@profile
   def __init__(s, field, x, y=0):
     if isinstance(x, s.__class__):
       x, y = x.x, x.y
-    FiniteFieldElement.__init__(s, field, x)
+    s.field = field
+    s.x = x % s.field.p
     s.y = y % s.field.p
 
   def __repr__(s):

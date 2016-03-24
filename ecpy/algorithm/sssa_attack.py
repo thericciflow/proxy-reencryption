@@ -6,7 +6,7 @@ from ..util import modinv
 
 def hensel_lift(curve, P):
   x, y, _ = map(int, tuple(P))
-  t = (((x**3 + curve.a * x + curve.b) - y**2)/curve.field.p) % curve.field.p
+  t = (((x*x*x + curve.a * x + curve.b) - y*y)/curve.field.p) % curve.field.p
   t *= modinv(2*y, curve.field.p) 
   t %= curve.field.p
   return (x, y + (curve.field.p * t))
@@ -21,9 +21,9 @@ def SSSA_Attack(F, E, P, Q):
 
   lF = Zmod(F.p ** 2)
 
-  lA = ((y2**2 - y1**2 - (x2**3 - x1**3)) * modinv(x2-x1, lF.n)) % lF.n
+  lA = ((y2*y2 - y1*y1 - (x2*x2*x2 - x1*x1*x1)) * modinv(x2-x1, lF.n)) % lF.n
 
-  lB = (y1**2 - x1**3 - A*x1) % lF.n
+  lB = (y1*y1 - x1*x1*x1 - A*x1) % lF.n
 
   lE = EllipticCurve(lF, lA, lB)
 

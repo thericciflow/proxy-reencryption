@@ -2,7 +2,9 @@ from ..structure.EllipticCurve import EllipticCurve
 from ..structure.FiniteField import FiniteField
 from ..util import memoize
 
+#@profile
 def miller(E, P, Q, m):
+  #@profile
   def h(P, Q, R):
     if (P == Q and P.y == 0) or (P != Q and P.x == Q.x): # if \lambda is infinity
       return R.x - P.x
@@ -27,6 +29,7 @@ def miller(E, P, Q, m):
       T = T + P
   return f
 
+#@profile
 def weil_pairing(E, P, Q, m, S = None):
   if S == None:
     S = E.random_point()

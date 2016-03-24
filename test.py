@@ -45,7 +45,8 @@ def get_point(E, l):
         return P
     i += 1
 
-if __name__ == "__main__":
+#@profile
+def test():
   F = FiniteField(101)
   x = F(2)
   y = F(203)
@@ -244,3 +245,6 @@ if __name__ == "__main__":
     assert_eq(weil_pairing(E, P, Q, l)**(a*b), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
+
+if __name__ == "__main__":
+  test()

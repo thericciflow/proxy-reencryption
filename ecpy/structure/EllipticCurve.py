@@ -145,8 +145,8 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
   def __mul__(s, rhs):
     if rhs == 0:
       return s.group.O
-    d = int(rhs)
-    bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
+    d = s.group.field(rhs).int()
+    bits = map(int, bin(d)[2:])[::-1]
     x = s
     if bits[0]:
       res = x
