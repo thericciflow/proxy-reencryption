@@ -1,9 +1,4 @@
-from ..structure.EllipticCurve import EllipticCurve
-from ..structure.RationalField import QQ
-from ..structure.RealField import RR
-from ..structure.Zmod import Zmod
 from ..util import modinv
-
 def hensel_lift(curve, P):
   x, y, _ = map(int, tuple(P))
   t = (((x*x*x + curve.a * x + curve.b) - y*y)/curve.field.p) % curve.field.p
@@ -12,6 +7,10 @@ def hensel_lift(curve, P):
   return (x, y + (curve.field.p * t))
 
 def SSSA_Attack(F, E, P, Q):
+  from ..structure.EllipticCurve import EllipticCurve
+  from ..structure.RationalField import QQ
+  from ..structure.RealField import RR
+  from ..structure.Zmod import Zmod
   A = E.a
   B = E.b
   # lP, lQ, ... is "lifted" P, Q, ...

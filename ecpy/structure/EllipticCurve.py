@@ -1,5 +1,6 @@
 from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from ..util import modinv,ModinvNotFoundError,jacobi_symbol, gcd, modular_square_root
+from ..util import modinv,ModinvNotFoundError,jacobi_symbol, gcd
+from ..algorithm.root import modular_square_root
 from random import randint
 from RealField import RR
 from FiniteField import FiniteField

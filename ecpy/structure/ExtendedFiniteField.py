@@ -79,7 +79,6 @@ class ExtendedFiniteField(FiniteField):
       return 2
 
 class ExtendedFiniteFieldElement(FiniteFieldElement):
-  #@profile
   def __init__(s, field, x, y=0):
     if isinstance(x, s.__class__):
       x, y = x.x, x.y

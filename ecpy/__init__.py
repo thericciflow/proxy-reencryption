@@ -7,6 +7,7 @@ from .structure.FiniteField import FiniteField
 from .structure.Zmod import Zmod
 from .algorithm.pairing import miller, weil_pairing, tate_pairing
 from .algorithm.sssa_attack import SSSA_Attack
+from .algorithm.root import modular_square_root, modular_square_root_extended, extended_legendre_symbol, cubic_root
 from .structure.ComplexField import CC
 from .structure.ExtendedFiniteField import ExtendedFiniteField
 import util
