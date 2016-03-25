@@ -6,7 +6,7 @@ class ModinvNotFoundError(ArithmeticError):
 def memoize(f):
   cache = {}
   def helper(*args):
-    if args not in cache:
+    if not args in cache:
       cache[args] = f(*args)
     return cache[args]
   return helper
@@ -26,13 +26,12 @@ def egcd(a, b):
     q, r = b // a, b % a
     m, n = x - u * q, y - v * q
     b, a, x, y, u, v = a, r, u, v, m, n
-  g = b
-  return (g, x, y)
+  return (b, x, y)
 
+@memoize
 def modinv(a, m):
   if gcd(a, m) != 1:
     raise ModinvNotFoundError()
-  a %= m
   return egcd(a, m)[1] % m
 
 def lcm(*a):
@@ -72,6 +71,7 @@ def jacobi_symbol(a, n):
     else:
         return (-1) ** ( (n*n-1) / 8) * jacobi_symbol(a/2, n)
 
+@memoize
 def miller_rabin(x):
   s = 0
   while (x-1) % 2**(s+1) == 0:
@@ -84,10 +84,15 @@ def miller_rabin(x):
       prime += 1
   return prime > 6
 
+
 try:
   import gmpy
-  is_prime = gmpy.is_prime
+  _is_prime = gmpy.is_prime
   print "[+] found gmpy! use gmpy.is_prime"
 except:
-  is_prime = miller_rabin
+  _is_prime = miller_rabin
+
+@memoize
+def is_prime(x):
+  return _is_prime(x)
 
