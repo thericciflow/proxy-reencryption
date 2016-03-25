@@ -3,7 +3,7 @@ import hashlib
 import random
 
 def MapToPoint(E, y):
-  x = util.cubic_root(y**2 - 1)
+  x = cubic_root(y**2 - 1)
   Q = E(x, y)
   return 6*Q
 
