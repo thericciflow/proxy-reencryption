@@ -33,7 +33,6 @@ class ExtendedFiniteField(FiniteField):
     res += ")"
     return res
 
-  #@profile
   def _add(s, a, b):
     if s.t == 1 or s.t == 2:
       return s.element_class(s, a[0] + b[0], a[1] + b[1])
@@ -42,7 +41,6 @@ class ExtendedFiniteField(FiniteField):
     if s.t == 1 or s.t == 2:
       return s.element_class(s, s.p-a[0], s.p-a[1])
 
-  #@profile
   def _mul(s, a, b):
     if s.t == 1:
       return s.element_class(s, a[0] * b[0] - a[1] * b[1], a[0]*b[1] + a[1] * b[0])

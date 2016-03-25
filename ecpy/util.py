@@ -214,3 +214,51 @@ def modular_square_roots_extended(x):
   else:
     raise NotImplementedError("If you want to use function, please implement Shanks, Atkin, Kong et al, Mueller, Tonelli-Shanks, ... algorithm.")
   raise NotImplementedError()
+
+def cubic_root(x):
+  F = x.field
+  p = F.p
+  m = F.degree()
+  rho = 1
+  pm = p**m
+  r = (pm-1)/3
+  while True:
+    rho = F(random.randint(1, p-1), random.randint(1, p-1))
+    if rho ** r != 1:
+      break
+  t = 1
+  while True:
+    r = 3**t
+    if (pm-1) % r == 0:
+      t += 1
+    else:
+      t -= 1
+      s = (pm-1) / 3**t
+      if (s+1) % 3 == 0:
+        l = (s+1)/3
+        break
+      elif (s-1) % 3 == 0:
+        l = (s-1)/3
+        break
+  a = rho ** s
+  a_= rho ** (3**(t-1) * s)
+  b = x ** s
+  h = 1
+  i = 1
+  while i < t:
+    d = b ** (3**(t-1-i))
+    if d == 1:
+      k = 0
+    elif d == a_:
+      k = 2
+    else:
+      k = 1
+    b = b * (a*a*a)**k
+    h = h * a**k
+    a = a*a*a
+    i += 1
+  r = x**l * h
+  if s == 3*l + 1:
+    r = 1/r
+  return r
+

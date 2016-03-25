@@ -1,5 +1,6 @@
 import math
 from ..util import egcd, gcd, modinv
+import random
 
 class Field:
   def __init__(s, element_class):
@@ -80,8 +81,12 @@ class FieldElement:
     if rhs == 0:
       return s.__class__(s.field, 1)
     d = int(rhs)
+    if d < 0:
+      x = 1/s
+      d = -d
+    else:
+      x = s
     bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
-    x = s
     if bits[0]:
       res = x
     else:

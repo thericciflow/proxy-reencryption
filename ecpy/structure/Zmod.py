@@ -17,9 +17,6 @@ class Zmod(Field):
   def __str__(s, var="n"):
     return "%s : %s = %d" % (s.__class__.__name__, var, s.n)
 
-  def order(s):
-    return s.n - 1
-
   def _ord(s, a):
     a = a[0]
     i = 1

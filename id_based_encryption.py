@@ -1,9 +1,8 @@
 from ecpy import *
 import hashlib
 import random
-import gmpy
 
-secret = 0xcafebabe
+secret = 0xdeadbeef
 
 def hash_to_point(E, m, l):
   h = int(E.field(int(hashlib.sha512(m).hexdigest(), 16)))
@@ -25,14 +24,23 @@ def H2(x):
   return x.x * x.field.p + x.y
 
 def gen_supersingular_ec():
+  def _next_prime(n):
+    while not util.is_prime(n):
+      n += 1
+    return n
+  try:
+    from gmpy import next_prime
+  except:
+    next_prime = _next_prime
   def gen_prime():
     while True:
-      p = int(gmpy.next_prime(random.randint(2**71, 2**72)))
+      p = int(next_prime(random.randint(2**511, 2**512)))
       if util.is_prime(p*6-1):
         break
     return p*6-1, p
 
   p, l = gen_prime()
+  print "[+] p = %d" % p
   F = ExtendedFiniteField(p, "x^2+x+1")
   return EllipticCurve(F, 0, 1), F, l
 
@@ -77,9 +85,11 @@ def main():
   Q = get_user_public(E, P, ID, l)
   sQ = get_user_secret(E, Q, l)
   C = encrypt(E, P, sP, Q, 12345, l)
+  print C
   C1, C2 = C
   r = 1143
   g = modified_pairing(E, P, Q, l)
+  print g
   print decrypt(E, sQ, C, l)
 
 
