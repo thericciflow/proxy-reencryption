@@ -14,36 +14,20 @@ def SSSA_Attack(F, E, P, Q):
   A = E.a
   B = E.b
   # lP, lQ, ... is "lifted" P, Q, ...
-
   x1, y1 = hensel_lift(E, P)
   x2, y2 = hensel_lift(E, Q)
-
   lF = Zmod(F.p ** 2)
-
   lA = ((y2*y2 - y1*y1 - (x2*x2*x2 - x1*x1*x1)) * modinv(x2-x1, lF.n)) % lF.n
-
   lB = (y1*y1 - x1*x1*x1 - A*x1) % lF.n
-
   lE = EllipticCurve(lF, lA, lB)
-
   lP = lE(x1, y1)
   lQ = lE(x2, y2)
-
-  #print "[+] Lifted Curve : %s" % lE
-  #print "[+] Lifted P : %r" % lP
-  #print "[+] Lifted Q : %r" % lQ
-
-  #print "[+] Calculate U..."
   lU = (F.p - 1) * lP
-  #print "[+] Calculate V..."
   lV = (F.p - 1) * lQ
-
   dx1 = ((int(lU.x) - int(lP.x)) / F.p) % F.p
   dx2 = QQ((int(lU.y) - int(lP.y)), F.p)
   dy1 = (int(lV.x) - int(lQ.x))
   dy2 = (int(lV.y) - int(lQ.y)) % F.p
-
   m = dy1 * modinv(dx1, F.p) * dx2 * modinv(dy2, F.p)
   m %= F.p
-
-  return m.int()
+  return int(m)

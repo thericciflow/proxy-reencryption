@@ -69,7 +69,7 @@ class AdditiveGroupElement:
 
   def _to_tuple(s, d):
     if isinstance(d, s.__class__):
-      return tuple(d)
+      return d
     elif isinstance(d, tuple):
       return d
     else:

@@ -32,8 +32,6 @@ def egcd(a, b):
 def modinv(a, m):
   if gcd(a, m) != 1:
     raise ModinvNotFoundError()
-  #if is_prime(m):
-  #  return pow(a, m-2, m)
   if a < 0:
     a += m
   return egcd(a, m)[1] % m
@@ -54,7 +52,6 @@ def crt(a, n):
   return sum(map(lambda x: (x[0]*x[1]*x[2]) % N, zip(a, nk, ik))) % lcm(*n)
 
 def legendre_symbol(a, p):
-  assert is_prime(p)
   if gcd(a, p) != 1:
     return 0
   d = pow(a, ((p-1)/2), p)

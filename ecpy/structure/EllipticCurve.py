@@ -59,18 +59,19 @@ class GenericEllipticCurve(AdditiveGroup):
         X, Y, Z = Px, Py, Pz
         u = 3*X*X+s.a*Z*Z
         v = Y*Z
-        w = u*u-8*X*Y*v
-        Rx = 2*v*w
         a = Y*v
+        w = u*u-8*X*a
+        Rx = 2*v*w
         Ry = u*(4*X*a - w) - 8*a*a
         Rz = 8*v*v*v
       else:
         u = Qy*Pz - Py*Qz
         v = Qx * Pz - Px * Qz
         v3 = v*v*v
-        w = u*u*Pz*Qz - v3 - 2*v*v*Px*Qz
+        v2 = v*v
+        w = u*u*Pz*Qz - v3 - 2*v2*Px*Qz
         Rx = v*w
-        Ry = u*(v*v*Px*Qz - w) - v3*Py*Qz
+        Ry = u*(v2*Px*Qz - w) - v3*Py*Qz
         Rz = v3 * Pz * Qz
       if isinstance(Rz, (int, long)):
         z = 1/s.field(Rz)
@@ -122,13 +123,13 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 
   def line_coeff(s, Q):
     P = s
-    F = s.group.field
-    x1, y1, z1 = map(F, P)
-    x2, y2, z2 = map(F, Q)
-    if x1*z2 == x2*z1:
+    x1, y1, z1 = map(s.group.field, P)
+    x2, y2, z2 = map(s.group.field, Q)
+    assert z1 == z2 == 1 # is normalized?
+    if x1 == x2:
       l = (3*x1*x1 + s.group.a) / (2*y1)
     else:
-      l = (y2*z1-y1*z2) / (x2*z1-x1*z2)
+      l = (y2-y1) / (x2-x1)
     return l
 
   def __add__(s, rhs):
@@ -194,11 +195,12 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 class FiniteFieldEllipticCurve(GenericEllipticCurve):
   def __init__(s, field, a, b):
     GenericEllipticCurve.__init__(s, field, a, b)
-    AdditiveGroup.__init__(s, FiniteFieldEllipticCurvePoint)
+    s.element_class = FiniteFieldEllipticCurvePoint
     s.O = s.element_class(s, 0, 1, 0)
 
   def get_corresponding_y(s, x):
-    y_square = s.field(x) ** 3 + s.a * x + s.b
+    x = s.field(x)
+    y_square = x * x * x + s.a * x + s.b
     for y in modular_square_root(y_square, s.field.p ** s.field.degree()):
       if pow(y, 2, s.field.p ** s.field.degree()) == y_square:
         return y
@@ -212,7 +214,11 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
       k += 1
 
   def random_point(s):
-    x = s.field(*tuple([randint(0, s.field.order()+1) for _ in xrange(s.field.degree())]))
+    deg = s.field.degree()
+    if deg == 1:
+      x = s.field(randint(0, s.field.order()))
+    elif deg == 2:
+      x = s.field(randint(0, s.field.order()), randint(0, s.field.order()))
     while True:
       y = s.get_corresponding_y(x)
       if y != None:
@@ -286,4 +292,3 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
         return i
       r += s
       i += 1
-    return 0

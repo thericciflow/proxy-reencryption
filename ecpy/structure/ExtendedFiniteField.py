@@ -15,7 +15,8 @@ class ExtendedFiniteField(FiniteField):
       s.t = 2
     else:
       raise ValueError("Invalid Polynomial: %s" % poly)
-    FiniteField.__init__(s, p)
+    s.p = p
+    s.n = p
     s.element_class = ExtendedFiniteFieldElement
 
   def __str__(s):
@@ -75,8 +76,7 @@ class ExtendedFiniteField(FiniteField):
       return s.element_class(s, (a-b) * u, (-b) * u)
 
   def degree(s):
-    if s.t == 1 or s.t == 2:
-      return 2
+    return 2
 
 class ExtendedFiniteFieldElement(FiniteFieldElement):
   def __init__(s, field, x, y=0):
@@ -122,7 +122,7 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
 
   def _to_tuple(s, d):
     if isinstance(d, s.__class__):
-      return tuple(d)
+      return d
     elif isinstance(d, tuple):
       return d
     else:
@@ -131,3 +131,9 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
 
   def __hash__(s):
     return s.x * s.y * s.field.p
+
+  def __getitem__(s, idx):
+    return [s.x, s.y][idx]
+
+  def __len__(s):
+    return 2

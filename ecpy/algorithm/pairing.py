@@ -6,19 +6,16 @@ def miller(E, P, Q, m):
     p = R.y - P.y - L * (R.x - P.x)
     q = R.x + P.x + Q.x - L * L
     return p / q
-
   if P == Q:
     return 1
-
   b = map(int, bin(m)[2:])
   s = len(b) - 1
-  assert b[0] == 1
   f = 1
   T = P
   for i in b[1:]:
     f = f * f * h(T, T, Q)
-    T = T+T
-    if i == 1:
+    T = T + T
+    if i:
       f = f * h(T, P, Q)
       T = T + P
   return f
@@ -30,10 +27,8 @@ def weil_pairing(E, P, Q, m, S = None):
   fps  = miller(E, P, S, m)
   fqps = miller(E, Q, P-S, m)
   fqs  = miller(E, Q, -S, m)
-  u = E.field._inv(tuple(fqs))
-  u = E.field._inv(tuple(u * fqps))
-  return (E.field._inv(tuple(fps)) * fpqs) * u
+  return E.field._inv(fps * fqps) * fpqs * fqs
 
 def tate_pairing(E, P, Q, m, k = 2):
-  f = E.field(miller(E, P, Q, m))
+  f = miller(E, P, Q, m)
   return f ** (((E.field.p ** k) - 1) / m)

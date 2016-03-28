@@ -34,7 +34,7 @@ class Field:
     raise NotImplementedError()
 
   def _div(s, a, b):
-    return s._mul(a, tuple(s._inv(b)))
+    return s._mul(a, (s._inv(b)))
 
   def order(s):
     return 0
@@ -86,7 +86,7 @@ class FieldElement:
       d = -d
     else:
       x = s
-    bits = map(lambda x: x == "1", bin(d)[2:])[::-1]
+    bits = map(int, bin(d)[2:])[::-1]
     if bits[0]:
       res = x
     else:
@@ -116,7 +116,7 @@ class FieldElement:
     return not (s == rhs)
 
   def __eq__(s, rhs):
-    return s.field._equ(tuple(s), s._to_tuple(rhs))
+    return s.field._equ(s, s._to_tuple(rhs))
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)
@@ -135,8 +135,14 @@ class FieldElement:
   def __iter__(s):
     return (s.x, ).__iter__()
 
+  def __getitem__(s, idx):
+    return [s.x][idx]
+
   def __int__(s):
     return s.int()
 
   def __hash__(s):
     return s.x
+
+  def __len__(s):
+    return 1
