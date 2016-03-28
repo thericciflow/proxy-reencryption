@@ -4,11 +4,12 @@ from random import randint
 ac_count = 0
 wa_count = 0
 
+
 def _assert(a, b, msg, cond):
   global ac_count, wa_count
   msg = msg.ljust(16)
   print ("[+] %s..." % (msg)).ljust(30),
-  var = {"a":a, "b":b}
+  var = {"a": a, "b": b}
   if eval("a %s b" % cond, var):
     print "\x1b[33m[  OK  ]\x1b[0m %r" % (b, )
     ac_count += 1
@@ -16,11 +17,14 @@ def _assert(a, b, msg, cond):
     print "\x1b[31m[ Fail ]\x1b[0m Expected: %r, Result: %r" % (b, a)
     wa_count += 1
 
+
 def assert_neq(a, b, m):
   _assert(a, b, m, "!=")
 
+
 def assert_eq(a, b, m):
   _assert(a, b, m, "==")
+
 
 def gen_supersingular_ec():
   def _next_prime(n):
@@ -31,26 +35,29 @@ def gen_supersingular_ec():
     from gmpy import next_prime
   except:
     next_prime = _next_prime
+
   def gen_prime():
     while True:
       p = int(next_prime(randint(2**71, 2**72)))
-      if util.is_prime(p*6-1):
+      if util.is_prime(p * 6 - 1):
         break
-    return p*6-1, p
+    return p * 6 - 1, p
 
   p, l = gen_prime()
   F = ExtendedFiniteField(p, "x^2+x+1")
   return EllipticCurve(F, 0, 1), F, l
 
+
 def get_point(E, l):
   i = 3
   while True:
     r = E.get_corresponding_y(i)
-    if r != None:
+    if r is not None:
       P = E(i, r)
-      if (P*l).is_infinity():
+      if (P * l).is_infinity():
         return P
     i += 1
+
 
 def test():
   F = FiniteField(101)

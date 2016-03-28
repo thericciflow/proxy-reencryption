@@ -181,6 +181,7 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 
   def __iter__(s):
     return (s.x, s.y, s.z).__iter__()
+    return (s.x/s.z, s.y/s.z, 1).__iter__()
 
   def __repr__(s):
     if s.is_infinity():

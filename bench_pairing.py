@@ -2,11 +2,14 @@ from ecpy import *
 from timeit import timeit
 from random import randint
 
+
 def modified_weil_pairing(E, P, Q, m):
   return weil_pairing(E, P, Q.distortion_map(), m)
 
+
 def modified_tate_pairing(E, P, Q, m, k):
   return tate_pairing(E, P, Q.distortion_map(), m, k)
+
 
 def show_results(name, result, count):
     per_pass = 1000000 * (result / count)
@@ -15,15 +18,15 @@ def show_results(name, result, count):
 
 def main():
   l = 2201426263
-  p = 6*l-1
+  p = 6 * l - 1
   F = ExtendedFiniteField(p, "x^2+x+1")
   E = EllipticCurve(F, 0, 1)
   i = 3
   while True:
     y = E.get_corresponding_y(i)
-    if y != None:
+    if y is not None:
       P = E(i, y)
-      if (l*P).is_infinity():
+      if (l * P).is_infinity():
         break
     i += 1
   print P
@@ -34,7 +37,7 @@ def main():
   weil_time = []
   print "[+] Weil Pairing: "
   for x in rand:
-    weil_expr = "weil_pairing(%r, %r, %r.distortion_map(), %r)" % (E, P, x*P, l)
+    weil_expr = "weil_pairing(%r, %r, %r.distortion_map(), %r)" % (E, P, x * P, l)
     r = timeit(weil_expr, setup="from ecpy import EllipticCurve, ExtendedFiniteField, weil_pairing", number=count)
     weil_time += [r]
     show_results("weil", r, count)
