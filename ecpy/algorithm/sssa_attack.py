@@ -1,4 +1,4 @@
-from ..util import modinv
+from ..util import modinv, egcd
 def hensel_lift(curve, P):
   x, y, _ = map(int, tuple(P))
   t = (((x*x*x + curve.a * x + curve.b) - y*y)/curve.field.p) % curve.field.p

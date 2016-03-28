@@ -48,7 +48,6 @@ class Zmod(Field):
     return s.element_class(s, a[0] % b[0])
 
 class ZmodElement(FieldElement):
-  #@profile
   def __init__(s, field, x):
     s.field = field
     if isinstance(x, s.__class__):

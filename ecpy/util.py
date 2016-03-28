@@ -32,6 +32,10 @@ def egcd(a, b):
 def modinv(a, m):
   if gcd(a, m) != 1:
     raise ModinvNotFoundError()
+  #if is_prime(m):
+  #  return pow(a, m-2, m)
+  if a < 0:
+    a += m
   return egcd(a, m)[1] % m
 
 def lcm(*a):
@@ -71,7 +75,6 @@ def jacobi_symbol(a, n):
     else:
         return (-1) ** ( (n*n-1) / 8) * jacobi_symbol(a/2, n)
 
-@memoize
 def miller_rabin(x):
   s = 0
   while (x-1) % 2**(s+1) == 0:

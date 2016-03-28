@@ -1,85 +1,54 @@
-from ecpy import *
+from applib import *
 import hashlib
 import random
 
-def MapToPoint(E, y):
-  x = cubic_root(y**2 - 1)
-  Q = E(x, y)
-  return 6*Q
+secret = 0xdeadbeef
 
-def hash_to_point(E, m, l):
-  h = E.field(int(hashlib.sha512(m).hexdigest(), 16))
-  return MapToPoint(E, h)
+p = 51913085418121682294001018392922882479990360896585434465224709506184017104633180621645036239902771873890716081492327513618482373167152353369121135029626237
+l = (p+1)/6
+F = ExtendedFiniteField(p, "x^2+x+1")
+E = EllipticCurve(F, 0, 1)
 
-def hash_to_field(F, m):
-  d = hex(m)[2:].replace("L", "")
-  if len(d) % 2 == 1:
-    d = "0" + d
-  return int(F(int(hashlib.sha512(d.decode("hex")).hexdigest(), 16)))
+P = E(6, (13223256612935805456685486619785988828211352545760979145826773809338317294785343911938620915300032787305564224073179749632175004531990130007962275678599731, 26446513225871610913370973239571977656422705091521958291653547618676634589570687823877241830600065574611128448146359499264350009063980260015924551357199462))
 
-def H2(x):
-  return x.x * x.field.p + x.y
+sP = secret * P
 
-def gen_supersingular_ec():
-  def _next_prime(n):
-    while not util.is_prime(n):
-      n += 1
-    return n
-  try:
-    from gmpy import next_prime
-  except:
-    next_prime = _next_prime
-  def gen_prime():
-    while True:
-      p = int(next_prime(random.randint(2**127, 2**128)))
-      if util.is_prime(p*6-1):
-        break
-    return p*6-1, p
+def sign(m):
+  global secret, E, l
+  return secret * hash_to_point(E, m, l)
 
-  p, l = gen_prime()
-  print "[+] p = %d" % p
-  F = ExtendedFiniteField(p, "x^2+x+1")
-  return EllipticCurve(F, 0, 1), F, l
-
-def get_point(E, l):
-  i = 3
-  while True:
-    r = E.get_corresponding_y(i)
-    if r != None:
-      P = E(i, r)
-      pl = P*l
-      if pl.is_infinity():
-        return P
-    i += 1
-
-
-def modified_pairing(E, P, Q, m):
-  return tate_pairing(E, P, Q.distortion_map(), m, 2)
+def verify(sig, msg):
+  global secret, E, l, P, sP
+  a = modified_pairing(E, P, sig, l)
+  b = modified_pairing(E, sP, hash_to_point(E, msg, l), l)
+  return a == b
 
 def main():
-  E, F, l = gen_supersingular_ec()
-  user_key = get_point(E, l)
-  secret = random.randint(1, l)
-  P, sP = user_key, user_key * secret
+  global secret, E, F, l, P, sP
 
-  print "[+] P, sP = %s, %s" % (P, sP)
-  print "[+] [secret: %s]" % secret
+  while True:
+    print "What to do?"
+    print "Sign -> s, Verify -> v, Quit -> q :", 
+    t = raw_input().strip().lower()
+    if t == "s":
+      print "[+] Message? :",
+      m = raw_input().strip()
+      sig = sign(m)
+      print ":".join(map(lambda x: str(x[0]) + ";" + str(x[1]), map(tuple, tuple(sig)[:-1])))
+    elif t == "v":
+      print "Signature? :",
+      x, y = map(lambda x: tuple(map(int, x.split(";"))), raw_input().strip().split(":"))
+      sig = E(x, y)
+      print "Message? :",
+      m = raw_input().strip()
+      if verify(sig, m):
+        print "[+] Verify: Passed."
+      else:
+        print "[+] Verify: Invalid Signature!"
+    elif t == "q":
+      print "[+] Quit"
+      break
 
-  print "Please Type Message:", 
-  m = raw_input().strip()
-  print "[+] m = %r" % m
-
-  signature = secret * hash_to_point(E, m, l)
-  print "[+] signature = %s" % signature
-
-  print "[+] Verify: "
-  print "Type Message:", 
-  m_ = raw_input().strip()
-  print "[+] m' = %r" % m_
-  a = modified_pairing(E, P, signature, l)
-  b = modified_pairing(E, sP, hash_to_point(E, m_, l), l)
-  print "[+] a, b = %s, %s" % (a, b)
-  print "[+] a == b? %s" % (a==b)
 
 if __name__ == "__main__":
   main()
