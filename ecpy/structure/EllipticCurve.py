@@ -7,7 +7,7 @@ from ExtendedFiniteField import ExtendedFiniteField
 
 
 def EllipticCurve(field, a, b):
-  if isinstance(field, FiniteField) or isinstance(field, ExtendedFiniteField):
+  if field.__class__ in (FiniteField, ExtendedFiniteField):
     return FiniteFieldEllipticCurve(field, a, b)
   else:
     return GenericEllipticCurve(field, a, b)
@@ -193,8 +193,10 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 
 class FiniteFieldEllipticCurve(GenericEllipticCurve):
   def __init__(s, field, a, b):
-    GenericEllipticCurve.__init__(s, field, a, b)
     s.element_class = FiniteFieldEllipticCurvePoint
+    s.field = field
+    s.a = a
+    s.b = b
     s.O = s.element_class(s, 0, 1, 0)
 
   def get_corresponding_y(s, x):
@@ -250,11 +252,11 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     if s.group.field.t == 1:
       x = s.x
       y = s.y
-      if isinstance(x, int) or isinstance(x, long):
+      if isinstance(x, (int, long)):
         x = (x, 0)
       else:
         x = tuple(x)
-      if isinstance(y, int) or isinstance(y, long):
+      if isinstance(y, (int, long)):
         y = (y, 0)
       else:
         y = tuple(y)
@@ -264,25 +266,17 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     elif s.group.field.t == 2:
       x = s.x
       y = s.y
-      if isinstance(x, int) or isinstance(x, long):
+      if isinstance(x, (int, long)):
         x = (x, 0)
       else:
         x = tuple(x)
-      if isinstance(y, int) or isinstance(y, long):
+      if isinstance(y, (int, long)):
         y = (y, 0)
       else:
         y = tuple(y)
       x = (x[1], x[0])
       y = (y[0], y[1])
       return s.__class__(s.group, x, y)
-
-  def _to_tuple(s, d):
-    if isinstance(d, s.__class__):
-      return tuple(d)
-    elif isinstance(d, tuple):
-      return d
-    else:
-      raise ArithmeticError("Invalid Parameter")
 
   def order(s):
     r = s.change_group(s.group)
