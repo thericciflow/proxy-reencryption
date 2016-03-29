@@ -1,8 +1,7 @@
 from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from ..util import modinv,ModinvNotFoundError,jacobi_symbol, gcd
+from ..util import ModinvNotFoundError
 from ..algorithm.root import modular_square_root
 from random import randint
-from RealField import RR
 from FiniteField import FiniteField
 from ExtendedFiniteField import ExtendedFiniteField
 
@@ -12,6 +11,7 @@ def EllipticCurve(field, a, b):
     return FiniteFieldEllipticCurve(field, a, b)
   else:
     return GenericEllipticCurve(field, a, b)
+
 
 class GenericEllipticCurve(AdditiveGroup):
   def __init__(s, field, a, b):
@@ -27,13 +27,13 @@ class GenericEllipticCurve(AdditiveGroup):
   def _is_on_curve(s, x, y):
     x = s.field(x)
     y = s.field(y)
-    return  y*y == x*x*x + s.a * x + s.b
+    return y * y == x * x * x + s.a * x + s.b
 
   def determinant(s):
-    return -16*(4*s.a**3 + 27*s.b**2)
+    return -16 * (4 * s.a**3 + 27 * s.b**2)
 
   def j_invariant(s):
-    return -1728*((4*s.a**3) / s.determinant())
+    return -1728 * ((4 * s.a**3) / s.determinant())
 
   def __repr__(s):
     return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
@@ -57,26 +57,26 @@ class GenericEllipticCurve(AdditiveGroup):
     try:
       if s._equ(P, Q):
         X, Y, Z = Px, Py, Pz
-        u = 3*X*X+s.a*Z*Z
-        v = Y*Z
-        a = Y*v
-        w = u*u-8*X*a
-        Rx = 2*v*w
-        Ry = u*(4*X*a - w) - 8*a*a
-        Rz = 8*v*v*v
+        u = 3 * X * X + s.a * Z * Z
+        v = Y * Z
+        a = Y * v
+        w = u * u - 8 * X * a
+        Rx = 2 * v * w
+        Ry = u * (4 * X * a - w) - 8 * a * a
+        Rz = 8 * v * v * v
       else:
-        u = Qy*Pz - Py*Qz
+        u = Qy * Pz - Py * Qz
         v = Qx * Pz - Px * Qz
-        v3 = v*v*v
-        v2 = v*v
-        w = u*u*Pz*Qz - v3 - 2*v2*Px*Qz
-        Rx = v*w
-        Ry = u*(v2*Px*Qz - w) - v3*Py*Qz
+        v2 = v * v
+        v3 = v2 * v
+        w = u * u * Pz * Qz - v3 - 2 * v2 * Px * Qz
+        Rx = v * w
+        Ry = u * (v2 * Px * Qz - w) - v3 * Py * Qz
         Rz = v3 * Pz * Qz
       if isinstance(Rz, (int, long)):
-        z = 1/s.field(Rz)
+        z = 1 / s.field(Rz)
       else:
-        z = 1/Rz
+        z = 1 / Rz
       return s.element_class(s, Rx * z, Ry * z, 1)
     except ModinvNotFoundError:
       return s.O
@@ -87,8 +87,9 @@ class GenericEllipticCurve(AdditiveGroup):
   def _neg(s, P):
     return s.element_class(s, P[0], -P[1])
 
+
 class GenericEllipticCurvePoint(AdditiveGroupElement):
-  def __init__(s, group, x, y, z = 1):
+  def __init__(s, group, x, y, z=1):
     if isinstance(x, tuple):
       AdditiveGroupElement.__init__(s, group, None)
       s.x = group.field(*x)
@@ -97,7 +98,7 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     if isinstance(y, tuple):
       s.y = group.field(*y)
     else:
-      s.y = y 
+      s.y = y
     if isinstance(z, tuple):
       s.z = group.field(*z)
     else:
@@ -125,11 +126,11 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     P = s
     x1, y1, z1 = map(s.group.field, P)
     x2, y2, z2 = map(s.group.field, Q)
-    assert z1 == z2 == 1 # is normalized?
+    assert z1 == z2 == 1  # is normalized?
     if x1 == x2:
-      l = (3*x1*x1 + s.group.a) / (2*y1)
+      l = (3 * x1 * x1 + s.group.a) / (2 * y1)
     else:
-      l = (y2-y1) / (x2-x1)
+      l = (y2 - y1) / (x2 - x1)
     return l
 
   def __add__(s, rhs):
@@ -181,7 +182,6 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 
   def __iter__(s):
     return (s.x, s.y, s.z).__iter__()
-    return (s.x/s.z, s.y/s.z, 1).__iter__()
 
   def __repr__(s):
     if s.is_infinity():
@@ -192,6 +192,7 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     if s.is_infinity():
       return "Infinity Point (0 : 1 : 0) on %s" % s.group
     return "Point (%s : %s : %s) on %s" % (s.x, s.y, s.z, s.group)
+
 
 class FiniteFieldEllipticCurve(GenericEllipticCurve):
   def __init__(s, field, a, b):
@@ -227,8 +228,9 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
           return s.element_class(s, x, y)
       x += 1
 
+
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
-  def __init__(s, group, x, y, z = 1):
+  def __init__(s, group, x, y, z=1):
     if isinstance(x, tuple):
       AdditiveGroupElement.__init__(s, group, group.field(*x))
     else:

@@ -1,10 +1,10 @@
 from distutils.core import setup
 
 setup(name="ecpy",
-    version="0.1a3",
-    description="A Elliptic-Curve Library",
-    author="@elliptic_shiho",
-    author_email="shiho.elliptic@gmaill.com",
-    url="https://github.com/elliptic-shiho/ecpy/",
-    packages=["ecpy", "ecpy.abstract", "ecpy.structure", "ecpy.algorithm"]
-)
+      version="1.0",
+      description="A Elliptic-Curve Library",
+      author="@elliptic_shiho",
+      author_email="shiho.elliptic@gmaill.com",
+      url="https://github.com/elliptic-shiho/ecpy/",
+      packages=["ecpy", "ecpy.abstract", "ecpy.structure", "ecpy.algorithm"]
+      )

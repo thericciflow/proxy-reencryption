@@ -3,14 +3,6 @@ from timeit import timeit
 from random import randint
 
 
-def modified_weil_pairing(E, P, Q, m):
-  return weil_pairing(E, P, Q.distortion_map(), m)
-
-
-def modified_tate_pairing(E, P, Q, m, k):
-  return tate_pairing(E, P, Q.distortion_map(), m, k)
-
-
 def show_results(name, result, count):
     per_pass = 1000000 * (result / count)
     print '%s: %.2f usec/pass' % (name, per_pass)
@@ -24,7 +16,7 @@ def main():
   i = 3
   while True:
     y = E.get_corresponding_y(i)
-    if y is not None:
+    if y != None:
       P = E(i, y)
       if (l * P).is_infinity():
         break

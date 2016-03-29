@@ -52,7 +52,7 @@ def get_point(E, l):
   i = 3
   while True:
     r = E.get_corresponding_y(i)
-    if r is not None:
+    if r != None:
       P = E(i, r)
       if (P * l).is_infinity():
         return P
@@ -251,12 +251,10 @@ def test():
     b = randint(2**15, 2**16)
     gab = g**(a*b)
     assert_eq(tate_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(tate_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
     assert_eq(tate_pairing(E, a*P, Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
     assert_eq(tate_pairing(E, b*P, Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
     assert_eq(tate_pairing(E, P, a*Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
     assert_eq(tate_pairing(E, P, b*Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(tate_pairing(E, P, Q, l)**(a*b), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
 

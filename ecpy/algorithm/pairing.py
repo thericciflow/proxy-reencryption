@@ -1,6 +1,7 @@
 def miller(E, P, Q, m):
   def h(P, Q, R):
-    if (P == Q and P.y == 0) or (P != Q and P.x == Q.x): # if \lambda is infinity
+    # if \lambda is infinity
+    if (P == Q and P.y == 0) or (P != Q and P.x == Q.x):
       return R.x - P.x
     L = P.line_coeff(Q)
     p = R.y - P.y - L * (R.x - P.x)
@@ -9,7 +10,6 @@ def miller(E, P, Q, m):
   if P == Q:
     return 1
   b = map(int, bin(m)[2:])
-  s = len(b) - 1
   f = 1
   T = P
   for i in b[1:]:
@@ -20,15 +20,17 @@ def miller(E, P, Q, m):
       T = T + P
   return f
 
-def weil_pairing(E, P, Q, m, S = None):
-  if S == None:
+
+def weil_pairing(E, P, Q, m, S=None):
+  if S is None:
     S = E.random_point()
-  fpqs = miller(E, P, Q+S, m)
-  fps  = miller(E, P, S, m)
-  fqps = miller(E, Q, P-S, m)
-  fqs  = miller(E, Q, -S, m)
+  fpqs = miller(E, P, Q + S, m)
+  fps = miller(E, P, S, m)
+  fqps = miller(E, Q, P - S, m)
+  fqs = miller(E, Q, -S, m)
   return E.field._inv(fps * fqps) * fpqs * fqs
 
-def tate_pairing(E, P, Q, m, k = 2):
+
+def tate_pairing(E, P, Q, m, k=2):
   f = miller(E, P, Q, m)
   return f ** (((E.field.p ** k) - 1) / m)
