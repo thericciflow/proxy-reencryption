@@ -142,9 +142,6 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     else:
       return s.group._add(tuple(s), d)
 
-  def __sub__(s, rhs):
-    return s.group._add(tuple(s), s._to_tuple(-rhs))
-
   def __mul__(s, rhs):
     if rhs == 0:
       return s.group.O
