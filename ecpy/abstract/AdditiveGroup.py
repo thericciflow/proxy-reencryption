@@ -1,6 +1,3 @@
-import math
-from ..util import egcd, gcd, modinv
-
 class AdditiveGroup:
   def __init__(s, element_class):
     s.element_class = element_class
@@ -28,6 +25,7 @@ class AdditiveGroup:
 
   def _ord(s, a):
     return 0
+
 
 class AdditiveGroupElement:
   def __init__(s, group, x):

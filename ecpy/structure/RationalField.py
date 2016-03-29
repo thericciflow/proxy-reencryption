@@ -1,6 +1,7 @@
 from ..abstract.Field import Field, FieldElement
 from ..util import gcd, lcm
 
+
 class RationalField(Field):
   def __init__(s):
     Field.__init__(s, RationalFieldElement)
@@ -13,15 +14,15 @@ class RationalField(Field):
 
   def _add(s, a, b):
     if a[1] == b[1]:
-      return s.element_class(s, a[0]+b[0], a[1])
+      return s.element_class(s, a[0] + b[0], a[1])
     else:
       l = lcm(a[1], b[1])
-      p1 = a[0] * l/a[1]
-      p2 = b[0] * l/b[1]
-      return s.element_class(s, p1+p2, l)
+      p1 = a[0] * l / a[1]
+      p2 = b[0] * l / b[1]
+      return s.element_class(s, p1 + p2, l)
 
   def _mul(s, a, b):
-    return s.element_class(s, a[0]*b[0], a[1]*b[1])
+    return s.element_class(s, a[0] * b[0], a[1] * b[1])
 
   def _neg(s, a):
     return s.element_class(s, -a[0], a[1])
@@ -34,6 +35,7 @@ class RationalField(Field):
 
   def _mod(s, a, b):
     return s.element_class(s, a[0] % b[0], a[1] % b[0])
+
 
 class RationalFieldElement(FieldElement):
   def __init__(s, field, p, q):
@@ -67,5 +69,4 @@ class RationalFieldElement(FieldElement):
     else:
       return (d, 1)
 
-def QQ(p, q):
-  return RationalField()(p, q)
+QQ = RationalField()

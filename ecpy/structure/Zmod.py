@@ -1,7 +1,7 @@
-import math
-from ..util import egcd, gcd, modinv, is_prime
+from ..util import modinv, is_prime
 from ..abstract.Field import Field, FieldElement
 import FiniteField
+
 
 class Zmod(Field):
   def __init__(s, n):
@@ -30,22 +30,23 @@ class Zmod(Field):
     return 0
 
   def _add(s, a, b):
-    return s.element_class(s, a[0]+b[0])
+    return s.element_class(s, a[0] + b[0])
 
   def _mul(s, a, b):
-    return s.element_class(s, a[0]*b[0])
+    return s.element_class(s, a[0] * b[0])
 
   def _inv(s, a):
     return s.element_class(s, modinv(a[0], s.n ** s.degree()))
 
   def _neg(s, a):
-    return s.element_class(s, s.n-a[0])
+    return s.element_class(s, s.n - a[0])
 
   def _equ(s, a, b):
     return a[0] == b[0]
 
   def _mod(s, a, b):
     return s.element_class(s, a[0] % b[0])
+
 
 class ZmodElement(FieldElement):
   def __init__(s, field, x):

@@ -1,4 +1,6 @@
-from ecpy import *
+from ecpy import util, ExtendedFiniteField, EllipticCurve, FiniteField
+from ecpy import miller, weil_pairing, tate_pairing, SSSA_Attack
+from ecpy import CC
 from random import randint
 
 ac_count = 0
@@ -24,6 +26,14 @@ def assert_neq(a, b, m):
 
 def assert_eq(a, b, m):
   _assert(a, b, m, "==")
+
+
+def modified_weil_pairing(E, P, Q, m):
+  return weil_pairing(E, P, Q.distortion_map(), m)
+
+
+def modified_tate_pairing(E, P, Q, m):
+  return tate_pairing(E, P, Q.distortion_map(), m, 2)
 
 
 def gen_supersingular_ec():
@@ -68,25 +78,25 @@ def test():
 
   F = FiniteField(5)
   x = F(3)
-  y = F(7) # = 2
+  y = F(7)  # = 2
   print F
   print "[+] x, y = %s, %s" % (x, y)
-  assert_eq(x+y, F(0), "x+y == F(0)")
-  assert_eq(x+y, 0, "x+y == 0")
-  assert_eq(x-y, 1, "x-y == 1")
-  assert_eq(x*y, 1, "x*y == 1")
+  assert_eq(x + y, F(0), "x+y == F(0)")
+  assert_eq(x + y, 0, "x+y == 0")
+  assert_eq(x - y, 1, "x-y == 1")
+  assert_eq(x * y, 1, "x*y == 1")
   x = F(2)
   y = F(3)
   print "[+] x, y = %s, %s" % (x, y)
   # commutive!
-  assert_eq(1/x, y, "1/x == y")
+  assert_eq(1 / x, y, "1/x == y")
   assert_eq(util.modinv(x.x, F.p), y, "modinv(x) == y")
-  assert_eq(1/y, x, "1/y == x")
+  assert_eq(1 / y, x, "1/y == x")
 
   assert_eq(x**3, y, "x^3 == y")
 
   assert_eq(util.crt([3, 4], [4, 9]), 31, "CRT Test")
-  #assert_eq(util.crt([7, 13], [12, 18]), 31, "CRT Test 2")
+  # assert_eq(util.crt([7, 13], [12, 18]), 31, "CRT Test 2")
 
   assert_eq(F.order(), 4, "|F| = 4")
   assert_eq(x.order(), 4, "|x| = 4")
@@ -97,10 +107,10 @@ def test():
   P = E(1, 6)
   Q = E(11, 4)
   print "P, Q = %r, %r" % (P, Q)
-  assert_eq(P+Q, E(3, 8), "P+Q")
-  assert_eq(P+P, E(0, 0), "P+P")
-  assert_eq(P*2, E(0, 0), "P*2")
-  assert_eq(2*P, E(0, 0), "2*P")
+  assert_eq(P + Q, E(3, 8), "P+Q")
+  assert_eq(P + P, E(0, 0), "P+P")
+  assert_eq(P * 2, E(0, 0), "P*2")
+  assert_eq(2 * P, E(0, 0), "2*P")
   assert_eq(P.order(), 4, "|P| = 4")
 
   print "Random Test: "
@@ -117,7 +127,7 @@ def test():
       if q != 0:
         break
     print "[+] random 2 = %d" % q
-    assert_eq(r*(q*P), q*(r*P), "ECDH test")
+    assert_eq(r * (q * P), q * (r * P), "ECDH test")
     i += 1
 
   # The arithmetic of elliptic curves: p.397 example of miller algorithm
@@ -131,16 +141,16 @@ def test():
 
   print "P, Q, S = %r, %r, %r" % (P, Q, S)
   assert_eq(E.embedding_degree(m), 1, "embedding degree")
-  assert_eq(miller(E, P, Q+S, m), 103, "miller(P, Q+S)")
+  assert_eq(miller(E, P, Q + S, m), 103, "miller(P, Q+S)")
   assert_eq(miller(E, P, S, m), 219, "miller(P, S)")
-  assert_eq(miller(E, Q, P-S, m), 284, "miller(Q, P-S)")
+  assert_eq(miller(E, Q, P - S, m), 284, "miller(Q, P-S)")
   assert_eq(miller(E, Q, -S, m), 204, "miller(Q, -S)")
   assert_eq(weil_pairing(E, P, Q, m, S), 242, "weil_pairing")
   assert_eq(tate_pairing(E, P, Q, m, 1), 279, "tate_pairing")
   g = tate_pairing(E, P, Q, m)
   print "[+] g = %s" % g
-  assert_eq(tate_pairing(E, 2*P, Q, m), g**2, "e(2P, Q) == g^2")
-  assert_eq(tate_pairing(E, P, 2*Q, m), g**2, "e(P, 2Q) == g^2")
+  assert_eq(tate_pairing(E, 2 * P, Q, m), g**2, "e(2P, Q) == g^2")
+  assert_eq(tate_pairing(E, P, 2 * Q, m), g**2, "e(P, 2Q) == g^2")
   assert_eq(tate_pairing(E, P, Q, m)**2, g**2, "e(P, Q)^2 == g^2")
 
   print "[+] SSSA-Attack"
@@ -155,19 +165,22 @@ def test():
   for x in xrange(10):
     print E.random_point()
 
+  P = E(5732560139258194764535999929325388041568732716579308775,
+        14532336890195013837874850588152996214121327870156054248)
+  Q = E(2609506039090139098835068603396546214836589143940493046,
+        8637771092812212464887027788957801177574860926032421582)
 
-  P = E(5732560139258194764535999929325388041568732716579308775, 14532336890195013837874850588152996214121327870156054248)
-  Q = E(2609506039090139098835068603396546214836589143940493046, 8637771092812212464887027788957801177574860926032421582)
+  assert_eq(SSSA_Attack(F, E, P, Q),
+            6418297401790414921245298353021109182464447715712434176,
+            "SSSA-Attack")
 
-  assert_eq(SSSA_Attack(F, E, P, Q), 6418297401790414921245298353021109182464447715712434176, "SSSA-Attack")
-
-  z = CC(1, 2) # 1+2i
-  w = CC(5, 1) # 5+i
+  z = CC(1, 2)  # 1+2i
+  w = CC(5, 1)  # 5+i
   print "z, w = %r, %r" % (z, w)
-  assert_eq(z+w, CC(6, 3), "z+w")
-  assert_eq(z-w, CC(-4, 1), "z-w")
-  assert_eq(z*w, CC(3, 11), "z*w")
-  assert_eq(z/w, CC(0.2692307692307693, 0.34615384615384615), "z/w")
+  assert_eq(z + w, CC(6, 3), "z+w")
+  assert_eq(z - w, CC(-4, 1), "z-w")
+  assert_eq(z * w, CC(3, 11), "z*w")
+  assert_eq(z / w, CC(0.2692307692307693, 0.34615384615384615), "z/w")
 
   F = ExtendedFiniteField(59)
   a = F(0, 1)
@@ -181,7 +194,7 @@ def test():
 
   l = 56453
   m = l
-  p = l*6-1
+  p = l * 6 - 1
   F = ExtendedFiniteField(p, "x^2+x+1")
   print "Random Test 2:"
   for x in xrange(10):
@@ -195,37 +208,47 @@ def test():
   P = E(3, 1164)
   print P
   print P.distortion_map()
-  modified_weil_pairing = lambda E, P, Q, m: weil_pairing(E, P, Q.distortion_map(), m)
-  modified_tate_pairing = lambda E, P, Q, m: tate_pairing(E, P, Q.distortion_map(), m, 2)
 
   g = modified_weil_pairing(E, P, P, m)
   print "[+] g = %s" % g
 
-  assert_eq(modified_weil_pairing(E, P, 2*P, m), g**2, "e(P, 2P) == g^2")
-  assert_eq(modified_weil_pairing(E, 2*P, P, m), g**2, "e(2P, 2P) == g^2")
+  assert_eq(modified_weil_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
+  assert_eq(modified_weil_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
   assert_eq(modified_weil_pairing(E, P, P, m)**2, g**2, "e(P, P)^2 == g^2")
 
   g = modified_tate_pairing(E, P, P, m)
   print "[+] g = %s" % g
 
-  assert_eq(modified_tate_pairing(E, P, 2*P, m), g**2, "e(P, 2P) == g^2")
-  assert_eq(modified_tate_pairing(E, 2*P, P, m), g**2, "e(2P, 2P) == g^2")
+  assert_eq(modified_tate_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
+  assert_eq(modified_tate_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
 
-  assert_eq(F(53521, 219283)/F(297512, 101495), F(333099, 288028), "r/prev_r test: 0")
-  assert_eq(F(281317, 98371)/F(53521, 219283), F(323815, 46359), "r/prev_r test: 1")
-  assert_eq(F(31851, 95658)/F(281317, 98371), F(5298, 9638), "r/prev_r test: 2")
-  assert_eq(F(92937, 215632)/F(31851, 95658), F(278130, 175879), "r/prev_r test: 3")
-  assert_eq(F(61703, 173508)/F(92937, 215632), F(189715, 176788), "r/prev_r test: 4")
-  assert_eq(F(80979, 72727)/F(61703, 173508), F(15407, 212022), "r/prev_r test: 5")
-  assert_eq(F(311516, 184895)/F(80979, 72727), F(225531, 44087), "r/prev_r test: 6")
-  assert_eq(F(326035, 114920)/F(311516, 184895), F(213234, 100495), "r/prev_r test: 7")
-  assert_eq(F(294922, 165746)/F(326035, 114920), F(113566, 200451), "r/prev_r test: 8")
-  assert_eq(F(73542, 195813)/F(294922, 165746), F(201397, 252614), "r/prev_r test: 9")
-  assert_eq(1/F(338714, 3), F(37635, 188176), "division by b = -a")
+  assert_eq(F(53521, 219283) / F(297512, 101495), F(333099, 288028),
+            "r/prev_r test: 0")
+  assert_eq(F(281317, 98371) / F(53521, 219283), F(323815, 46359),
+            "r/prev_r test: 1")
+  assert_eq(F(31851, 95658) / F(281317, 98371), F(5298, 9638),
+            "r/prev_r test: 2")
+  assert_eq(F(92937, 215632) / F(31851, 95658), F(278130, 175879),
+            "r/prev_r test: 3")
+  assert_eq(F(61703, 173508) / F(92937, 215632), F(189715, 176788),
+            "r/prev_r test: 4")
+  assert_eq(F(80979, 72727) / F(61703, 173508), F(15407, 212022),
+            "r/prev_r test: 5")
+  assert_eq(F(311516, 184895) / F(80979, 72727), F(225531, 44087),
+            "r/prev_r test: 6")
+  assert_eq(F(326035, 114920) / F(311516, 184895), F(213234, 100495),
+            "r/prev_r test: 7")
+  assert_eq(F(294922, 165746) / F(326035, 114920), F(113566, 200451),
+            "r/prev_r test: 8")
+  assert_eq(F(73542, 195813) / F(294922, 165746), F(201397, 252614),
+            "r/prev_r test: 9")
+  assert_eq(1 / F(338714, 3), F(37635, 188176), "division by b = -a")
 
-  assert_eq(F(302128, 326350) * F(39563, 131552), F(151684, 28719), "multiple test")
+  assert_eq(F(302128, 326350) * F(39563, 131552), F(151684, 28719),
+            "multiple test")
 
-  assert_eq(miller(E, P, P.distortion_map(), m), F(239139, 508), "miller function check")
+  assert_eq(miller(E, P, P.distortion_map(), m), F(239139, 508),
+            "miller function check")
 
   a = F(234687, 190012)
   b = F(218932, 251221)
@@ -233,13 +256,13 @@ def test():
   print "[+] a = %s" % a
   print "[+] b = %s" % b
 
-  assert_eq(a+b, F(114902, 102516), "a+b")
-  assert_eq(a-b, F(15755, 277508), "a-b")
-  assert_eq(a*b, F(217278, 89209), "a*b")
-  assert_eq(a/b, F(167345, 81997), "a/b")
-  assert_eq(a*a*a*a, F(31723, 160374), "a*a*a*a")
+  assert_eq(a + b, F(114902, 102516), "a+b")
+  assert_eq(a - b, F(15755, 277508), "a-b")
+  assert_eq(a * b, F(217278, 89209), "a*b")
+  assert_eq(a / b, F(167345, 81997), "a/b")
+  assert_eq(a * a * a * a, F(31723, 160374), "a*a*a*a")
   assert_eq(a**4, F(31723, 160374), "a^4")
-  assert_eq(a*a*b*b*a*a*b, b*a*a*b*b*a*a, "a^4")
+  assert_eq(a * a * b * b * a * a * b, b * a * a * b * b * a * a, "a^4")
 
   E, F, l = gen_supersingular_ec()
   P = get_point(E, l)
@@ -249,14 +272,16 @@ def test():
   for x in xrange(10):
     a = randint(2**15, 2**16)
     b = randint(2**15, 2**16)
-    gab = g**(a*b)
-    assert_eq(tate_pairing(E, a*P, b*Q, l), gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(tate_pairing(E, a*P, Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(tate_pairing(E, b*P, Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(tate_pairing(E, P, a*Q, l)**b, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
-    assert_eq(tate_pairing(E, P, b*Q, l)**a, gab, "Random Pairing Test: a = %d, b = %d" % (a, b))
+    print "Random Pairing Test: a = %d, b = %d" % (a, b)
+    gab = g**(a * b)
+    assert_eq(tate_pairing(E, a * P, b * Q, l), gab, "e(aP, bQ)")
+    assert_eq(tate_pairing(E, a * P, Q, l)**b, gab, "e(aP, Q)^b")
+    assert_eq(tate_pairing(E, b * P, Q, l)**a, gab, "e(bP, Q)^a")
+    assert_eq(tate_pairing(E, P, a * Q, l)**b, gab, "e(P, aQ)^b")
+    assert_eq(tate_pairing(E, P, b * Q, l)**a, gab, "e(P, bQ)^a")
 
-  print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (ac_count + wa_count, ac_count, wa_count)
+  print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
+      ac_count + wa_count, ac_count, wa_count)
 
 if __name__ == "__main__":
   test()

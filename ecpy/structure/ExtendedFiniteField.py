@@ -1,9 +1,7 @@
-from ..abstract.Field import Field, FieldElement
-from .RationalField import QQ
 from .FiniteField import FiniteField, FiniteFieldElement
-from .Zmod import Zmod, ZmodElement
+from .Zmod import Zmod
 from ..util import is_prime, modinv
-import math
+
 
 class ExtendedFiniteField(FiniteField):
   def __init__(s, p, poly="x^2+1"):
@@ -11,7 +9,7 @@ class ExtendedFiniteField(FiniteField):
       assert p % 4 == 3
       s.t = 1
     elif poly == "x^2+x+1":
-      assert p % 3 == 2 and (p+1)%6 == 0 and is_prime((p+1)/6)
+      assert p % 3 == 2 and (p + 1) % 6 == 0 and is_prime((p + 1) / 6)
       s.t = 2
     else:
       raise ValueError("Invalid Polynomial: %s" % poly)
@@ -20,10 +18,12 @@ class ExtendedFiniteField(FiniteField):
     s.element_class = ExtendedFiniteFieldElement
 
   def __str__(s):
+    res = Zmod.__str__(s, "p^%d" % s.degree()) + " : Polynomial is :"
     if s.t == 1:
-      return Zmod.__str__(s, "p^%d" % s.degree()) + " : Polynomial is i^2+1 = 0"
+      res += "i^2+1 = 0"
     elif s.t == 2:
-      return Zmod.__str__(s, "p^%d" % s.degree()) + " : Polynomial is w^2+w+1 = 0"
+      res += "w^2+w+1 = 0"
+    return res
 
   def __repr__(s):
     res = "%s(%s, " % (s.__class__.__name__, s.n)
@@ -40,23 +40,24 @@ class ExtendedFiniteField(FiniteField):
 
   def _neg(s, a):
     if s.t == 1 or s.t == 2:
-      return s.element_class(s, s.p-a[0], s.p-a[1])
+      return s.element_class(s, s.p - a[0], s.p - a[1])
 
   def _mul(s, a, b):
     if s.t == 1:
-      return s.element_class(s, a[0] * b[0] - a[1] * b[1], a[0]*b[1] + a[1] * b[0])
+      return s.element_class(s,
+                             a[0] * b[0] - a[1] * b[1],
+                             a[0] * b[1] + a[1] * b[0])
     elif s.t == 2:
       a, _b = a
       c, d = b
       b = _b
-      return s.element_class(s, a*c - b*d, a*d + b*c - b*d)
+      return s.element_class(s, a * c - b * d, a * d + b * c - b * d)
 
   def _equ(s, a, b):
     if s.degree() == 2:
       if len(b) == 1:
         return a[0] == b[0] and a[1] == 0
       return a[0] == b[0] and a[1] == b[1]
-    return x
 
   def _div(s, z, w):
     r = s._inv(w) * z
@@ -67,16 +68,17 @@ class ExtendedFiniteField(FiniteField):
       return Zmod._inv(s, a)
     a, b = map(int, a)
     if s.t == 1:
-      u = a*a + b*b
+      u = a * a + b * b
       u = modinv(u, s.n)
       return s.element_class(s, a * u, -b * u)
     elif s.t == 2:
-      u = a*a-a*b+b*b
+      u = a * a - a * b + b * b
       u = modinv(u, s.n)
-      return s.element_class(s, (a-b) * u, (-b) * u)
+      return s.element_class(s, (a - b) * u, (-b) * u)
 
   def degree(s):
     return 2
+
 
 class ExtendedFiniteFieldElement(FiniteFieldElement):
   def __init__(s, field, x, y=0):

@@ -1,4 +1,4 @@
-from ecpy import *
+from ecpy import ExtendedFiniteField, EllipticCurve
 from timeit import timeit
 from random import randint
 
@@ -29,16 +29,20 @@ def main():
   weil_time = []
   print "[+] Weil Pairing: "
   for x in rand:
-    weil_expr = "weil_pairing(%r, %r, %r.distortion_map(), %r)" % (E, P, x * P, l)
-    r = timeit(weil_expr, setup="from ecpy import EllipticCurve, ExtendedFiniteField, weil_pairing", number=count)
+    r = timeit("weil_pairing(%r, %r, %r.distortion_map(), %r)" % (E, P, x * P,
+                                                                  l),
+               setup="from ecpy import EllipticCurve, ExtendedFiniteField,"
+                     "weil_pairing", number=count)
     weil_time += [r]
     show_results("weil", r, count)
 
   print "[+] Tate Pairing: "
   tate_time = []
   for x in rand:
-    tate_expr = "tate_pairing(%r, %r, %r.distortion_map(), %r, 2)" % (E, P, x*P, l)
-    r = timeit(tate_expr, setup="from ecpy import EllipticCurve, ExtendedFiniteField, tate_pairing", number=count)
+    r = timeit("tate_pairing(%r, %r, %r.distortion_map(), %r, 2)" % (E, P,
+                                                                     x * P, l),
+               setup="from ecpy import EllipticCurve, ExtendedFiniteField, "
+                     "tate_pairing", number=count)
     tate_time += [r]
     show_results("tate", r, count)
 

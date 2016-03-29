@@ -2,9 +2,11 @@ from ..abstract.Field import Field, FieldElement
 from .RationalField import QQ
 import math
 
+
 class ComplexField(Field):
   def __init__(s):
     Field.__init__(s, ComplexFieldElement)
+
   def _add(s, a, b):
     return s.element_class(s, a[0] + b[0], a[1] + b[1])
 
@@ -12,7 +14,9 @@ class ComplexField(Field):
     return s.element_class(s, -a[0], -a[1])
 
   def _mul(s, a, b):
-    return s.element_class(s, a[0] * b[0] - a[1] * b[1], a[0]*b[1] + a[1] * b[0])
+    return s.element_class(s,
+                           a[0] * b[0] - a[1] * b[1],
+                           a[0] * b[1] + a[1] * b[0])
 
   def _equ(s, a, b):
     return a[0] == b[0] and a[1] == b[1]
@@ -26,7 +30,8 @@ class ComplexField(Field):
   def _div(s, z, w):
     a, b, c, d = z[0], z[1], w[0], w[1]
     u = QQ(1, c**2 + d**2).real()
-    return s.element_class(s, (a*c + b*d)*u, (b*c-a*d)*u)
+    return s.element_class(s, (a * c + b * d) * u, (b * c - a * d) * u)
+
 
 class ComplexFieldElement(FieldElement):
   def __init__(s, field, x, y=0):
@@ -62,5 +67,4 @@ class ComplexFieldElement(FieldElement):
     else:
       return (d, d)
 
-def CC(x, y=0):
-  return ComplexField()(x, y)
+CC = ComplexField()

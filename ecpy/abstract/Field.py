@@ -1,7 +1,3 @@
-import math
-from ..util import egcd, gcd, modinv
-import random
-
 class Field:
   def __init__(s, element_class):
     s.element_class = element_class
@@ -45,6 +41,7 @@ class Field:
   def degree(s):
     return 1
 
+
 class FieldElement:
   def __init__(s, field, x):
     s.field = field
@@ -82,7 +79,7 @@ class FieldElement:
       return s.__class__(s.field, 1)
     d = int(rhs)
     if d < 0:
-      x = 1/s
+      x = 1 / s
       d = -d
     else:
       x = s
