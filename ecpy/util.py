@@ -2,10 +2,16 @@ import random
 
 
 class ModinvNotFoundError(ArithmeticError):
+  """
+  Raise if modular inverse not found.
+  """
   pass
 
 
 def memoize(f):
+  """
+  Auto-Memoize Decorator.
+  """
   cache = {}
 
   def helper(*args):
@@ -17,6 +23,9 @@ def memoize(f):
 
 
 def gcd(x, y):
+  """
+  Calculate Greatest Common Divisor using Euclidean Algorithm.
+  """
   while y != 0:
     t = x % y
     x, y = y, t
@@ -24,10 +33,16 @@ def gcd(x, y):
 
 
 def gcd_multiple(*a):
+  """
+  Apply gcd to some variables.
+  """
   return reduce(gcd, a)
 
 
 def egcd(a, b):
+  """
+  Calculate x, y satisfy ax + by = gcd(a, b) using Extended Euclidean Algorithm
+  """
   x, y, u, v = 0, 1, 1, 0
   while a != 0:
     q, r = b // a, b % a
@@ -38,6 +53,9 @@ def egcd(a, b):
 
 @memoize
 def modinv(a, m):
+  """
+  Calculate Modular Inverse. i.e. Find x satisfy ax \equiv 1 \mod m.
+  """
   if gcd(a, m) != 1:
     raise ModinvNotFoundError()
   if a < 0:
@@ -46,10 +64,16 @@ def modinv(a, m):
 
 
 def lcm(*a):
+  """
+  Calculate Least Common Multiple.
+  """
   return reduce(lambda x, y: x * y, a, 1) / gcd_multiple(*a)
 
 
 def crt(a, n):
+  """
+  Calculate Chinese-Reminder-Theorem. by proof of the gauss.
+  """
   N = reduce(lambda x, y: x * y, n, 1)
   if gcd_multiple(*n) > 1:
     # TODO: implement in gcd(modulo) > 0
@@ -61,6 +85,9 @@ def crt(a, n):
 
 
 def legendre_symbol(a, p):
+  """
+  Calculate Legendre Symbol using Euler's criterion
+  """
   if gcd(a, p) != 1:
     return 0
   d = pow(a, ((p - 1) / 2), p)
@@ -70,6 +97,9 @@ def legendre_symbol(a, p):
 
 
 def jacobi_symbol(a, n):
+  """
+  Calculate Jacobi Symbol.
+  """
   if is_prime(n):
     return legendre_symbol(a, n)
   if a == 0:
@@ -84,6 +114,9 @@ def jacobi_symbol(a, n):
 
 
 def miller_rabin(x):
+  """
+  Miller-Rabin Primarity test implementation.
+  """
   s = 0
   while (x - 1) % 2**(s + 1) == 0:
     s += 1
@@ -107,4 +140,7 @@ except:
 
 @memoize
 def is_prime(x):
+  """
+  Is x prime?
+  """
   return _is_prime(x)

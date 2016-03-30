@@ -2,6 +2,7 @@ from applib import EllipticCurve, ExtendedFiniteField, modified_pairing
 from applib import hash_to_field, get_point, H2
 import random
 
+# PKI secret
 secret = 0xdeadbeef
 
 p = int("501794446334189957604282155189438160845433783392772743395579628617109"
@@ -35,8 +36,10 @@ def get_user_secret(E, pubkey, l):
 
 def encrypt(E, P, sP, pubkey, m, l):
   assert isinstance(m, (int, long))
+  # r = rand()
   r = random.randint(2**30, 2**31)
-  return r * P, m ^ H2(modified_pairing(E, pubkey, sP, l) ** r)
+  # r*P, m xor e_l(secret * P, Q)^r = e_l(P, Q) ^ (secret * r)
+  return r * P, m ^ H2(modified_pairing(E, sP, pubkey, l) ** r)
 
 
 def master_point(E, l):
@@ -46,6 +49,8 @@ def master_point(E, l):
 
 
 def decrypt(E, K, c, l):
+  # c1, c2 = r*P, m xor e_l(secret * P, Q) ^ r = e_l(P, Q) ^ (secret * r)
+  # a = e_l(c1, K) = e_l(r*P, secret * Q) = e_l(P, Q) ^ (secret * r)
   return c[1] ^ H2(modified_pairing(E, c[0], K, l))
 
 

@@ -1,4 +1,4 @@
-
+# some secret here
 secret = 0xdeadbeef
 
 p = int("519130854181216822940010183929228824799903608965854344652247095061840"
@@ -20,13 +20,19 @@ sP = secret * P
 
 def sign(m):
   global secret, E, l
+  # Q = MapToPoint(m)
+  # return secret * Q
   return secret * hash_to_point(E, m, l)
 
 
 def verify(sig, msg):
   global secret, E, l, P, sP
+  # a = e_l(P, secret * Q) = e_l(P, Q) ^ secret
   a = modified_pairing(E, P, sig, l)
+  # Q = MapToPoint(m')
+  # b = e_l(secret * P, Q) = e_l(P, Q) ^ secret
   b = modified_pairing(E, sP, hash_to_point(E, msg, l), l)
+  # a = b?
   return a == b
 
 

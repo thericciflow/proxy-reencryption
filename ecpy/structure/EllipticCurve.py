@@ -7,6 +7,9 @@ from ExtendedFiniteField import ExtendedFiniteField
 
 
 def EllipticCurve(field, a, b):
+  """
+  Return Elliptic Curve Instance.
+  """
   if field.__class__ in (FiniteField, ExtendedFiniteField):
     return FiniteFieldEllipticCurve(field, a, b)
   else:
@@ -14,7 +17,14 @@ def EllipticCurve(field, a, b):
 
 
 class GenericEllipticCurve(AdditiveGroup):
+  """
+  Elliptic Curve on General Field
+  """
   def __init__(s, field, a, b):
+    """
+    Constructor of Elliptic Curve.
+      y^2 = x^3 + `a`x+ `b` on `field`
+    """
     AdditiveGroup.__init__(s, GenericEllipticCurvePoint)
     s.field = field
     s.a = a
@@ -22,17 +32,30 @@ class GenericEllipticCurve(AdditiveGroup):
     s.O = s.element_class(s, 0, 1, 0)
 
   def is_on_curve(s, point):
+    """
+    Is on curve `point`?
+    """
     return s._is_on_curve(point.x, point.y)
 
   def _is_on_curve(s, x, y):
+    """
+    Is on curve (`x`, `y`)?
+     - this function is inner function of `is_on_curve`.
+    """
     x = s.field(x)
     y = s.field(y)
     return y * y == x * x * x + s.a * x + s.b
 
   def determinant(s):
+    """
+    Calculate Determinant of Curve.
+    """
     return -16 * (4 * s.a**3 + 27 * s.b**2)
 
   def j_invariant(s):
+    """
+    Calculate j-Invariant of Curve.
+    """
     return -1728 * ((4 * s.a**3) / s.determinant())
 
   def __repr__(s):
@@ -51,6 +74,12 @@ class GenericEllipticCurve(AdditiveGroup):
     return res
 
   def _add(s, P, Q):
+    """
+    Add Operation on Perspective Coordinate
+    P : tuple (x, y, z)
+    Q : tuple (u, v, w)
+    return: R = P + Q
+    """
     Px, Py, Pz = P
     Qx, Qy, Qz = Q
     Rx, Ry, Rz = s.O
@@ -82,14 +111,28 @@ class GenericEllipticCurve(AdditiveGroup):
       return s.O
 
   def _equ(s, P, Q):
+    """
+    P is equals to Q?
+    """
     return P[0] * Q[1] == P[1] * Q[0]
 
   def _neg(s, P):
+    """
+    return -P
+    """
     return s.element_class(s, P[0], -P[1])
 
 
 class GenericEllipticCurvePoint(AdditiveGroupElement):
+  """
+  Elliptic Curve Point on General Field
+  """
   def __init__(s, group, x, y, z=1):
+    """
+    Constructor of Elliptic curve Point.
+     - P = (x, y, z)
+    if z is not specified, z = 1.
+    """
     if isinstance(x, tuple):
       AdditiveGroupElement.__init__(s, group, None)
       s.x = group.field(*x)
@@ -107,9 +150,15 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
       raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
 
   def is_infinity(s):
+    """
+    Is self == O?
+    """
     return s.x == 0 and s.y == 1 and s.z == 0
 
   def order(s):
+    """
+    Return m satisfy m*self == Infinity
+    """
     i = 0
     t = s
     while i <= s.group.field.order() ** s.group.field.degree():
@@ -120,9 +169,15 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return 0
 
   def change_group(s, _group):
+    """
+    Change Curve
+    """
     return s.__class__(_group, *tuple(s))
 
   def line_coeff(s, Q):
+    """
+    Calculate Line Coefficient of Line self to Q
+    """
     P = s
     x1, y1, z1 = map(s.group.field, P)
     x2, y2, z2 = map(s.group.field, Q)
@@ -134,6 +189,9 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return l
 
   def __add__(s, rhs):
+    """
+    Add Operation Wrapper
+    """
     if isinstance(rhs, GenericEllipticCurvePoint) and rhs.is_infinity():
         return s
     d = s._to_tuple(rhs)
@@ -143,6 +201,9 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
       return s.group._add(tuple(s), d)
 
   def __mul__(s, rhs):
+    """
+    Multiple Operation Wrapper
+    """
     if rhs == 0:
       return s.group.O
     d = s.group.field(rhs).int()
@@ -159,12 +220,18 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return res
 
   def __neg__(s):
+    """
+    Negate Operation Wrapper
+    """
     return s.group._neg(tuple(s))
 
   def __rmul__(s, lhs):
     return s * lhs
 
   def __eq__(s, rhs):
+    """
+    self is Equals to rhs?
+    """
     if rhs == None:
       return False
     return s.group._equ(tuple(s), s._to_tuple(rhs))
@@ -192,6 +259,9 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 
 
 class FiniteFieldEllipticCurve(GenericEllipticCurve):
+  """
+  Elliptic Curve on Finite Field or Extended Finite Field
+  """
   def __init__(s, field, a, b):
     s.element_class = FiniteFieldEllipticCurvePoint
     s.field = field
@@ -200,6 +270,9 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
     s.O = s.element_class(s, 0, 1, 0)
 
   def get_corresponding_y(s, x):
+    """
+    Calculate `y` coordinate corresponding to given x.
+    """
     x = s.field(x)
     y_square = x * x * x + s.a * x + s.b
     for y in modular_square_root(y_square, s.field.p ** s.field.degree()):
@@ -208,6 +281,10 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
     return None
 
   def embedding_degree(s, m):
+    """
+    Calculate Embedding Degree.
+      <=> minimum `k` satisfy m | p^k - 1
+    """
     k = 1
     while True:
       if (s.field.p ** (k * s.field.degree()) - 1) % m == 0:
@@ -215,6 +292,9 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
       k += 1
 
   def random_point(s):
+    """
+    return random point on this curve.
+    """
     deg = s.field.degree()
     if deg == 1:
       x = s.field(randint(0, s.field.order()))
@@ -249,6 +329,12 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     return s.x == 0 and s.y == 1 and s.z == 0
 
   def distortion_map(s):
+    """
+    IMPORTANT: If you want to use this function,
+                definition field should be Extended Finite Field.
+    return \phi(self)
+    Polynomial: x^2+1 or x^2+x+1
+    """
     if s.group.field.t == 1:
       x = s.x
       y = s.y
@@ -279,6 +365,9 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       return s.__class__(s.group, x, y)
 
   def order(s):
+    """
+    return order of self
+    """
     r = s.change_group(s.group)
     i = 2
     while True:

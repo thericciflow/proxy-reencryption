@@ -4,6 +4,9 @@ import random
 
 
 def modular_square_root(a, m, force=False):
+  """
+  Calculate Quadratic Residue
+  """
   if isinstance(a, ExtendedFiniteFieldElement) and not force:
     return modular_square_root_extended(a)
   if is_prime(m):
@@ -52,6 +55,9 @@ def modular_square_root(a, m, force=False):
 
 
 def tonelli_shanks(n, p):
+  """
+  Tonelli-Shanks calculate quadratic residue algorithm implementation
+  """
   if p % 4 == 3:
     r = pow(n, (p + 1) / 4, p)
     return [r, p - r]
@@ -86,6 +92,9 @@ def tonelli_shanks(n, p):
 
 
 def extended_legendre_symbol(a):
+  """
+  Legendre Symbol on the Extended Field
+  """
   m = a.field.degree()
   p = a.field.p
   b = pow(a, sum([p**i for i in xrange(0, m)]), p)
@@ -93,6 +102,9 @@ def extended_legendre_symbol(a):
 
 
 def modular_square_root_extended(x):
+  """
+  Calculate Quadratic Residue on Extended Field
+  """
   if extended_legendre_symbol(x) != 1:
     return []
   a = x
@@ -133,6 +145,9 @@ def modular_square_root_extended(x):
 
 
 def cubic_root(x):
+  """
+  Calculate Cubic Residue
+  """
   F = x.field
   p = F.p
   m = F.degree()

@@ -1,4 +1,7 @@
 def miller(E, P, Q, m):
+  """
+  Calculate f_P(Q)
+  """
   def h(P, Q, R):
     # if \lambda is infinity
     if (P == Q and P.y == 0) or (P != Q and P.x == Q.x):
@@ -22,6 +25,9 @@ def miller(E, P, Q, m):
 
 
 def weil_pairing(E, P, Q, m, S=None):
+  """
+  Calculate Weil Pairing
+  """
   if S is None:
     S = E.random_point()
   fpqs = miller(E, P, Q + S, m)
@@ -32,5 +38,8 @@ def weil_pairing(E, P, Q, m, S=None):
 
 
 def tate_pairing(E, P, Q, m, k=2):
+  """
+  Calculate Tate Pairing
+  """
   f = miller(E, P, Q, m)
   return f ** (((E.field.p ** k) - 1) / m)

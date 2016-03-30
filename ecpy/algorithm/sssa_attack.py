@@ -2,6 +2,9 @@ from ..util import modinv
 
 
 def hensel_lift(curve, P):
+  """
+  Calculate Lifted Point using Hensel's Lemma
+  """
   x, y, _ = map(int, tuple(P))
   t = (((x * x * x + curve.a * x + curve.b) - y * y) / curve.field.p)
   t %= curve.field.p
@@ -11,6 +14,9 @@ def hensel_lift(curve, P):
 
 
 def SSSA_Attack(F, E, P, Q):
+  """
+  Attack to Anomalous Curve: SSSA-Attack Implementation
+  """
   from ..structure.EllipticCurve import EllipticCurve
   from ..structure.RationalField import QQ
   from ..structure.Zmod import Zmod
