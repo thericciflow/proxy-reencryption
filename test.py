@@ -1,6 +1,6 @@
 from ecpy import util, ExtendedFiniteField, EllipticCurve, FiniteField
 from ecpy import miller, weil_pairing, tate_pairing, SSSA_Attack
-from ecpy import CC, gen_supersingular_ec, find_point_by_order
+from ecpy import CC
 from ecpy import symmetric_tate_pairing, symmetric_weil_pairing
 from random import randint
 import sys
@@ -225,8 +225,13 @@ def test():
   assert_eq(a**4, F(31723, 160374), "a^4")
   assert_eq(a * a * b * b * a * a * b, b * a * a * b * b * a * a, "a^4")
 
-  E, F, l = gen_supersingular_ec()
-  P = find_point_by_order(E, l)
+  # E, F, l = gen_supersingular_ec()
+  l = 670879118046860960563
+  p = 4025274708281165763377
+  F = ExtendedFiniteField(p, "x^2+x+1")
+  E = EllipticCurve(F, 0, 1)
+  # P = find_point_by_order(E, l)
+  P = E(7, 658176732497617012595, 1)
   Q = P.distortion_map()
   g = tate_pairing(E, P, Q, l)
   print E

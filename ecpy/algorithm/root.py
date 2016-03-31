@@ -3,6 +3,22 @@ from ..structure.ExtendedFiniteField import ExtendedFiniteFieldElement
 import random
 
 
+def _find_power_divisor(base, x, modulo=None):
+  k = 0
+  m = base
+  while x % m == 0:
+    k += 1
+    m = pow(m * base, 1, modulo)
+  return k
+
+
+def _find_power(power_base, x, crib, modulo=None):
+  k = 1
+  while pow(x, power_base**k, modulo) != crib:
+    k += 1
+  return k
+
+
 def modular_square_root(a, m, force=False):
   """
   Calculate Quadratic Residue
@@ -22,17 +38,12 @@ def modular_square_root(a, m, force=False):
     r = a * v * (i - 1) % m
     return [r, m - r]
   if m % 8 == 1:
-    e = 0
-    k = 2
-    while (m - 1) % k == 0:
-      k = 2**(e + 1)
-      e += 1
+    e = _find_power_divisor(2, m - 1)
     q = (m - 1) / 2**e
-    while True:
+    z = 1
+    while pow(z, 2**(e - 1), m) == 1:
       x = random.randint(1, m)
       z = pow(x, q, m)
-      if pow(z, 2**(e - 1), m) != 1:
-        break
     y = z
     r = e
     x = pow(a, (q - 1) / 2, m)
@@ -41,9 +52,7 @@ def modular_square_root(a, m, force=False):
     while True:
       if w == 1:
         return [v, m - v]
-      k = 0
-      while pow(w, 2**k, m) != 1:
-        k += 1
+      k = _find_power(2, w, 1, m)
       d = pow(y, 2**(r - k - 1), m)
       y = pow(d, 2, m)
       r = k
@@ -58,12 +67,7 @@ def tonelli_shanks(n, p):
   if p % 4 == 3:
     r = pow(n, (p + 1) / 4, p)
     return [r, p - r]
-  s = 0
-  while True:
-    k = 2**(s + 1)
-    if (p - 1) % k != 0:
-      break
-    s += 1
+  s = _find_power_divisor(2, p - 1)
   q = (p - 1) / 2**s
   z = 0
   while legendre_symbol(z, p) != -1:
@@ -75,9 +79,7 @@ def tonelli_shanks(n, p):
   while True:
     if t % p == 1:
       return [r, p - r]
-    i = 1
-    while pow(t, 2 ** i, p) != 1:
-      i += 1
+    i = _find_power(2, t, 1, p)
     b = pow(c, 2 ** (m - i - 1), p)
     r = (r * b) % p
     t = (t * (b**2)) % p

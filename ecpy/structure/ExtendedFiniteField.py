@@ -96,26 +96,15 @@ class ExtendedFiniteFieldElement(FiniteFieldElement):
     res = None
     if s == 0:
       return "0"
-    if s.field.t == 1:
-      res = ""
+    res = ""
+    if s.x != 0:
+      res += "%r" % s.x
+    if s.y != 0:
       if s.x != 0:
-        res += "%r" % s.x
-      if s.y != 0:
-        if s.x != 0:
-          res += " + "
-        if s.y != 1:
-          res += "%r" % s.y
-        res += "i"
-    elif s.field.t == 2:
-      res = ""
-      if s.x != 0:
-        res += "%r" % s.x
-      if s.y != 0:
-        if s.x != 0:
-          res += " + "
-        if s.y != 1:
-          res += "%r" % s.y
-        res += "w"
+        res += " + "
+      if s.y != 1:
+        res += "%r" % s.y
+      res += " iw"[s.field.degree()]
     return res
 
   def __iter__(s):
