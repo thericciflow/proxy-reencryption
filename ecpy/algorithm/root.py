@@ -23,10 +23,9 @@ def modular_square_root(a, m, force=False):
     return [r, m - r]
   if m % 8 == 1:
     e = 0
-    while True:
+    k = 2
+    while (m - 1) % k == 0:
       k = 2**(e + 1)
-      if (m - 1) % k != 0:
-        break
       e += 1
     q = (m - 1) / 2**e
     while True:
@@ -43,10 +42,8 @@ def modular_square_root(a, m, force=False):
       if w == 1:
         return [v, m - v]
       k = 0
-      while True:
+      while pow(w, 2**k, m) != 1:
         k += 1
-        if pow(w, 2**k, m) == 1:
-          break
       d = pow(y, 2**(r - k - 1), m)
       y = pow(d, 2, m)
       r = k
@@ -68,10 +65,9 @@ def tonelli_shanks(n, p):
       break
     s += 1
   q = (p - 1) / 2**s
-  while True:
+  z = 0
+  while legendre_symbol(z, p) != -1:
     z = random.randint(1, p)
-    if legendre_symbol(z, p) == -1:
-      break
   c = pow(z, q, p)
   r = pow(n, (q + 1) / 2, p)
   t = pow(n, q, p)
@@ -80,9 +76,7 @@ def tonelli_shanks(n, p):
     if t % p == 1:
       return [r, p - r]
     i = 1
-    while True:
-      if pow(t, 2 ** i, p) == 1:
-        break
+    while pow(t, 2 ** i, p) != 1:
       i += 1
     b = pow(c, 2 ** (m - i - 1), p)
     r = (r * b) % p
@@ -121,18 +115,18 @@ def modular_square_root_extended(x):
       d = pow(c, (q - 1) / 2)
       e = 1 / (c * d)
       f = (c * d)**2
-
       b = pow(a, (q - 1) / 4)
-      a0 = (b**2) ** q * b**2
+      b2 = b**2
+      a0 = (b2) ** q * b2
       if a0 == -1:
         return []
-      if b ** q * b == 1:
-        x0 = modular_square_root(b**2 * a, q, force=True)[0]
-        x = x0 * b ** q
-      else:
-        x0 = modular_square_root(b**2 * a * f, q, force=True)[0]
-        x = x0 * b ** q * e
-      return [x]
+      R = b2 * a
+      S = b**q
+      if b**(q + 1) != 1:
+        S *= e
+        R *= f
+      x0 = modular_square_root(R, q, force=True)[0]
+      return [x0 * S]
     elif pow(q, m / 2, 4) == 3:
       pass
     else:
@@ -154,10 +148,9 @@ def cubic_root(x):
   rho = 1
   pm = p**m
   r = (pm - 1) / 3
-  while True:
+  rho = 1
+  while rho ** r == 1:
     rho = F(random.randint(1, p - 1), random.randint(1, p - 1))
-    if rho ** r != 1:
-      break
   t = 1
   while True:
     r = 3**t

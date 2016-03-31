@@ -287,11 +287,8 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
     """
     return random point on this curve.
     """
-    deg = s.field.degree()
-    if deg == 1:
-      x = s.field(randint(0, s.field.order()))
-    elif deg == 2:
-      x = s.field(randint(0, s.field.order()), randint(0, s.field.order()))
+    rnd = [randint(0, s.field.order())] * s.field.degree()
+    x = s.field(*rnd)
     while True:
       y = s.get_corresponding_y(x)
       if y != None:
