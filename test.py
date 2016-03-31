@@ -1,7 +1,9 @@
 from ecpy import util, ExtendedFiniteField, EllipticCurve, FiniteField
 from ecpy import miller, weil_pairing, tate_pairing, SSSA_Attack
-from ecpy import CC
+from ecpy import CC, gen_supersingular_ec, find_point_by_order
+from ecpy import symmetric_tate_pairing, symmetric_weil_pairing
 from random import randint
+import sys
 
 ac_count = 0
 wa_count = 0
@@ -26,47 +28,6 @@ def assert_neq(a, b, m):
 
 def assert_eq(a, b, m):
   _assert(a, b, m, "==")
-
-
-def modified_weil_pairing(E, P, Q, m):
-  return weil_pairing(E, P, Q.distortion_map(), m)
-
-
-def modified_tate_pairing(E, P, Q, m):
-  return tate_pairing(E, P, Q.distortion_map(), m, 2)
-
-
-def gen_supersingular_ec():
-  def _next_prime(n):
-    while not util.is_prime(n):
-      n += 1
-    return n
-  try:
-    from gmpy import next_prime
-  except:
-    next_prime = _next_prime
-
-  def gen_prime():
-    while True:
-      p = int(next_prime(randint(2**71, 2**72)))
-      if util.is_prime(p * 6 - 1):
-        break
-    return p * 6 - 1, p
-
-  p, l = gen_prime()
-  F = ExtendedFiniteField(p, "x^2+x+1")
-  return EllipticCurve(F, 0, 1), F, l
-
-
-def get_point(E, l):
-  i = 3
-  while True:
-    r = E.get_corresponding_y(i)
-    if r != None:
-      P = E(i, r)
-      if (P * l).is_infinity():
-        return P
-    i += 1
 
 
 def test():
@@ -209,18 +170,18 @@ def test():
   print P
   print P.distortion_map()
 
-  g = modified_weil_pairing(E, P, P, m)
+  g = symmetric_weil_pairing(E, P, P, m)
   print "[+] g = %s" % g
 
-  assert_eq(modified_weil_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
-  assert_eq(modified_weil_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
-  assert_eq(modified_weil_pairing(E, P, P, m)**2, g**2, "e(P, P)^2 == g^2")
+  assert_eq(symmetric_weil_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
+  assert_eq(symmetric_weil_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
+  assert_eq(symmetric_weil_pairing(E, P, P, m)**2, g**2, "e(P, P)^2 == g^2")
 
-  g = modified_tate_pairing(E, P, P, m)
+  g = symmetric_tate_pairing(E, P, P, m)
   print "[+] g = %s" % g
 
-  assert_eq(modified_tate_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
-  assert_eq(modified_tate_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
+  assert_eq(symmetric_tate_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
+  assert_eq(symmetric_tate_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
 
   assert_eq(F(53521, 219283) / F(297512, 101495), F(333099, 288028),
             "r/prev_r test: 0")
@@ -265,7 +226,7 @@ def test():
   assert_eq(a * a * b * b * a * a * b, b * a * a * b * b * a * a, "a^4")
 
   E, F, l = gen_supersingular_ec()
-  P = get_point(E, l)
+  P = find_point_by_order(E, l)
   Q = P.distortion_map()
   g = tate_pairing(E, P, Q, l)
   print E
@@ -282,6 +243,7 @@ def test():
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count)
+  sys.exit(wa_count)
 
 if __name__ == "__main__":
   test()

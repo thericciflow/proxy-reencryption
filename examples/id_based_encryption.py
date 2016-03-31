@@ -1,6 +1,7 @@
-from applib import EllipticCurve, ExtendedFiniteField, modified_pairing
-from applib import hash_to_field, get_point, H2
+from ecpy import EllipticCurve, ExtendedFiniteField, symmetric_tate_pairing
+import hashlib
 import random
+import cPickle
 
 # PKI secret
 secret = 0xdeadbeef
@@ -25,8 +26,13 @@ sP = E(int("129862491850266001914601437161941818413833907050695770313188660767"
            "24188897792458334596297"))
 
 
+def H(x):
+  return x.x * x.field.p + x.y
+
+
 def get_user_public(E, P, id, l):
-  return P * hash_to_field(E.field, int(id.encode("hex"), 16))
+  v = int(hashlib.sha512(id).hexdigest().encode("hex"), 16)
+  return P * v
 
 
 def get_user_secret(E, pubkey, l):
@@ -39,19 +45,14 @@ def encrypt(E, P, sP, pubkey, m, l):
   # r = rand()
   r = random.randint(2**30, 2**31)
   # r*P, m xor e_l(secret * P, Q)^r = e_l(P, Q) ^ (secret * r)
-  return r * P, m ^ H2(modified_pairing(E, sP, pubkey, l) ** r)
-
-
-def master_point(E, l):
-  global secret
-  P = get_point(E, l)
-  return P, secret * P
+  return (r * P,
+          m ^ H(E.field(symmetric_tate_pairing(E, sP, pubkey, l) ** r)))
 
 
 def decrypt(E, K, c, l):
   # c1, c2 = r*P, m xor e_l(secret * P, Q) ^ r = e_l(P, Q) ^ (secret * r)
   # a = e_l(c1, K) = e_l(r*P, secret * Q) = e_l(P, Q) ^ (secret * r)
-  return c[1] ^ H2(modified_pairing(E, c[0], K, l))
+  return c[1] ^ H(E.field(symmetric_tate_pairing(E, c[0], K, l)))
 
 
 def main():
@@ -68,14 +69,14 @@ def main():
       print "[+] Message? :",
       m = int(raw_input().strip().encode("hex"), 16)
       C = encrypt(E, P, sP, Q, m, l)
-      print "[+] Your Encrypted Message: %s" % (
-          ":".join(map(lambda x: str(x[0]) + ";" + str(x[1]),
-                       map(tuple, tuple(C[0])[:-1]))) + ":" + str(C[1]))
+      t = tuple(C[0])
+      c = cPickle.dumps((t[0], t[1], C[1])).encode("zlib").encode("base64")
+      c = c.replace("\n", "")
+      print "[+] Your Encrypted Message: %s" % c
     elif t == "d":
       print "Ciphertext? :",
-      d = raw_input().strip().split(":")
-      x, y = map(lambda x: tuple(map(int, x.split(";"))), d[:-1])
-      c = int(d[-1])
+      d = raw_input().strip().decode("base64").decode("zlib")
+      x, y, c = cPickle.loads(d)
       C1 = E(x, y)
       C2 = c
       C = (C1, C2)

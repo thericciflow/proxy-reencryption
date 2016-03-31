@@ -1,5 +1,7 @@
-from applib import ExtendedFiniteField, EllipticCurve, hash_to_point
-from applib import modified_pairing
+from ecpy import ExtendedFiniteField, EllipticCurve, MapToPoint
+from ecpy import symmetric_tate_pairing
+import hashlib
+import cPickle
 # some secret here
 secret = 0xdeadbeef
 
@@ -24,16 +26,18 @@ def sign(m):
   global secret, E, l
   # Q = MapToPoint(m)
   # return secret * Q
-  return secret * hash_to_point(E, m, l)
+  h = int(hashlib.sha512(m).hexdigest(), 16)
+  return secret * MapToPoint(E, E.field(h))
 
 
 def verify(sig, msg):
   global secret, E, l, P, sP
   # a = e_l(P, secret * Q) = e_l(P, Q) ^ secret
-  a = modified_pairing(E, P, sig, l)
+  a = symmetric_tate_pairing(E, P, sig, l)
   # Q = MapToPoint(m')
   # b = e_l(secret * P, Q) = e_l(P, Q) ^ secret
-  b = modified_pairing(E, sP, hash_to_point(E, msg, l), l)
+  h = int(hashlib.sha512(msg).hexdigest(), 16)
+  b = symmetric_tate_pairing(E, sP, MapToPoint(E, E.field(h)), l)
   # a = b?
   return a == b
 
@@ -48,13 +52,13 @@ def main():
     if t == "s":
       print "[+] Message? :",
       m = raw_input().strip()
-      sig = sign(m)
-      print ":".join(map(lambda x: str(x[0]) + ";" + str(x[1]), map(tuple,
-                     tuple(sig)[:-1])))
+      sig = cPickle.dumps(tuple(sign(m))).encode("zlib").encode("base64")
+      sig = sig.replace("\n", "")
+      print "[+] Signature of %s: %s" % (m, sig)
     elif t == "v":
       print "Signature? :",
-      x, y = map(lambda x: tuple(map(int, x.split(";"))),
-                 raw_input().strip().split(":"))
+      x, y, z = cPickle.loads(raw_input().strip()
+                              .decode("base64").decode("zlib"))
       sig = E(x, y)
       print "Message? :",
       m = raw_input().strip()
