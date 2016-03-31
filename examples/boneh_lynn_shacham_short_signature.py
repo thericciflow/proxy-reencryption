@@ -1,3 +1,5 @@
+from applib import ExtendedFiniteField, EllipticCurve, hash_to_point
+from applib import modified_pairing
 # some secret here
 secret = 0xdeadbeef
 

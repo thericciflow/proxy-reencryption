@@ -8,7 +8,7 @@ class FiniteField(Zmod):
   def __init__(s, p):
     """
     Constructor of FiniteField
-    p shoule be prime
+    p should be prime
     """
     Zmod.__init__(s, p)
     if s.element_class != FiniteFieldElement:
