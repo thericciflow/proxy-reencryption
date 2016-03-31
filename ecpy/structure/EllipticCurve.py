@@ -128,24 +128,16 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
   Elliptic Curve Point on General Field
   """
   def __init__(s, group, x, y, z=1):
-    """
-    Constructor of Elliptic curve Point.
-     - P = (x, y, z)
-    if z is not specified, z = 1.
-    """
-    if isinstance(x, tuple):
-      AdditiveGroupElement.__init__(s, group, None)
-      s.x = group.field(*x)
-    else:
-      AdditiveGroupElement.__init__(s, group, x)
-    if isinstance(y, tuple):
-      s.y = group.field(*y)
-    else:
-      s.y = y
-    if isinstance(z, tuple):
-      s.z = group.field(*z)
-    else:
-      s.z = z
+    s.group = group
+
+    def F(x):
+      if type(x) == tuple:
+        return group.field(*x)
+      return group.field(x)
+
+    s.x = F(x)
+    s.y = F(y)
+    s.z = F(z)
     if not (s.is_infinity() or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
 
@@ -309,25 +301,6 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
 
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
-  def __init__(s, group, x, y, z=1):
-    if isinstance(x, tuple):
-      AdditiveGroupElement.__init__(s, group, group.field(*x))
-    else:
-      AdditiveGroupElement.__init__(s, group, group.field(x))
-    if isinstance(y, tuple):
-      s.y = group.field(*y)
-    else:
-      s.y = group.field(y)
-    if isinstance(z, tuple):
-      s.z = group.field(*z)
-    else:
-      s.z = group.field(z)
-    if not (s.is_infinity() or s.group.is_on_curve(s)):
-      raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
-
-  def is_infinity(s):
-    return s.x == 0 and s.y == 1 and s.z == 0
-
   def distortion_map(s):
     """
     IMPORTANT: If you want to use this function,
@@ -335,34 +308,20 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     return \phi(self)
     Polynomial: x^2+1 or x^2+x+1
     """
+    def to_tuple(x):
+      if type(x) in [int, long]:
+        return (x, 0)
+      return tuple(x)
+
+    x = to_tuple(s.x)
+    y = to_tuple(s.y)
     if s.group.field.t == 1:
-      x = s.x
-      y = s.y
-      if isinstance(x, (int, long)):
-        x = (x, 0)
-      else:
-        x = tuple(x)
-      if isinstance(y, (int, long)):
-        y = (y, 0)
-      else:
-        y = tuple(y)
       x = (-x[0], -x[1])
       y = (y[1], y[0])
-      return s.__class__(s.group, x, y)
     elif s.group.field.t == 2:
-      x = s.x
-      y = s.y
-      if isinstance(x, (int, long)):
-        x = (x, 0)
-      else:
-        x = tuple(x)
-      if isinstance(y, (int, long)):
-        y = (y, 0)
-      else:
-        y = tuple(y)
       x = (x[1], x[0])
       y = (y[0], y[1])
-      return s.__class__(s.group, x, y)
+    return s.__class__(s.group, x, y)
 
   def order(s):
     """
