@@ -12,5 +12,16 @@ int main(int ac, char **av) {
   cout << x+y << endl;
   cout << y+z << endl;
   cout << F << endl;
+  auto a = F(0);
+  auto b = F(1);
+
+  EllipticCurve<FiniteField> E(F, 0, 1);
+
+  auto P = E(58, 101);
+  auto Q = E(107, 111);
+  cout << P << endl;
+  cout << Q << endl;
+  cout << P+Q << endl;
+  cout << Q+Q << endl;
   return 0;
 }

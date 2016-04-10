@@ -7,7 +7,6 @@ FiniteField::FiniteField(mpz_class _p) : p(_p) {
   }
 };
 
-
 FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   x = _x % f->p;
   if (x < 0) {
@@ -15,27 +14,40 @@ FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   }
 }
 
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator-(T rhs) {
+  return FiniteFieldElement(f, x - rhs);
+}
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator*(T rhs) {
+  return FiniteFieldElement(f, x * rhs);
+}
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator/(T rhs) {
+  mpz_class t;
+  mpz_invert(MPZ_T(t), MPZ_T(rhs), MPZ_T(f->p));
+  return FiniteFieldElement(f, x * t);
+}
 FiniteFieldElement FiniteFieldElement::operator+(const FiniteFieldElement& rhs) {
-  return FiniteFieldElement(f, (mpz_class)(x + rhs.x));
+  return FiniteFieldElement(f, x + rhs.x);
 }
 
 FiniteFieldElement FiniteFieldElement::operator-(const FiniteFieldElement& rhs) {
-  return FiniteFieldElement(f, (mpz_class)(x - rhs.x));
+  return FiniteFieldElement(f, x - rhs.x);
 }
 
 FiniteFieldElement FiniteFieldElement::operator*(const FiniteFieldElement& rhs) {
-  return FiniteFieldElement(f, (mpz_class)(x * rhs.x));
+  return FiniteFieldElement(f, x * rhs.x);
 }
 
 FiniteFieldElement FiniteFieldElement::operator/(const FiniteFieldElement& rhs) {
   mpz_class t;
-  mpz_invert(t.get_mpz_t(), rhs.x.get_mpz_t(), f->p.get_mpz_t());
+  mpz_invert(MPZ_T(t), MPZ_T(rhs.x), MPZ_T(f->p));
   return FiniteFieldElement(f, x * t);
 }
 
-template <>
-FiniteFieldElement FiniteField::operator()<mpz_class>(mpz_class x) {
-  return FiniteFieldElement(this, x);
+bool FiniteFieldElement::operator==(const FiniteFieldElement& rhs) {
+  return x == rhs.x;
 }
 
 ostream& operator<<(ostream& os, const FiniteField& field) {
@@ -45,8 +57,7 @@ ostream& operator<<(ostream& os, const FiniteField& field) {
 
 ostream& operator<<(ostream& os, const FiniteFieldElement& elem) {
   char *buf = nullptr;
-  gmp_asprintf(&buf, "%Zd", elem.x.get_mpz_t());
+  gmp_asprintf(&buf, "%Zd", MPZ_T(elem.x));
   os << buf;
-  delete buf;
   return os;
 }
