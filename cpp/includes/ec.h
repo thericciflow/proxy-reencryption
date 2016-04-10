@@ -51,6 +51,22 @@ class EllipticCurve {
     EllipticCurvePoint<Field> operator()(Element x, Element y, Element z = Element(1)) {
       return EllipticCurvePoint<Field>(this, x, y, z);
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const EllipticCurve<Field>& E) {
+      os << "Elliptic Curve : y^2 = x^3";
+      if (E.a == 1) {
+        os << " + " << "x";
+      } else if (E.a != 0) {
+        os << " + " << E.a << "x";
+      }
+
+      if (E.b != 0) {
+        os << " + " << E.b;
+      }
+
+      os << " on " << E.f;
+      return os;
+    }
 };
 
 template <class Field>

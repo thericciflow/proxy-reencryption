@@ -14,39 +14,25 @@ FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   }
 }
 
-template <class T>
-FiniteFieldElement FiniteFieldElement::operator-(T rhs) {
-  return FiniteFieldElement(f, x - rhs);
-}
-template <class T>
-FiniteFieldElement FiniteFieldElement::operator*(T rhs) {
-  return FiniteFieldElement(f, x * rhs);
-}
-template <class T>
-FiniteFieldElement FiniteFieldElement::operator/(T rhs) {
-  mpz_class t;
-  mpz_invert(MPZ_T(t), MPZ_T(rhs), MPZ_T(f->p));
-  return FiniteFieldElement(f, x * t);
-}
-FiniteFieldElement FiniteFieldElement::operator+(const FiniteFieldElement& rhs) {
+FiniteFieldElement FiniteFieldElement::operator+(const FiniteFieldElement& rhs) const {
   return FiniteFieldElement(f, x + rhs.x);
 }
 
-FiniteFieldElement FiniteFieldElement::operator-(const FiniteFieldElement& rhs) {
+FiniteFieldElement FiniteFieldElement::operator-(const FiniteFieldElement& rhs) const {
   return FiniteFieldElement(f, x - rhs.x);
 }
 
-FiniteFieldElement FiniteFieldElement::operator*(const FiniteFieldElement& rhs) {
+FiniteFieldElement FiniteFieldElement::operator*(const FiniteFieldElement& rhs) const {
   return FiniteFieldElement(f, x * rhs.x);
 }
 
-FiniteFieldElement FiniteFieldElement::operator/(const FiniteFieldElement& rhs) {
+FiniteFieldElement FiniteFieldElement::operator/(const FiniteFieldElement& rhs) const {
   mpz_class t;
   mpz_invert(MPZ_T(t), MPZ_T(rhs.x), MPZ_T(f->p));
   return FiniteFieldElement(f, x * t);
 }
 
-bool FiniteFieldElement::operator==(const FiniteFieldElement& rhs) {
+bool FiniteFieldElement::operator==(const FiniteFieldElement& rhs) const {
   return x == rhs.x;
 }
 

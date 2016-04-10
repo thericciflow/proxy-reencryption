@@ -23,5 +23,6 @@ int main(int ac, char **av) {
   cout << Q << endl;
   cout << P+Q << endl;
   cout << Q+Q << endl;
+  cout << E << endl;
   return 0;
 }
