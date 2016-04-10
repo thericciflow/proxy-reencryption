@@ -122,7 +122,7 @@ def symmetric_weil_pairing(E, P, Q, m):
   Symmetric Weil Pairing
   \hat{e}(P, Q) = e(P, \phi(Q)) (\phi is Distortion Map)
   """
-  return tate_pairing(E, P, Q.distortion_map(), m, 2)
+  return weil_pairing(E, P, Q.distortion_map(), m)
 
 
 def symmetric_tate_pairing(E, P, Q, m, k=2):
