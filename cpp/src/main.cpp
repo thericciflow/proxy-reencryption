@@ -16,11 +16,11 @@ typename Field::Element h(
 }
 
 template <class Field>
-typename Field::Element miller(
-    EllipticCurve<Field> E,
+auto miller(
+    EllipticCurve<Field>& E,
     EllipticCurvePoint<Field> P,
     EllipticCurvePoint<Field> Q,
-    mpz_class m) {
+    mpz_class m) -> typename Field::Element {
   if (P == Q) {
     return E.f(1);
   }
@@ -39,6 +39,20 @@ typename Field::Element miller(
   return f;
 }
 
+template <class Field>
+auto weil_pairing(
+    EllipticCurve<Field>& E,
+    const EllipticCurvePoint<Field>& P,
+    const EllipticCurvePoint<Field>& Q,
+    EllipticCurvePoint<Field>& S,
+    mpz_class m) -> typename Field::Element {
+  auto fpqs = miller(E, P, Q+S, m);
+  auto fps  = miller(E, P, S,   m);
+  auto fqps = miller(E, Q, P-S, m);
+  auto fqs  = miller(E, Q, -S,  m);
+  return (fpqs * fqs) / (fps * fqps);
+}
+
 int main(int ac, char **av) {
   auto F = FiniteField(631);
   auto E = EllipticCurve<FiniteField>(F, 30, 34);
@@ -48,10 +62,6 @@ int main(int ac, char **av) {
   cout << "P = " << P << endl;
   cout << "Q = " << Q << endl;
   cout << "S = " << S << endl;
-  cout << "5P = " << 5*P << endl;
-  cout << miller(E, P, Q+S, 5) << endl;
-  cout << miller(E, P, S, 5) << endl;
-  cout << miller(E, Q, P-S, 5) << endl;
-  cout << miller(E, Q, -S, 5) << endl;
+  cout << weil_pairing(E, P, Q, S, 5) << endl;
   return 0;
 }
