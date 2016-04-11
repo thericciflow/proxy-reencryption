@@ -43,6 +43,14 @@ class FiniteFieldElement {
     friend FiniteFieldElement operator*(T lhs, const FiniteFieldElement& rhs);
     template <class T>
     friend FiniteFieldElement operator/(T lhs, const FiniteFieldElement& rhs);
+
+    operator mpz_class() const {
+      return x;
+    }
+
+    FiniteFieldElement operator-() {
+      return FiniteFieldElement(f, -x);
+    }
 };
 
 class FiniteField : public Field<FiniteFieldElement> {

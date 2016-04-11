@@ -7,6 +7,11 @@ FiniteField::FiniteField(mpz_class _p) : p(_p) {
   }
 };
 
+ostream& operator<<(ostream& os, const FiniteField& field) {
+  os << "FiniteField: p = " << field.p;
+  return os;
+}
+
 FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   x = _x % f->p;
   if (x < 0) {
@@ -34,11 +39,6 @@ FiniteFieldElement FiniteFieldElement::operator/(const FiniteFieldElement& rhs) 
 
 bool FiniteFieldElement::operator==(const FiniteFieldElement& rhs) const {
   return x == rhs.x;
-}
-
-ostream& operator<<(ostream& os, const FiniteField& field) {
-  os << "FiniteField: p = " << field.p;
-  return os;
 }
 
 ostream& operator<<(ostream& os, const FiniteFieldElement& elem) {
