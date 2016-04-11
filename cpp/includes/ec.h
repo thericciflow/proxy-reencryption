@@ -29,15 +29,15 @@ class EllipticCurve {
       }
 
 
-    constexpr Element determinant() const {
+    Element determinant() const {
       return -16 * (4 * a * a * a + 27 * b * b);
     }
 
-    constexpr Element j_invariant() const {
+    Element j_invariant() const {
       return -1728 * ((4 * a * a * a) / determinant());
     }
 
-    bool is_on_curve(EllipticCurvePoint<Field>& P) {
+    bool is_on_curve(EllipticCurvePoint<Field>& P) const {
       auto x = P.x / P.z;
       auto y = P.y / P.z;
       return y*y == x*x*x + a*x + b;
@@ -87,17 +87,25 @@ class EllipticCurvePoint {
       }
     }
 
-    bool is_infinity() {
+    EllipticCurvePoint(EllipticCurve<Field> *_curve)
+      : curve(_curve), x(curve->f(0)), y(curve->f(1)), z(curve->f(0)) { }
+
+    bool is_infinity() const {
       return x == 0 && y == 1 && z == 0;
     }
 
-    bool operator==(EllipticCurvePoint<Field>& rhs) {
+    bool operator==(EllipticCurvePoint<Field>& rhs) const {
       return x * rhs.y == y * rhs.x;
     }
 
-    EllipticCurvePoint<Field> operator+(EllipticCurvePoint<Field>& rhs) {
+    EllipticCurvePoint<Field> operator+(EllipticCurvePoint<Field>& rhs) const {
       auto P = *this;
       auto Q = rhs;
+      if (P.is_infinity()) {
+        return Q;
+      } else if (Q.is_infinity()) {
+        return P;
+        }
       if (P == Q) {
         auto u = 3 * x * x + curve->a * z * z;
         auto v = y * z;
@@ -115,6 +123,38 @@ class EllipticCurvePoint {
         auto Rz = v * v * v * P.z * Q.z;
         return EllipticCurvePoint<Field>(curve, Rx/Rz, Ry/Rz, curve->f(1));
       }
+    }
+
+    EllipticCurvePoint<Field> operator*(int rhs) const {
+      auto P = EllipticCurvePoint<Field>(*this);
+      auto m = rhs;
+      if (m == 0) {
+        return EllipticCurvePoint<Field>(curve);
+      } else if (m == 1) {
+        return P;
+      } else if (m == 2) {
+        return P+P;
+      }
+      EllipticCurvePoint<Field> Q(curve);
+      while (m != 0) {
+        std::cout << "P -> " << P << std::endl;
+        std::cout << "Q -> " << Q << std::endl;
+        if ((m & 1) == 1) {
+          Q += P;
+        }
+        P += P;
+        m >>= 1;
+      }
+      return Q;
+    }
+
+    friend EllipticCurvePoint<Field> operator+=(EllipticCurvePoint<Field>& lhs, EllipticCurvePoint<Field>& rhs) {
+      lhs = lhs + rhs;
+      return lhs;
+    }
+
+    friend EllipticCurvePoint<Field> operator*(int lhs, EllipticCurvePoint<Field> rhs) {
+      return rhs * lhs;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const EllipticCurvePoint<Field>& P) {
