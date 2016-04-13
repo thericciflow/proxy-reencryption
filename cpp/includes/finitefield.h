@@ -103,10 +103,11 @@ class FiniteField : public Field<FiniteFieldElement> {
 
     template <class T, class U>
     void div(Element& ret, const T& b, const U& c) {
+      mpz_class t;
       ret.f = this;
-      mpz_invert(MPZ_T(ret.x), MPZ_T(to_mpz_cls(c)), MPZ_T(p));
-      ret.x *= to_mpz_cls(b);
-      ret.x %= p;
+      mpz_invert(MPZ_T(t.x), MPZ_T(to_mpz_cls(c)), MPZ_T(p));
+      t *= to_mpz_cls(b);
+      ret.x = t % p;
     }
 };
 template <class T>
