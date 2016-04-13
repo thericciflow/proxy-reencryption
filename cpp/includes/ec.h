@@ -115,28 +115,29 @@ class EllipticCurvePoint {
         return Q;
       } else if (Q.is_infinity()) {
         return P;
-      }
-      try {
-        if (P == Q) {
-          auto u = 3 * x * x + curve->a * z * z;
-          auto v = y * z;
-          auto w = u * u - 8 * x * y * v;
-          auto Rx = 2 * v * w;
-          auto Ry = u * ( 4 * x * y * v - w) - 8 * y * y * v * v;
-          auto Rz = 8 * v * v * v;
-          return EllipticCurvePoint<Field>(curve, Rx/Rz, Ry/Rz, curve->f(1));
-        } else {
-          auto u = Q.y * P.z - P.y * Q.z;
-          auto v = Q.x * P.z - P.x * Q.z;
-          auto w = u * u * P.z * Q.z - v * v * v - 2 * v * v * P.x * Q.z;
-          auto Rx = v * w;
-          auto Ry = u * (v * v * P.x * Q.z - w) - v * v * v * P.y * Q.z;
-          auto Rz = v * v * v * P.z * Q.z;
-          return EllipticCurvePoint<Field>(curve, Rx/Rz, Ry/Rz, curve->f(1));
-        }
-      } catch (const char * e) {
-        //std::cerr << e << std::endl;
+      } else if (P.x == Q.x && P.y + Q.y == 0) {
         return *(curve->O);
+      }
+      if (P == Q) {
+        auto u = 3 * x * x + curve->a * z * z;
+        auto v = y * z;
+        auto yv = y * v;
+        auto yv4 = 4 * yv;
+        auto w = u * u - 2 * x * yv4;
+        auto Rx = 2 * v * w;
+        auto Ry = u * (x * yv4 - w) - 8 * yv * yv;
+        auto Rz = 8 * v * v * v;
+        return EllipticCurvePoint<Field>(curve, Rx/Rz, Ry/Rz, curve->f(1));
+      } else {
+        auto u = Q.y * P.z - P.y * Q.z;
+        auto v = Q.x * P.z - P.x * Q.z;
+        auto v2 = v * v;
+        auto v3 = v2 * v;
+        auto w = u * u * P.z * Q.z - v3 - 2 * v2 * P.x * Q.z;
+        auto Rx = v * w;
+        auto Ry = u * (v2 * P.x * Q.z - w) - v3 * P.y * Q.z;
+        auto Rz = v3 * P.z * Q.z;
+        return EllipticCurvePoint<Field>(curve, Rx/Rz, Ry/Rz, curve->f(1));
       }
     }
 
@@ -160,8 +161,6 @@ class EllipticCurvePoint {
       }
       EllipticCurvePoint<Field> Q(curve);
       while (m != 0) {
-        std::cout << "P -> " << P << std::endl;
-        std::cout << "Q -> " << Q << std::endl;
         if ((m & 1) == 1) {
           Q += P;
         }

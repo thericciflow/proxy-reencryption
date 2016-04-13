@@ -14,3 +14,4 @@ extern bool is_prime(mpz_class);
 #include "field.h"
 #include "finitefield.h"
 #include "ec.h"
+#include "pairing.h"

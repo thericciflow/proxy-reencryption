@@ -1,4 +1,5 @@
 #pragma once
+#include "field.h"
 
 class FiniteField;
 
@@ -26,6 +27,8 @@ class FiniteFieldElement {
     FiniteFieldElement operator*(const T& rhs) const;
     template <class T>
     FiniteFieldElement operator/(const T& rhs) const;
+    template <class T>
+    FiniteFieldElement operator^(const T& rhs) const;
 
     template <class T>
     friend FiniteFieldElement operator+(const T& lhs, const FiniteFieldElement& rhs);
@@ -105,7 +108,7 @@ class FiniteField : public Field<FiniteFieldElement> {
     void div(Element& ret, const T& b, const U& c) {
       mpz_class t;
       ret.f = this;
-      mpz_invert(MPZ_T(t.x), MPZ_T(to_mpz_cls(c)), MPZ_T(p));
+      mpz_invert(MPZ_T(t), MPZ_T(to_mpz_cls(c)), MPZ_T(p));
       t *= to_mpz_cls(b);
       ret.x = t % p;
     }
@@ -164,4 +167,10 @@ FiniteFieldElement operator/(const T& lhs, const FiniteFieldElement& rhs) {
   FiniteFieldElement z;
   rhs.f->div(z, lhs, rhs);
   return z;
+}
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator^(const T& rhs) const {
+  FiniteFieldElement res(f, 0);
+  mpz_powm(MPZ_T(res.x), MPZ_T(x), MPZ_T(to_mpz_cls(rhs)), MPZ_T(f->p));
+  return res;
 }
