@@ -1,9 +1,10 @@
 CC      := g++
 LD      := g++
-CFLAGS  := -g -O0 -Iincludes/ -std=c++11 -g -O0
-LDFLAGS := -lm -lgmp -lgmpxx -g -O0 # -shared -fPIC
+CFLAGS  := -g -O0 -Iincludes/ -std=c++11
+LDFLAGS := -lm -lgmp -lgmpxx
+OPTFLAGS:= -g -O0
 TARGET  := ecpy
-OBJS    := main.o finitefield.o util.o
+OBJS    := finitefield.o util.o main.o 
 
 vpath %.h includes/
 vpath %.cpp src/
@@ -12,7 +13,7 @@ vpath %.o bin/
 all: bin/$(TARGET)
 
 bin/$(TARGET): $(OBJS)
-	$(LD) -o $@ $(addprefix bin/,$(OBJS)) $(LDFLAGS)
+	$(LD) -o $@ $(addprefix bin/,$(OBJS)) $(LDFLAGS) $(OPTFLAGS)
 
 %.o: %.cpp includes/*.h
-	$(CC) $(CFLAGS) -c -o bin/$@ $<
+	$(CC) $(CFLAGS) -c -o bin/$@ $< $(OPTFLAGS)

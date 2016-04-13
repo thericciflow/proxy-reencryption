@@ -19,24 +19,6 @@ FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   }
 }
 
-FiniteFieldElement FiniteFieldElement::operator+(const FiniteFieldElement& rhs) const {
-  return FiniteFieldElement(f, x + rhs.x);
-}
-
-FiniteFieldElement FiniteFieldElement::operator-(const FiniteFieldElement& rhs) const {
-  return FiniteFieldElement(f, x - rhs.x);
-}
-
-FiniteFieldElement FiniteFieldElement::operator*(const FiniteFieldElement& rhs) const {
-  return FiniteFieldElement(f, x * rhs.x);
-}
-
-FiniteFieldElement FiniteFieldElement::operator/(const FiniteFieldElement& rhs) const {
-  mpz_class t;
-  mpz_invert(MPZ_T(t), MPZ_T(rhs.x), MPZ_T(f->p));
-  return FiniteFieldElement(f, x * t);
-}
-
 bool FiniteFieldElement::operator==(const FiniteFieldElement& rhs) const {
   return x == rhs.x;
 }
@@ -47,3 +29,84 @@ ostream& operator<<(ostream& os, const FiniteFieldElement& elem) {
   os << buf;
   return os;
 }
+/*
+FiniteFieldElement FiniteFieldElement::operator+(const FiniteFieldElement& rhs) const {
+  FiniteFieldElement z;
+  f->add(z, *this, rhs);
+  return z;
+}
+
+FiniteFieldElement FiniteFieldElement::operator-(const FiniteFieldElement& rhs) const {
+  FiniteFieldElement z;
+  f->sub(z, *this, rhs);
+  return z;
+}
+
+FiniteFieldElement FiniteFieldElement::operator*(const FiniteFieldElement& rhs) const {
+  FiniteFieldElement z;
+  f->mul(z, *this, rhs);
+  return z;
+}
+
+FiniteFieldElement FiniteFieldElement::operator/(const FiniteFieldElement& rhs) const {
+  FiniteFieldElement z;
+  f->div(z, *this, rhs);
+  return z;
+}*/
+/*
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator+(const T& rhs) const {
+  FiniteFieldElement z;
+  f->add(z, *this, rhs);
+  return z;
+}
+
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator-(const T& rhs) const {
+  FiniteFieldElement z;
+  f->sub(z, *this, rhs);
+  return z;
+}
+
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator*(const T& rhs) const {
+  FiniteFieldElement z;
+  f->mul(z, *this, rhs);
+  return z;
+}
+
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator/(const T& rhs) const {
+  FiniteFieldElement z;
+  f->div(z, *this, rhs);
+  return z;
+}
+
+template <class T>
+FiniteFieldElement operator+(const T& lhs, const FiniteFieldElement& rhs) {
+  FiniteFieldElement z;
+  rhs.f->add(z, lhs, rhs);
+  return z;
+}
+
+template <class T>
+FiniteFieldElement operator-(const T& lhs, const FiniteFieldElement& rhs) {
+  FiniteFieldElement z;
+  rhs.f->sub(z, lhs, rhs);
+  return z;
+}
+
+template <class T>
+FiniteFieldElement operator*(const T& lhs, const FiniteFieldElement& rhs) {
+  FiniteFieldElement z;
+  rhs.f->mul(z, lhs, rhs);
+  return z;
+}
+
+template <class T>
+FiniteFieldElement operator/(const T& lhs, const FiniteFieldElement& rhs) {
+  FiniteFieldElement z;
+  rhs.f->div(z, lhs, rhs);
+  return z;
+}
+*/
