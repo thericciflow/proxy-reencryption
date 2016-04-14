@@ -11,10 +11,20 @@ inline auto h(
   if ((P == Q && P.y == 0) || (P != Q && P.x == Q.x)) {
     return R.x - P.x;
   }
+  Field f = P.curve->f;
   mpz_class L = P.line_coeff(Q);
-  auto p = R.y - P.y - L * (R.x - P.x);
-  auto q = R.x + P.x + Q.x - L * L;
-  return p/q;
+  typename Field::Element p, q, t;
+  f.sub(p, R.y, P.y);
+  f.sub(t, R.x, P.x);
+  f.mul(t, L, t);
+  f.sub(p, p, t);
+
+  f.add(q, R.x, P.x);
+  f.add(q, q, Q.x);
+  f.mul(t, L, L);
+  f.sub(q, q, t);
+  f.div(t, p, q);
+  return t;
 }
 
 template <class Field>
@@ -32,10 +42,11 @@ auto miller(
   uint32_t n = 0;
   for(;(m >> n) != 0; n++);
   for(int i = n - 2; i >= 0; i--) {
-    f = f * f * h(T, T, Q);
+    E.f.mul(f, f, f);
+    E.f.mul(f, f, h(T, T, Q));
     T += T;
     if (((m >> i) & 1) == 1) {
-      f = f * h(T, P, Q);
+      E.f.mul(f, f, h(T, P, Q));
       T += P;
     }
   }
