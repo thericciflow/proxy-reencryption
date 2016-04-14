@@ -4,7 +4,7 @@ CFLAGS  := -g -O0 -Iincludes/ -std=c++11
 LDFLAGS := -lm -lgmp -lgmpxx
 OPTFLAGS:= -g -O0
 TARGET  := ecpy
-OBJS    := finitefield.o util.o main.o 
+OBJS    := finitefield.o util.o main.o pairing.o
 
 vpath %.h includes/
 vpath %.cpp src/
