@@ -41,6 +41,7 @@ class EllipticCurve {
     }
 
     bool is_on_curve(const EllipticCurvePoint<Field>& P) const {
+      std::cout << P << std::endl;
       auto x = P.x / P.z;
       auto y = P.y / P.z;
       return y*y == x*x*x + a*x + b;
@@ -131,7 +132,7 @@ class EllipticCurvePoint {
         auto Rx = 2 * v * w;
         auto Ry = u * (x * yv4 - w) - 8 * yv * yv;
         auto Rz = 8 * v * v * v;
-        return EllipticCurvePoint<Field>(curve, Rx/Rz, Ry/Rz, curve->f(1));
+        return EllipticCurvePoint<Field>(curve, Rx, Ry, Rz);
       } else {
         auto u = Q.y * P.z - P.y * Q.z;
         auto v = Q.x * P.z - P.x * Q.z;
@@ -141,17 +142,15 @@ class EllipticCurvePoint {
         auto Rx = v * w;
         auto Ry = u * (v2 * P.x * Q.z - w) - v3 * P.y * Q.z;
         auto Rz = v3 * P.z * Q.z;
-        return EllipticCurvePoint<Field>(curve, Rx/Rz, Ry/Rz, curve->f(1));
+        return EllipticCurvePoint<Field>(curve, Rx, Ry, Rz);
       }
     }
 
-    EllipticCurvePoint<Field> operator-() const {
-      auto t = y * -1;
-      auto c = curve->operator()(x, t, z);
-      return c;
+    EllipticCurvePoint<Field> operator-() {
+      return EllipticCurvePoint<Field>(curve, x, -y, z);
     }
 
-    EllipticCurvePoint<Field> operator-(const EllipticCurvePoint<Field>& rhs) const {
+    EllipticCurvePoint<Field> operator-(EllipticCurvePoint<Field>& rhs) {
       return (-rhs) + (*this);
     }
 

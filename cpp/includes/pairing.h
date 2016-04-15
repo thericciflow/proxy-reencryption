@@ -56,9 +56,9 @@ auto miller(
 template <class Field>
 auto weil_pairing(
     EllipticCurve<Field>& E,
-    const EllipticCurvePoint<Field>& P,
-    const EllipticCurvePoint<Field>& Q,
-    const EllipticCurvePoint<Field>& S,
+    EllipticCurvePoint<Field>& P,
+    EllipticCurvePoint<Field>& Q,
+    EllipticCurvePoint<Field>& S,
     const mpz_class& m)
   -> typename Field::Element {
   auto fpqs = miller(E, P, Q+S, m);
