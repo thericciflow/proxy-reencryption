@@ -95,11 +95,11 @@ class EllipticCurvePoint {
       return x == 0 && y == 1 && z == 0;
     }
 
-    bool operator==(EllipticCurvePoint<Field>& rhs) const {
+    bool operator==(const EllipticCurvePoint<Field>& rhs) const {
       return x * rhs.y == y * rhs.x;
     }
 
-    bool operator!=(EllipticCurvePoint<Field>& rhs) const {
+    bool operator!=(const EllipticCurvePoint<Field>& rhs) const {
       return !(*this == rhs);
     }
 
@@ -157,10 +157,10 @@ class EllipticCurvePoint {
 
     template <class T>
     EllipticCurvePoint<Field> operator*(const T& rhs) const {
-      auto P = EllipticCurvePoint<Field>(*this);
+      auto P = *this;
       auto m = rhs;
       if (m == 0) {
-        return EllipticCurvePoint<Field>(curve);
+        return *(curve->O);
       } else if (m == 1) {
         return P;
       } else if (m == 2) {

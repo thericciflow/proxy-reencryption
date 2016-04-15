@@ -4,9 +4,9 @@
 
 template <class Field>
 inline auto h(
-    EllipticCurvePoint<Field> P, 
-    EllipticCurvePoint<Field> Q, 
-    EllipticCurvePoint<Field> R)
+    const EllipticCurvePoint<Field> P, 
+    const EllipticCurvePoint<Field> Q, 
+    const EllipticCurvePoint<Field> R)
   -> typename Field::Element {
   if ((P == Q && P.y == 0) || (P != Q && P.x == Q.x)) {
     return R.x - P.x;
@@ -30,9 +30,9 @@ inline auto h(
 template <class Field>
 auto miller(
     EllipticCurve<Field>& E,
-    EllipticCurvePoint<Field> P,
-    EllipticCurvePoint<Field> Q,
-    mpz_class m)
+    const EllipticCurvePoint<Field>& P,
+    const EllipticCurvePoint<Field>& Q,
+    const mpz_class& m)
   -> typename Field::Element {
   if (P == Q) {
     return E.f(1);
@@ -58,8 +58,8 @@ auto weil_pairing(
     EllipticCurve<Field>& E,
     const EllipticCurvePoint<Field>& P,
     const EllipticCurvePoint<Field>& Q,
-    EllipticCurvePoint<Field>& S,
-    mpz_class m)
+    const EllipticCurvePoint<Field>& S,
+    const mpz_class& m)
   -> typename Field::Element {
   auto fpqs = miller(E, P, Q+S, m);
   auto fps  = miller(E, P, S,   m);
@@ -72,5 +72,5 @@ FiniteFieldElement tate_pairing(
     EllipticCurve<FiniteField>& E,
     const EllipticCurvePoint<FiniteField>& P,
     const EllipticCurvePoint<FiniteField>& Q,
-    mpz_class m,
-    mpz_class k);
+    const mpz_class& m,
+    const mpz_class& k);
