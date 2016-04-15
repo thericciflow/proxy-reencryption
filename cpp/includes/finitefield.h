@@ -13,12 +13,6 @@ class FiniteFieldElement {
     FiniteFieldElement() : f(nullptr), x(-1) {}
     FiniteFieldElement(FiniteField *, mpz_class);
 
-    /*
-    FiniteFieldElement operator+(const FiniteFieldElement& rhs) const;
-    FiniteFieldElement operator-(const FiniteFieldElement& rhs) const;
-    FiniteFieldElement operator*(const FiniteFieldElement& rhs) const;
-    FiniteFieldElement operator/(const FiniteFieldElement& rhs) const;
-    */
     template <class T>
     FiniteFieldElement operator+(const T& rhs) const;
     template <class T>
@@ -40,12 +34,12 @@ class FiniteFieldElement {
     friend FiniteFieldElement operator/(const T& lhs, const FiniteFieldElement& rhs);
 
     template<class T>
-    bool operator==(T rhs) const {
+    bool operator==(const T& rhs) const {
       return x == rhs;
     }
 
     template<class T>
-    bool operator!=(T rhs) const {
+    bool operator!=(const T& rhs) const {
       return !((*this) == rhs);
     }
 
@@ -58,7 +52,7 @@ class FiniteFieldElement {
       return z;
     }
 
-    operator mpz_class() const {
+    mpz_class get_mpz_class(void) const {
       return x;
     }
 };
@@ -75,12 +69,12 @@ inline mpz_class to_mpz_cls<FiniteFieldElement>(const FiniteFieldElement& t) {
 
 class FiniteField : public Field<FiniteFieldElement> {
   public:
-    mpz_class p;
+    const mpz_class p;
 
-    FiniteField(mpz_class);
+    FiniteField(const mpz_class&);
 
     template <class T>
-    Element operator()(T x) {
+    Element operator()(const T& x) {
       return Element(this, mpz_class(x));
     }
 
@@ -113,6 +107,7 @@ class FiniteField : public Field<FiniteFieldElement> {
       ret.x = t % p;
     }
 };
+
 template <class T>
 FiniteFieldElement FiniteFieldElement::operator+(const T& rhs) const {
   FiniteFieldElement z;
@@ -168,6 +163,7 @@ FiniteFieldElement operator/(const T& lhs, const FiniteFieldElement& rhs) {
   rhs.f->div(z, lhs, rhs);
   return z;
 }
+
 template <class T>
 FiniteFieldElement FiniteFieldElement::operator^(const T& rhs) const {
   FiniteFieldElement res(f, 0);

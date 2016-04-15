@@ -10,23 +10,27 @@ class EllipticCurve {
     typedef typename Field::Element Element;
   public:
     Field f;
-    Element a, b;
-    EllipticCurvePoint<Field> *O;
+    const Element a, b;
+    const EllipticCurvePoint<Field> *O;
 
     EllipticCurve(
-        Field _f,
-        Element _a,
-        Element _b) : a(_a), b(_b), f(_f) {
+        const Field& _f,
+        const Element& _a,
+        const Element& _b) : a(_a), b(_b), f(_f) {
         O = new EllipticCurvePoint<Field>(this, f(0), f(1), f(0));
       }
 
     template <class T>
     EllipticCurve(
-        Field _f,
-        T _a,
-        T _b) : f(_f), a(f(_a)), b(f(_b)) {
+        const Field& _f,
+        const T& _a,
+        const T& _b) : f(_f), a(f(_a)), b(f(_b)) {
         O = new EllipticCurvePoint<Field>(this, f(0), f(1), f(0));
       }
+
+    ~EllipticCurve(void) {
+      delete O;
+    }
 
     Element determinant() const {
       return -16 * (4 * a * a * a + 27 * b * b);
@@ -36,18 +40,18 @@ class EllipticCurve {
       return -1728 * ((4 * a * a * a) / determinant());
     }
 
-    bool is_on_curve(EllipticCurvePoint<Field>& P) const {
+    bool is_on_curve(const EllipticCurvePoint<Field>& P) const {
       auto x = P.x / P.z;
       auto y = P.y / P.z;
       return y*y == x*x*x + a*x + b;
     }
 
     template <class T>
-    EllipticCurvePoint<Field> operator()(T x, T y, T z = 1) {
+    EllipticCurvePoint<Field> operator()(const T& x, const T& y, const T& z = 1) {
       return EllipticCurvePoint<Field>(this, f(x), f(y), f(z));
     }
 
-    EllipticCurvePoint<Field> operator()(Element x, Element y, Element z = Element(1)) {
+    EllipticCurvePoint<Field> operator()(const Element& x, const Element& y, const Element& z = Element(1)) {
       return EllipticCurvePoint<Field>(this, x, y, z);
     }
 
@@ -76,9 +80,9 @@ class EllipticCurvePoint {
 
     EllipticCurvePoint(
         EllipticCurve<Field> *_curve,
-        Element _x,
-        Element _y,
-        Element _z = Element(1)) : curve(_curve), x(_x), y(_y), z(_z) {
+        const Element& _x,
+        const Element& _y,
+        const Element& _z = Element(1)) : curve(_curve), x(_x), y(_y), z(_z) {
       if (!curve->is_on_curve(*this) && !is_infinity()) {
         throw "Error: Point is not on Elliptic Curve";
       }
@@ -99,7 +103,7 @@ class EllipticCurvePoint {
       return !(*this == rhs);
     }
 
-    Element line_coeff(EllipticCurvePoint<Field>& Q) {
+    Element line_coeff(const EllipticCurvePoint<Field>& Q) const {
       auto P = *this;
       if (P.x * Q.z == Q.x * P.z) {
         return (3*P.x*P.x + curve->a) / (2 * P.y);
@@ -141,15 +145,18 @@ class EllipticCurvePoint {
       }
     }
 
-    EllipticCurvePoint<Field> operator-() {
-      return EllipticCurvePoint<Field>(curve, x, -y, z);;
+    EllipticCurvePoint<Field> operator-() const {
+      auto t = y * -1;
+      auto c = curve->operator()(x, t, z);
+      return c;
     }
 
-    EllipticCurvePoint<Field> operator-(EllipticCurvePoint<Field> rhs) const {
+    EllipticCurvePoint<Field> operator-(const EllipticCurvePoint<Field>& rhs) const {
       return (-rhs) + (*this);
     }
 
-    EllipticCurvePoint<Field> operator*(int rhs) const {
+    template <class T>
+    EllipticCurvePoint<Field> operator*(const T& rhs) const {
       auto P = EllipticCurvePoint<Field>(*this);
       auto m = rhs;
       if (m == 0) {
@@ -170,12 +177,13 @@ class EllipticCurvePoint {
       return Q;
     }
 
-    friend EllipticCurvePoint<Field> operator+=(EllipticCurvePoint<Field>& lhs, EllipticCurvePoint<Field>& rhs) {
+    friend EllipticCurvePoint<Field> operator+=(EllipticCurvePoint<Field>& lhs, const EllipticCurvePoint<Field>& rhs) { 
       lhs = lhs + rhs;
       return lhs;
     }
 
-    friend EllipticCurvePoint<Field> operator*(int lhs, EllipticCurvePoint<Field> rhs) {
+    template <class T>
+    friend inline EllipticCurvePoint<Field> operator*(const T& lhs, EllipticCurvePoint<Field> rhs) {
       return rhs * lhs;
     }
 

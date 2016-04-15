@@ -13,7 +13,6 @@ constexpr int CYCLE = 10000;
   cout << "\tFinished." << endl << "Time: " << ((double)end - start)/CLOCKS_PER_SEC/CYCLE * 1e+6 << "usec" << endl; \
 } while (0)
 
-
 int main(int ac, char **av) {
   auto F = FiniteField(631);
   auto E = EllipticCurve<FiniteField>(F, 30, 34);

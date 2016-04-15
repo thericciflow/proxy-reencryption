@@ -12,7 +12,7 @@ inline auto h(
     return R.x - P.x;
   }
   Field f = P.curve->f;
-  mpz_class L = P.line_coeff(Q);
+  auto L = P.line_coeff(Q).get_mpz_class();
   typename Field::Element p, q, t;
   f.sub(p, R.y, P.y);
   f.sub(t, R.x, P.x);

@@ -1,7 +1,7 @@
 #include <ecpy.h>
 using namespace std;
 
-FiniteField::FiniteField(mpz_class _p) : p(_p) {
+FiniteField::FiniteField(const mpz_class& _p) : p(_p) {
   if (!is_prime(p)) {
     throw "Exception: Invalid p";
   }
@@ -24,8 +24,6 @@ bool FiniteFieldElement::operator==(const FiniteFieldElement& rhs) const {
 }
 
 ostream& operator<<(ostream& os, const FiniteFieldElement& elem) {
-  char *buf = nullptr;
-  gmp_asprintf(&buf, "%Zd", MPZ_T(elem.x));
-  os << buf;
+  os << elem.x;
   return os;
 }

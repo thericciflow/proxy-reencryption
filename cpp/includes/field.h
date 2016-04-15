@@ -7,7 +7,7 @@ class Field {
     friend Element;
 
     template <class T>
-    FieldElement operator()(T x) {
+    FieldElement operator()(const T& x) {
       return FieldElement(this, x);
     }
 };
