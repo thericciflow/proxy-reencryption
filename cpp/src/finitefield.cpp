@@ -11,6 +11,16 @@ std::ostream& operator<<(std::ostream& os, const FiniteField& field) {
   return os;
 }
 
+FiniteFieldElement& FiniteFieldElement::operator=(const FiniteFieldElement&& rhs) {
+  f = std::forward<FiniteField* const&>(rhs.f);
+  x = std::forward<const mpz_class&>(rhs.x);
+}
+
+FiniteFieldElement FiniteFieldElement::operator-() const {
+  FiniteFieldElement ret(f, f->p - x);
+  return ret;
+}
+
 FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   x = _x % f->p;
   if (x < 0) {

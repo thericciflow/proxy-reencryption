@@ -62,11 +62,11 @@ class EllipticCurve {
 
     template <class T>
     EllipticCurvePoint<Field> operator()(const T&& x, const T&& y, const T&& z = 1) {
-      return EllipticCurvePoint<Field>(this, std::forward<Element>(f(x)), std::forward<Element>(f(y)), std::forward<Element>(f(z)));
+      return EllipticCurvePoint<Field>(this, f(x), f(y), f(z));
     }
 
-    EllipticCurvePoint<Field> operator()(const Element&& x, const Element&& y, const Element&& z = Element(1)) {
-      return EllipticCurvePoint<Field>(this, std::move(x), std::move(y), std::move(z));
+    EllipticCurvePoint<Field> operator()(const Element& x, const Element& y, const Element& z = Element(1)) {
+      return EllipticCurvePoint<Field>(this, x, y, z);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const EllipticCurve<Field>& E) {
@@ -96,15 +96,15 @@ class EllipticCurvePoint {
 
     EllipticCurvePoint(
         EllipticCurve<Field> *_curve,
-        const Element&& _x,
-        const Element&& _y,
-        const Element&& _z = Element(1)) : curve(_curve), x(std::forward<const Element>(_x)), y(std::forward<const Element>(_y)), z(std::forward<const Element>(_z)) {
+        const Element& _x,
+        const Element& _y,
+        const Element& _z = Element(1)) : curve(_curve), x(_x), y(_y), z(_z) {
       if (!curve->is_on_curve(*this) && !is_infinity()) {
         throw "Error: Point is not on Elliptic Curve";
       }
     }
 
-    EllipticCurvePoint(const EllipticCurvePoint<Field>&& rhs) : curve(std::forward<EllipticCurve<Field>* const&>(rhs.curve)), x(std::forward<const Element>(rhs.x)), y(std::forward<const Element>(rhs.y)), z(std::forward<const Element>(rhs.z)) { }
+    EllipticCurvePoint(const EllipticCurvePoint<Field>&& rhs) : curve(std::move(rhs.curve)), x(std::move(rhs.x)), y(std::move(rhs.y)), z(std::move(rhs.z)) { }
     EllipticCurvePoint(const EllipticCurvePoint<Field>& rhs) : curve(rhs.curve), x(rhs.x), y(rhs.y), z(rhs.z) { }
 
     EllipticCurvePoint(EllipticCurve<Field> *_curve)
@@ -133,10 +133,10 @@ class EllipticCurvePoint {
     }
 
     EllipticCurvePoint<Field>& operator=(EllipticCurvePoint<Field>&& rhs) {
-      curve = std::forward<EllipticCurve<Field>*>(rhs.curve);
-      x = std::forward<const Element>(rhs.x);
-      y = std::forward<const Element>(rhs.y);
-      z = std::forward<const Element>(rhs.z);
+      curve = std::move(rhs.curve);
+      x = std::move(rhs.x);
+      y = std::move(rhs.y);
+      z = std::move(rhs.z);
       return (*this);
     }
 
@@ -156,7 +156,7 @@ class EllipticCurvePoint {
       } else if (Q.is_infinity()) {
         return P;
       } else if (P.x == Q.x && P.y + Q.y == 0) {
-        return std::move(*(curve->O));
+        return *(curve->O);
       }
       if (P == Q) {
         auto u = 3 * x * x + curve->a * z * z;
@@ -182,7 +182,7 @@ class EllipticCurvePoint {
     }
 
     EllipticCurvePoint<Field> operator-() const {
-      return EllipticCurvePoint<Field>(curve, std::move(x), -std::move(y), std::move(z));
+      return EllipticCurvePoint<Field>(curve, x, -y, z);
     }
 
     EllipticCurvePoint<Field> operator-(EllipticCurvePoint<Field>& rhs) const {
@@ -211,7 +211,7 @@ class EllipticCurvePoint {
       return Q;
     }
 
-    EllipticCurvePoint<Field> operator+=(const EllipticCurvePoint<Field>& rhs) { 
+    EllipticCurvePoint<Field>& operator+=(const EllipticCurvePoint<Field>& rhs) { 
       *this = *this + rhs;
       return *this;
     }
