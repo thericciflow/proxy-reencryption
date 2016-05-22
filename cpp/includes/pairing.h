@@ -4,9 +4,9 @@
 
 template <class Field>
 inline auto h(
-    const EllipticCurvePoint<Field> P, 
-    const EllipticCurvePoint<Field> Q, 
-    const EllipticCurvePoint<Field> R)
+    const EllipticCurvePoint<Field>& P, 
+    const EllipticCurvePoint<Field>& Q, 
+    const EllipticCurvePoint<Field>& R)
   -> typename Field::Element {
   if ((P == Q && P.y == 0) || (P != Q && P.x == Q.x)) {
     return R.x - P.x;

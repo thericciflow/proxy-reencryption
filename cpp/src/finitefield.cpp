@@ -1,5 +1,4 @@
 #include <ecpy.h>
-using namespace std;
 
 FiniteField::FiniteField(const mpz_class& _p) : p(_p) {
   if (!is_prime(p)) {
@@ -7,7 +6,7 @@ FiniteField::FiniteField(const mpz_class& _p) : p(_p) {
   }
 };
 
-ostream& operator<<(ostream& os, const FiniteField& field) {
+std::ostream& operator<<(std::ostream& os, const FiniteField& field) {
   os << "FiniteField: p = " << field.p;
   return os;
 }
@@ -19,11 +18,7 @@ FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   }
 }
 
-bool FiniteFieldElement::operator==(const FiniteFieldElement& rhs) const {
-  return x == rhs.x;
-}
-
-ostream& operator<<(ostream& os, const FiniteFieldElement& elem) {
-  os << elem.x;
+std::ostream& operator<<(std::ostream& os, const FiniteFieldElement& x) {
+  os << x.x;
   return os;
 }

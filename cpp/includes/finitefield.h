@@ -11,18 +11,10 @@ class FiniteFieldElement {
     friend FiniteField;
 
     FiniteFieldElement() : f(nullptr), x(-1) {}
+    FiniteFieldElement(FiniteFieldElement&& rhs) : f(std::forward<FiniteField*>(rhs.f)), x(std::forward<mpz_class>(rhs.x)) {}
+    FiniteFieldElement(const FiniteFieldElement& rhs) : f(rhs.f), x(rhs.x) {}
+    ~FiniteFieldElement() = default;
     FiniteFieldElement(FiniteField *, mpz_class);
-
-    template <class T>
-    FiniteFieldElement operator+(const T& rhs) const;
-    template <class T>
-    FiniteFieldElement operator-(const T& rhs) const;
-    template <class T>
-    FiniteFieldElement operator*(const T& rhs) const;
-    template <class T>
-    FiniteFieldElement operator/(const T& rhs) const;
-    template <class T>
-    FiniteFieldElement operator^(const T& rhs) const;
 
     template <class T>
     friend FiniteFieldElement operator+(const T& lhs, const FiniteFieldElement& rhs);
@@ -33,28 +25,16 @@ class FiniteFieldElement {
     template <class T>
     friend FiniteFieldElement operator/(const T& lhs, const FiniteFieldElement& rhs);
 
-    template<class T>
-    bool operator==(const T& rhs) const {
-      return x == rhs;
-    }
+    template <class T>
+    FiniteFieldElement operator+(const T& rhs);
+    template <class T>
+    FiniteFieldElement operator-(const T& rhs);
+    template <class T>
+    FiniteFieldElement operator*(const T& rhs);
+    template <class T>
+    FiniteFieldElement operator/(const T& rhs);
 
-    template<class T>
-    bool operator!=(const T& rhs) const {
-      return !((*this) == rhs);
-    }
-
-    bool operator==(const FiniteFieldElement& rhs) const;
-
-    friend std::ostream& operator<<(std::ostream& os, const FiniteFieldElement& elem);
-
-    FiniteFieldElement operator-() {
-      FiniteFieldElement z(f, -x);
-      return z;
-    }
-
-    mpz_class get_mpz_class(void) const {
-      return x;
-    }
+    friend std::ostream& operator<<(std::ostream& os, const FiniteFieldElement& x);
 };
 
 template <class T>
@@ -81,92 +61,85 @@ class FiniteField : public Field<FiniteFieldElement> {
     friend std::ostream& operator<<(std::ostream& os, const FiniteField& field);
 
     template <class T, class U>
-    void add(Element& ret, const T& b, const U& c) {
-      ret.f = this;
-      ret.x = (to_mpz_cls(b) + to_mpz_cls(c)) % p;
+    static void add(Element& ret, FiniteField *f, const T& b, const U& c) {
+      ret.f = f;
+      ret.x = (to_mpz_cls(b) + to_mpz_cls(c)) % f->p;
     }
 
     template <class T, class U>
-    void sub(Element& ret, const T& b, const U& c) {
-      ret.f = this;
-      ret.x = (to_mpz_cls(b) + (p - to_mpz_cls(c))) % p;
+    static void sub(Element& ret, FiniteField *f, const T& b, const U& c) {
+      ret.f = f;
+      ret.x = (to_mpz_cls(b) + (f->p - to_mpz_cls(c))) % f->p;
     }
 
     template <class T, class U>
-    void mul(Element& ret, const T& b, const U& c) {
-      ret.f = this;
-      ret.x = (to_mpz_cls(b) * to_mpz_cls(c)) % p;
+    static void mul(Element& ret, FiniteField *f, const T& b, const U& c) {
+      ret.f = f;
+      ret.x = (to_mpz_cls(b) * to_mpz_cls(c)) % f->p;
     }
 
     template <class T, class U>
-    void div(Element& ret, const T& b, const U& c) {
+    static void div(Element& ret, FiniteField *f, const T& b, const U& c) {
       mpz_class t;
-      ret.f = this;
-      mpz_invert(MPZ_T(t), MPZ_T(to_mpz_cls(c)), MPZ_T(p));
+      ret.f = f;
+      mpz_invert(MPZ_T(t), MPZ_T(to_mpz_cls(c)), MPZ_T(f->p));
       t *= to_mpz_cls(b);
-      ret.x = t % p;
+      ret.x = t % f->p;
     }
 };
 
 template <class T>
-FiniteFieldElement FiniteFieldElement::operator+(const T& rhs) const {
-  FiniteFieldElement z;
-  f->add(z, *this, rhs);
-  return z;
-}
-
-template <class T>
-FiniteFieldElement FiniteFieldElement::operator-(const T& rhs) const {
-  FiniteFieldElement z;
-  f->sub(z, *this, rhs);
-  return z;
-}
-
-template <class T>
-FiniteFieldElement FiniteFieldElement::operator*(const T& rhs) const {
-  FiniteFieldElement z;
-  f->mul(z, *this, rhs);
-  return z;
-}
-
-template <class T>
-FiniteFieldElement FiniteFieldElement::operator/(const T& rhs) const {
-  FiniteFieldElement z;
-  f->div(z, *this, rhs);
-  return z;
-}
-
-template <class T>
 FiniteFieldElement operator+(const T& lhs, const FiniteFieldElement& rhs) {
-  FiniteFieldElement z;
-  rhs.f->add(z, lhs, rhs);
-  return z;
+  auto r = FiniteFieldElement();
+  FiniteField::add(r, rhs.f, lhs, rhs);
+  return r;
 }
 
 template <class T>
 FiniteFieldElement operator-(const T& lhs, const FiniteFieldElement& rhs) {
-  FiniteFieldElement z;
-  rhs.f->sub(z, lhs, rhs);
-  return z;
+  auto r = FiniteFieldElement();
+  FiniteField::sub(r, rhs.f, lhs, rhs);
+  return r;
 }
 
 template <class T>
 FiniteFieldElement operator*(const T& lhs, const FiniteFieldElement& rhs) {
-  FiniteFieldElement z;
-  rhs.f->mul(z, lhs, rhs);
-  return z;
+  auto r = FiniteFieldElement();
+  FiniteField::mul(r, rhs.f, lhs, rhs);
+  return r;
 }
 
 template <class T>
 FiniteFieldElement operator/(const T& lhs, const FiniteFieldElement& rhs) {
-  FiniteFieldElement z;
-  rhs.f->div(z, lhs, rhs);
-  return z;
+  auto r = FiniteFieldElement();
+  FiniteField::div(r, rhs.f, lhs, rhs);
+  return r;
 }
 
 template <class T>
-FiniteFieldElement FiniteFieldElement::operator^(const T& rhs) const {
-  FiniteFieldElement res(f, 0);
-  mpz_powm(MPZ_T(res.x), MPZ_T(x), MPZ_T(to_mpz_cls(rhs)), MPZ_T(f->p));
-  return res;
+FiniteFieldElement FiniteFieldElement::operator+(const T& rhs) {
+  auto r = FiniteFieldElement();
+  FiniteField::add(r, f, static_cast<const FiniteFieldElement&>(*this), rhs);
+  return r;
+}
+
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator-(const T& rhs) {
+  auto r = FiniteFieldElement();
+  FiniteField::sub(r, f, static_cast<const FiniteFieldElement&>(*this), rhs);
+  return r;
+}
+
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator*(const T& rhs) {
+  auto r = FiniteFieldElement();
+  FiniteField::mul(r, f, static_cast<const FiniteFieldElement&>(*this), rhs);
+  return r;
+}
+
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator/(const T& rhs) {
+  auto r = FiniteFieldElement();
+  FiniteField::div(r, f, static_cast<const FiniteFieldElement&>(*this), rhs);
+  return r;
 }

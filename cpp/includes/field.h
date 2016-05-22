@@ -3,7 +3,7 @@
 template<class FieldElement>
 class Field {
   public:
-    typedef FieldElement Element;
+    using Element = FieldElement;
     friend Element;
 
     template <class T>
