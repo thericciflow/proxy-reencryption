@@ -7,5 +7,6 @@ FiniteFieldElement tate_pairing(
     const mpz_class& m,
     const mpz_class& k) {
     auto f = miller(E, P, Q, m);
-    return f ^ (((E.f(E.f.p) ^ k) - 1) / m);
+    auto t = (((E.f(E.f.p) ^ k) - 1) / m);
+    return f ^ t;
 }

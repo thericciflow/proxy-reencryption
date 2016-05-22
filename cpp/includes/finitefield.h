@@ -24,10 +24,14 @@ class FiniteFieldElement {
     FiniteFieldElement operator*(const T& rhs) const;
     template <class T>
     FiniteFieldElement operator/(const T& rhs) const;
+    template <class T>
+    FiniteFieldElement operator^(const T& rhs) const;
 
     FiniteFieldElement& operator=(const FiniteFieldElement&& rhs);
 
     FiniteFieldElement operator-() const;
+
+    mpz_class get_mpz_class() const;
 
     template <class T>
     bool operator==(const T& rhs) const;
@@ -75,7 +79,8 @@ class FiniteField : public Field<FiniteFieldElement> {
     template <class T, class U>
     static void sub(Element& ret, FiniteField *f, const T& b, const U& c) {
       ret.f = f;
-      ret.x = (to_mpz_cls(b) + (f->p - to_mpz_cls(c))) % f->p;
+      Element t(f, f->p - to_mpz_cls(c));
+      ret.x = (to_mpz_cls(b) + t.get_mpz_class()) % f->p;
     }
 
     template <class T, class U>
@@ -148,6 +153,13 @@ FiniteFieldElement FiniteFieldElement::operator/(const T& rhs) const {
   auto r = FiniteFieldElement();
   FiniteField::div(r, f, static_cast<const FiniteFieldElement&>(*this), rhs);
   return r;
+}
+
+template <class T>
+FiniteFieldElement FiniteFieldElement::operator^(const T& rhs) const {
+  FiniteFieldElement res(f, 0);
+  mpz_powm(MPZ_T(res.x), MPZ_T(x), MPZ_T(to_mpz_cls(rhs)), MPZ_T(f->p));
+  return res;
 }
 
 template <class T>

@@ -17,7 +17,8 @@ int main(int ac, char **av) {
     auto P = E(36, 60);
     auto Q = E(121, 387);
     auto S = E(0, 36);
-    cout << (P-Q).normalize() << endl;
+    cout << weil_pairing(E, P, Q, S, 5) << endl;
+    cout << tate_pairing(E, P, Q, 5, 1) << endl;
   } catch (const char *message) {
     cerr << message << endl;
   }

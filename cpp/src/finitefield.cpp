@@ -21,9 +21,13 @@ FiniteFieldElement FiniteFieldElement::operator-() const {
   return ret;
 }
 
+mpz_class FiniteFieldElement::get_mpz_class() const {
+  return x;
+}
+
 FiniteFieldElement::FiniteFieldElement(FiniteField *_f, mpz_class _x) : f(_f) {
   x = _x % f->p;
-  if (x < 0) {
+  while (x < 0) {
     x += f->p;
   }
 }

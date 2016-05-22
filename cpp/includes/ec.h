@@ -90,9 +90,9 @@ class EllipticCurvePoint {
     using Element = typename Field::Element;
   public:
     EllipticCurve<Field> *curve;
-    const Element x;
-    const Element y;
-    const Element z;
+    Element x;
+    Element y;
+    Element z;
 
     EllipticCurvePoint(
         EllipticCurve<Field> *_curve,
@@ -132,7 +132,7 @@ class EllipticCurvePoint {
       return x == 0 && y == 1 && z == 0;
     }
 
-    EllipticCurvePoint<Field>& operator=(EllipticCurvePoint<Field>&& rhs) {
+    EllipticCurvePoint<Field>& operator=(const EllipticCurvePoint<Field>&& rhs) {
       curve = std::move(rhs.curve);
       x = std::move(rhs.x);
       y = std::move(rhs.y);
@@ -149,8 +149,8 @@ class EllipticCurvePoint {
     }
 
     EllipticCurvePoint<Field> operator+(const EllipticCurvePoint<Field>& rhs) const {
-      auto P = std::move(*this);
-      auto Q = std::move(rhs);
+      auto P = *this;
+      auto Q =rhs;
       if (P.is_infinity()) {
         return Q;
       } else if (Q.is_infinity()) {
@@ -167,7 +167,7 @@ class EllipticCurvePoint {
         auto Rx = 2 * v * w;
         auto Ry = u * (x * yv4 - w) - 8 * yv * yv;
         auto Rz = 8 * v * v * v;
-        return std::move(EllipticCurvePoint<Field>(curve, std::move(Rx), std::move(Ry), std::move(Rz)));
+        return EllipticCurvePoint<Field>(curve, Rx, Ry, Rz);
       } else {
         auto u = Q.y * P.z - P.y * Q.z;
         auto v = Q.x * P.z - P.x * Q.z;
@@ -177,7 +177,7 @@ class EllipticCurvePoint {
         auto Rx = v * w;
         auto Ry = u * (v2 * P.x * Q.z - w) - v3 * P.y * Q.z;
         auto Rz = v3 * P.z * Q.z;
-        return std::move(EllipticCurvePoint<Field>(curve, std::move(Rx), std::move(Ry), std::move(Rz)));
+        return EllipticCurvePoint<Field>(curve, Rx, Ry, Rz);
       }
     }
 
