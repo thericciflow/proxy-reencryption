@@ -32,6 +32,7 @@ int main(int ac, char **av) {
     cout << weil_pairing(E, P, Q, S, 5) << endl;
     cout << tate_pairing(E, P, Q, 5, 1) << endl;
     ES_TIME_TEST(FiniteField F(631); EllipticCurve<FiniteField> E(F, 30, 34); auto P = E(36, 60); auto Q = E(121, 387); auto S = E(0, 36);, weil_pairing(E, P, Q, S, 5));
+    //ES_TIME_TEST(FiniteField F(631); EllipticCurve<FiniteField> E(F, 30, 34); auto P = E(36, 60); auto Q = E(121, 387); auto S = E(0, 36);, tate_pairing(E, P, Q, 5, 1));
   } catch (const char *message) {
     cerr << message << endl;
   }
