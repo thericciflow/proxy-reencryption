@@ -1,6 +1,6 @@
 CC      := g++
 LD      := g++
-CFLAGS  := -g -O0 -Iincludes/ -std=c++11
+CFLAGS  := -Iincludes/ -std=c++11
 LDFLAGS := -lm -lgmp -lgmpxx
 OPTFLAGS:= -g -O0
 TARGET  := ecpy

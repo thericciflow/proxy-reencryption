@@ -110,8 +110,9 @@ class EllipticCurvePoint {
     EllipticCurvePoint(EllipticCurve<Field> *_curve)
       : curve(_curve), x(curve->f(0)), y(curve->f(1)), z(curve->f(0)) { }
 
-    Element line_coeff(const EllipticCurvePoint<Field>& Q) const {
+    Element line_coeff(const EllipticCurvePoint<Field>& _Q) const {
       auto P = normalize();
+      auto Q = _Q.normalize();
       if (P.x == Q.x) {
         return (3*P.x*P.x + curve->a) / (2 * P.y);
       } else {
