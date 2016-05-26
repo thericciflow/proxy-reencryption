@@ -30,10 +30,10 @@ auto miller(
     const EllipticCurvePoint<Field>& Q,
     const mpz_class& m)
   -> typename Field::Element {
-  if (P == Q) {
-    return E.f(1);
-  }
   auto f = E.f(1);
+  if (P == Q) {
+    return f;
+  }
   EllipticCurvePoint<Field> T(P);
   uint32_t n = 0;
   for(;(m >> n) != 0; n++);
