@@ -122,8 +122,8 @@ class EllipticCurvePoint {
       if (is_infinity()) {
         return *this;
       }
-      auto x = this->x / this->z;
-      auto y = this->y / this->z;
+      auto x = x / z;
+      auto y = y / z;
       return EllipticCurvePoint<Field>(curve, std::move(x), std::move(y), curve->f(1));
     }
 
@@ -149,7 +149,7 @@ class EllipticCurvePoint {
 
     EllipticCurvePoint<Field> operator+(const EllipticCurvePoint<Field>& rhs) const {
       auto P = *this;
-      auto Q =rhs;
+      auto Q = rhs;
       if (P.is_infinity()) {
         return Q;
       } else if (Q.is_infinity()) {
@@ -168,14 +168,14 @@ class EllipticCurvePoint {
         auto Rz = 8 * v * v * v;
         return EllipticCurvePoint<Field>(curve, Rx, Ry, Rz);
       } else {
-        auto u = Q.y * P.z - P.y * Q.z;
-        auto v = Q.x * P.z - P.x * Q.z;
+        auto u = Q.y * z - y * Q.z;
+        auto v = Q.x * z - x * Q.z;
         auto v2 = v * v;
         auto v3 = v2 * v;
-        auto w = u * u * P.z * Q.z - v3 - 2 * v2 * P.x * Q.z;
+        auto w = u * u * z * z - v3 - 2 * v2 * x * Q.z;
         auto Rx = v * w;
-        auto Ry = u * (v2 * P.x * Q.z - w) - v3 * P.y * Q.z;
-        auto Rz = v3 * P.z * Q.z;
+        auto Ry = u * (v2 * x * Q.z - w) - v3 * y * Q.z;
+        auto Rz = v3 * z * Q.z;
         return EllipticCurvePoint<Field>(curve, Rx, Ry, Rz);
       }
     }
