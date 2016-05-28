@@ -45,7 +45,11 @@ class RationalFieldElement(FieldElement):
     s.q = q / gcd(p, q)
 
   def int(s):
-    return int(s.real())
+    print "[+] p, q = %d, %d" % (s.p, s.q)
+    if s.q == 1:
+      return int(s.p)
+    else:
+      return int(s.real())
 
   def real(s):
     return s.p * 1.0 / s.q
