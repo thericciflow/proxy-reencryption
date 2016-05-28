@@ -39,5 +39,7 @@ def SSSA_Attack(F, E, P, Q):
   dy1 = (int(lV.x) - int(lQ.x))
   dy2 = (int(lV.y) - int(lQ.y)) % F.p
   m = dy1 * modinv(dx1, F.p) * dx2 * modinv(dy2, F.p)
-  m %= F.p
-  return int(m)
+  if m.q != 1:
+    m %= F.p
+    return int(m)
+  return m.p
