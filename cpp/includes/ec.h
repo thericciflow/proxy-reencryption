@@ -34,14 +34,14 @@ class EllipticCurve {
       delete O;
     }
 
-    EllipticCurve<Field>& operator=(EllipticCurve<Field>&& curve) {
+    EllipticCurve<Field>& operator=(EllipticCurve<Field>&& curve) noexcept {
       f = std::forward<Field &>(curve.f);
       a = std::forward<const Element&>(curve.a);
       b = std::forward<const Element&>(curve.b);
       return (*this);
     }
 
-    EllipticCurve(EllipticCurve<Field>&& curve)
+    EllipticCurve(EllipticCurve<Field>&& curve) noexcept
     : f(std::move<Field &>(curve.f)),
       a(std::move<const Element&>(curve.a)),
       b(std::move<const Element&>(curve.b)),
@@ -62,7 +62,7 @@ class EllipticCurve {
 
     template <class T>
     EllipticCurvePoint<Field> operator()(const T&& x, const T&& y, const T&& z = 1) {
-      return EllipticCurvePoint<Field>(this, f(x), f(y), f(z));
+      return EllipticCurvePoint<Field>(this, std::move(f(x)), std::move(f(y)), std::move(f(z)));
     }
 
     EllipticCurvePoint<Field> operator()(const Element& x, const Element& y, const Element& z = Element(1)) {
