@@ -38,14 +38,28 @@ class RationalField(Field):
 
 
 class RationalFieldElement(FieldElement):
-  def __init__(s, field, p, q):
+  def __init__(s, *args):
+    p, q = None, None
+    if len(args) >= 1:
+      if isinstance(args[0], s.__class__):
+        v = args[0]
+        p = v.p
+        q = v.q
+        field = v.field
+      elif len(args) >= 2:
+        field = args[0]
+        p = args[1]
+        q = 1
+        if len(args) == 3:
+          q = args[2]
+    if p == None or q == None:
+      raise TypeError("Invalid Argument: '%s'" % args)
     FieldElement.__init__(s, field, p)
     s.y = q
     s.p = p / gcd(p, q)
     s.q = q / gcd(p, q)
 
   def int(s):
-    print "[+] p, q = %d, %d" % (s.p, s.q)
     if s.q == 1:
       return int(s.p)
     else:

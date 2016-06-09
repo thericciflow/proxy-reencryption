@@ -11,7 +11,13 @@
 
 extern bool is_prime(const mpz_class&);
 
+template <class T>
+inline mpz_class to_mpz_cls(const T& t) {
+  return t;
+}
+
 #include "field.h"
 #include "finitefield.h"
+#include "complexfield.h"
 #include "ec.h"
 #include "pairing.h"

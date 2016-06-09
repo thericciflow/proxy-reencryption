@@ -133,7 +133,7 @@ class FieldElement:
     return (s.x, ).__iter__()
 
   def __getitem__(s, idx):
-    return [s.x][idx]
+    return s._to_tuple(s)[idx]
 
   def __int__(s):
     return s.int()

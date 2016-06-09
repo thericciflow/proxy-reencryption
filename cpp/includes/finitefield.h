@@ -48,15 +48,6 @@ class FiniteFieldElement {
     friend std::ostream& operator<<(std::ostream& os, const FiniteFieldElement& x);
 };
 
-template <class T>
-inline mpz_class to_mpz_cls(const T& t) {
-  return t;
-}
-template <>
-inline mpz_class to_mpz_cls<FiniteFieldElement>(const FiniteFieldElement& t) {
-  return t.x;
-}
-
 class FiniteField : public Field<FiniteFieldElement> {
   public:
     const mpz_class p;
@@ -79,8 +70,7 @@ class FiniteField : public Field<FiniteFieldElement> {
     template <class T, class U>
     static void sub(Element& ret, FiniteField *f, const T& b, const U& c) {
       ret.f = f;
-      Element t(f, f->p - to_mpz_cls(c));
-      ret.x = (to_mpz_cls(b) + t.get_mpz_class()) % f->p;
+      ret.x = (to_mpz_cls(b) + (f->p - to_mpz_cls(c))) % f->p;
     }
 
     template <class T, class U>
@@ -94,8 +84,7 @@ class FiniteField : public Field<FiniteFieldElement> {
       mpz_class t;
       ret.f = f;
       mpz_invert(MPZ_T(t), MPZ_T(to_mpz_cls(c)), MPZ_T(f->p));
-      t *= to_mpz_cls(b);
-      ret.x = t % f->p;
+      ret.x = (t * to_mpz_cls(b)) % f->p;
     }
 };
 
@@ -165,4 +154,9 @@ FiniteFieldElement FiniteFieldElement::operator^(const T& rhs) const {
 template <class T>
 bool FiniteFieldElement::operator==(const T& rhs) const {
   return to_mpz_cls(rhs) == x;
+}
+
+template <>
+inline mpz_class to_mpz_cls<FiniteFieldElement>(const FiniteFieldElement& t) {
+  return t.x;
 }
