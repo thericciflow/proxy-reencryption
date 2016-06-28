@@ -35,16 +35,16 @@ class GenericEllipticCurve(AdditiveGroup):
     """
     Is on curve `point`?
     """
-    return s._is_on_curve(point.x, point.y)
+    return s._is_on_curve(point.x, point.y, point.z)
 
-  def _is_on_curve(s, x, y):
+  def _is_on_curve(s, x, y, z = 1):
     """
     Is on curve (`x`, `y`)?
-     - this function is inner function of `is_on_curve`.
+     - this is inner function of `is_on_curve`.
     """
     x = s.field(x)
     y = s.field(y)
-    return y * y == x * x * x + s.a * x + s.b
+    return y * y * z == x * x * x + s.a * x * z * z + s.b * z * z * z
 
   def determinant(s):
     """
@@ -112,7 +112,7 @@ class GenericEllipticCurve(AdditiveGroup):
 
   def _equ(s, P, Q):
     """
-    P is equals to Q?
+    Is P equals to Q?
     """
     return P[0] * Q[1] == P[1] * Q[0]
 
@@ -138,14 +138,15 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     s.x = F(x)
     s.y = F(y)
     s.z = F(z)
-    if not (s.is_infinity() or s.group.is_on_curve(s)):
+    s.inf = s.x == 0 and s.y == 1 and s.z == 0
+    if not (s.inf or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
 
   def is_infinity(s):
     """
     Is self == O?
     """
-    return s.x == 0 and s.y == 1 and s.z == 0
+    return s.inf
 
   def order(s):
     """
@@ -302,7 +303,7 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     """
     IMPORTANT: If you want to use this function,
                 definition field should be Extended Finite Field.
-    return \phi(self)
+    return \phi(self), \phi is Distortion map
     Polynomial: x^2+1 or x^2+x+1
     """
     def to_tuple(x):

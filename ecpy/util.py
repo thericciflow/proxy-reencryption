@@ -51,7 +51,7 @@ def egcd(a, b):
   return (b, x, y)
 
 
-@memoize
+#@memoize
 def modinv(a, m):
   """
   Calculate Modular Inverse. i.e. Find x satisfy ax \equiv 1 \mod m.
