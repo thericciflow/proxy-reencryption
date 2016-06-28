@@ -22,28 +22,49 @@ class ZZ {
     ZZ();
     ZZ(py_object);
     ZZ(PyObject*);
+    ZZ(mpz_class&);
     ZZ(mpz_class&&);
 
     PyObject *to_object() const;
+    mpz_class to_mpz_class() const;
 
     ZZ operator+(const ZZ& rhs) const;
     ZZ operator-(const ZZ& rhs) const;
     ZZ operator*(const ZZ& rhs) const;
     ZZ operator/(const ZZ& rhs) const;
+    ZZ operator%(const ZZ& rhs) const;
+
+    template <class T>
+    bool operator==(const T& rhs) const;
 
     friend std::ostream& operator<<(std::ostream&, const ZZ&);
+    friend ZZ operator+(const mpz_class& lhs, const ZZ& rhs);
+    friend ZZ operator-(const mpz_class& lhs, const ZZ& rhs);
+    friend ZZ operator*(const mpz_class& lhs, const ZZ& rhs);
+    friend ZZ operator/(const mpz_class& lhs, const ZZ& rhs);
+
+    template <class T>
+    friend bool operator==(const T& lhs, const ZZ& rhs);
 };
+
+template <class T>
+bool ZZ::operator==(const T& rhs) const {
+  return x == rhs;
+}
+
+template <class T>
+bool operator==(const T& lhs, const ZZ& rhs) {
+  return lhs == rhs.x;
+}
 
 struct ZZPoint {
   ZZ x, y, z;
-  ZZPoint(PyObject* _x, PyObject* _y, PyObject* _z) :
+  template <class T>
+  ZZPoint(T&& _x, T&& _y, T&& _z) :
     x(_x), y(_y), z(_z) {}
-  ZZPoint(PyObject* _x, PyObject* _y) :
-    x(_x), y(_y) {}
-  ZZPoint(py_object _x, py_object _y, py_object _z) :
-    x(_x), y(_y), z(_z) {}
-  ZZPoint(py_object _x, py_object _y) :
-    x(_x), y(_y) {}
+  template <class T>
+  ZZPoint(T&& _x, T&& _y) :
+    x(_x), y(_y), z(1) {}
 
   std::string to_string() const;
 };
