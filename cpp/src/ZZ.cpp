@@ -63,3 +63,42 @@ ZZ operator*(const mpz_class& lhs, const ZZ& rhs) {
 ZZ operator/(const mpz_class& lhs, const ZZ& rhs) {
   return ZZ(lhs / rhs.x);
 }
+
+struct ZZ_to_python {
+  static PyObject *convert(ZZ const & s) {
+    return s.to_object();
+  }
+};
+
+struct ZZ_from_python {
+  ZZ_from_python() {
+    boost::python::converter::registry::push_back(
+      &convertible,
+      &construct,
+      boost::python::type_id<ZZ>()
+    );
+  }
+
+  static void *convertible(PyObject *obj) {
+    if (!PyInt_Check(obj)) {
+      if (!PyLong_Check(obj)) {
+        return nullptr;
+      }
+    }
+    return obj;
+  }
+
+  static void construct(PyObject *obj, boost::python::converter::rvalue_from_python_stage1_data *data) {
+    void *storage = ((boost::python::converter::rvalue_from_python_storage<ZZ>*) data) -> storage.bytes;
+    storage = reinterpret_cast<void*>(new ZZ(to_py_object(obj)));
+    data->convertible = storage;
+  }
+};
+
+void initializeZZConverter() {
+  using namespace boost::python;
+
+  //to_python_converter<ZZ, ZZ_to_python>();
+
+  ZZ_from_python();
+}

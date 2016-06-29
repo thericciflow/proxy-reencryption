@@ -36,6 +36,8 @@ class ZZ {
 
     template <class T>
     bool operator==(const T& rhs) const;
+    template <class T>
+    bool operator!=(const T& rhs) const;
 
     friend std::ostream& operator<<(std::ostream&, const ZZ&);
     friend ZZ operator+(const mpz_class& lhs, const ZZ& rhs);
@@ -45,6 +47,8 @@ class ZZ {
 
     template <class T>
     friend bool operator==(const T& lhs, const ZZ& rhs);
+    template <class T>
+    friend bool operator!=(const T& lhs, const ZZ& rhs);
 };
 
 template <class T>
@@ -57,6 +61,16 @@ bool operator==(const T& lhs, const ZZ& rhs) {
   return lhs == rhs.x;
 }
 
+template <class T>
+bool ZZ::operator!=(const T& rhs) const {
+  return !(x == rhs);
+}
+
+template <class T>
+bool operator!=(const T& lhs, const ZZ& rhs) {
+  return !(lhs == rhs.x);
+}
+
 struct ZZPoint {
   ZZ x, y, z;
   template <class T>
@@ -67,9 +81,34 @@ struct ZZPoint {
     x(_x), y(_y), z(1) {}
 
   std::string to_string() const;
+  std::string to_raw_string() const;
 };
 
-struct ZZPoint_to_python;
-struct ZZPoint_from_python;
+struct EC {
+  ZZ a, b;
+  EC(ZZ, ZZ);
+  virtual ZZPoint add(ZZPoint, ZZPoint) const = 0;
+  virtual ZZPoint sub(ZZPoint, ZZPoint) const = 0;
+  virtual ZZPoint scalarMult(ZZPoint, ZZ) const = 0;
+  virtual ZZPoint normalize(ZZPoint) const = 0;
+  virtual std::string to_string() const;
+};
+
+struct EC_Mod : public EC {
+  ZZ a, b, modulo;
+  EC_Mod(ZZ, ZZ, ZZ);
+  ZZPoint add(ZZPoint, ZZPoint) const override;
+  ZZPoint sub(ZZPoint, ZZPoint) const override;
+  ZZPoint scalarMult(ZZPoint, ZZ) const override;
+  ZZPoint normalize(ZZPoint) const override;
+  std::string to_string() const override;
+};
+
 void initializeZZPointConverter();
+void initializeZZConverter();
+
 py_object to_py_object(PyObject *);
+ZZ modinv(ZZ _a, ZZ _modulo);
+
+bool EC_ZZPoint_Is_Infinity(ZZPoint);
+bool EC_Equals_Mod(ZZPoint P, ZZPoint Q, ZZ a, ZZ b, ZZ modulo);

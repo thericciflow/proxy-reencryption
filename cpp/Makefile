@@ -4,7 +4,7 @@ LD       := g++
 LDFLAGS  := -lboost_python -lgmp -lgmpxx
 CFLAGS    = -Iincludes/ -I$(shell python -c 'from distutils.sysconfig import *; print get_python_inc()') -DPIC
 OPTFLAGS := -O0 -g -fPIC -shared -std=c++11
-OBJS     := ecpy_native.o ZZPoint.o ZZ.o
+OBJS     := ecpy_native.o ZZPoint.o ZZ.o ec.o
 
 vpath %.cpp src/
 vpath %.h includes/

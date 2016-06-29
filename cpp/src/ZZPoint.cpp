@@ -2,7 +2,13 @@
 
 std::string ZZPoint::to_string() const {
   std::stringstream ret;
-  ret << "ZZPoint (" << x << ", " << y << ", " << z << ")";
+  ret << "ZZPoint (" << x << " : " << y << " : " << z << ")";
+  return ret.str();
+}
+
+std::string ZZPoint::to_raw_string() const {
+  std::stringstream ret;
+  ret << "ZZPoint(" << x << ", " << y << ", " << z << ")";
   return ret.str();
 }
 
