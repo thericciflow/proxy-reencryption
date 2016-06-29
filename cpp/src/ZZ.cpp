@@ -98,7 +98,7 @@ struct ZZ_from_python {
 void initializeZZConverter() {
   using namespace boost::python;
 
-  //to_python_converter<ZZ, ZZ_to_python>();
+  to_python_converter<ZZ, ZZ_to_python>();
 
   ZZ_from_python();
 }

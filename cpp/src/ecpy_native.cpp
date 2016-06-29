@@ -30,9 +30,9 @@ BOOST_PYTHON_MODULE(ecpy_native) {
     .def("__repr__", &ZZPoint::to_raw_string)
   ;
 
-  class_<ZZ>("ZZ", init<py_object>())
+  /*class_<ZZ>("ZZ", init<py_object>())
     .def("__int__", &ZZ::to_object)
-  ;
+  ;*/
 
   class_<EC_Mod>("EC_Mod", init<ZZ, ZZ, ZZ>())
     .def_readwrite("a", &EC_Mod::a)
