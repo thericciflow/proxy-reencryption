@@ -7,13 +7,15 @@ py_object to_py_object(PyObject *obj) {
 }
 
 ZZ modinv(ZZ _a, ZZ _modulo) {
-  auto a = _a.to_mpz_class();
-  auto modulo = _modulo.to_mpz_class();
+  auto a = static_cast<mpz_class>(_a.to_mpz_class());
+  auto modulo = static_cast<mpz_class>(_modulo.to_mpz_class());
   mpz_class t;
+  if (a < 0) {
+    a += modulo;
+  }
   mpz_invert(t.get_mpz_t(), a.get_mpz_t(), modulo.get_mpz_t());
   return ZZ{t};
 }
-
 
 BOOST_PYTHON_MODULE(ecpy_native) {
   using namespace boost::python;
@@ -30,10 +32,6 @@ BOOST_PYTHON_MODULE(ecpy_native) {
     .def("__repr__", &ZZPoint::to_raw_string)
   ;
 
-  /*class_<ZZ>("ZZ", init<py_object>())
-    .def("__int__", &ZZ::to_object)
-  ;*/
-
   class_<EC_Mod>("EC_Mod", init<ZZ, ZZ, ZZ>())
     .def_readwrite("a", &EC_Mod::a)
     .def_readwrite("b", &EC_Mod::b)
@@ -46,4 +44,6 @@ BOOST_PYTHON_MODULE(ecpy_native) {
     ;
 
   def("EC_ZZPoint_Is_Infinity", &EC_ZZPoint_Is_Infinity);
+
+  def("modinv", &modinv);
 }

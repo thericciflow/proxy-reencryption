@@ -83,32 +83,31 @@ class GenericEllipticCurve(AdditiveGroup):
     Px, Py, Pz = P
     Qx, Qy, Qz = Q
     Rx, Ry, Rz = s.O
-    try:
-      if s._equ(P, Q):
-        X, Y, Z = Px, Py, Pz
-        u = 3 * X * X + s.a * Z * Z
-        v = Y * Z
-        a = Y * v
-        w = u * u - 8 * X * a
-        Rx = 2 * v * w
-        Ry = u * (4 * X * a - w) - 8 * a * a
-        Rz = 8 * v * v * v
-      else:
-        u = Qy * Pz - Py * Qz
-        v = Qx * Pz - Px * Qz
-        v2 = v * v
-        v3 = v2 * v
-        w = u * u * Pz * Qz - v3 - 2 * v2 * Px * Qz
-        Rx = v * w
-        Ry = u * (v2 * Px * Qz - w) - v3 * Py * Qz
-        Rz = v3 * Pz * Qz
-      if isinstance(Rz, (int, long)):
-        z = 1 / s.field(Rz)
-      else:
-        z = 1 / Rz
-      return s.element_class(s, Rx * z, Ry * z, 1)
-    except ModinvNotFoundError:
+    if s._equ(P, Q):
+      X, Y, Z = Px, Py, Pz
+      u = 3 * X * X + s.a * Z * Z
+      v = Y * Z
+      a = Y * v
+      w = u * u - 8 * X * a
+      Rx = 2 * v * w
+      Ry = u * (4 * X * a - w) - 8 * a * a
+      Rz = 8 * v * v * v
+    else:
+      u = Qy * Pz - Py * Qz
+      v = Qx * Pz - Px * Qz
+      v2 = v * v
+      v3 = v2 * v
+      w = u * u * Pz * Qz - v3 - 2 * v2 * Px * Qz
+      Rx = v * w
+      Ry = u * (v2 * Px * Qz - w) - v3 * Py * Qz
+      Rz = v3 * Pz * Qz
+    if isinstance(Rz, (int, long)):
+      z = 1 / s.field(Rz)
+    else:
+      z = 1 / Rz
+    if z == 0:
       return s.O
+    return s.element_class(s, Rx * z, Ry * z, 1)
 
   def _equ(s, P, Q):
     """

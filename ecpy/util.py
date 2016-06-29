@@ -1,5 +1,5 @@
 import random
-
+import sys
 
 class ModinvNotFoundError(ArithmeticError):
   """
@@ -51,13 +51,12 @@ def egcd(a, b):
   return (b, x, y)
 
 
-#@memoize
-def modinv(a, m):
+def __modinv(a, m):
   """
   Calculate Modular Inverse. i.e. Find x satisfy ax \equiv 1 \mod m.
   """
   if gcd(a, m) != 1:
-    raise ModinvNotFoundError()
+    return 0
   if a < 0:
     a += m
   return egcd(a, m)[1] % m
@@ -133,10 +132,16 @@ def miller_rabin(x):
 try:
   import gmpy
   _is_prime = gmpy.is_prime
-  print "[+] found gmpy! use gmpy.is_prime"
+  sys.stderr.write("[+] found gmpy! use gmpy.is_prime\n")
 except:
   _is_prime = miller_rabin
 
+try:
+  import ecpy_native
+  sys.stderr.write("[+] Native Module Enabled.\n")
+  _modinv = ecpy_native.modinv
+except:
+  _modinv = __modinv
 
 @memoize
 def is_prime(x):
@@ -144,3 +149,6 @@ def is_prime(x):
   Is x prime?
   """
   return _is_prime(x)
+
+def modinv(a, n):
+  return _modinv(a, n)
