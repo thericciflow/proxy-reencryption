@@ -8,7 +8,7 @@ This is Native module of [ecpy](https://github.com/elliptic-shiho/ecpy/).
 
 ```
 > make
-> sudo cp bin/ecpy_native.so /path/to/install/directory/
+> make install
 ```
 
 # Requirements
