@@ -14,6 +14,15 @@ Elliptic-Curve Cryptography Library (implemented by Python)
   - `example/id_based_encryption.py`: Implementation of Boneh-Franklin's Identity-based Encryption
   - `example/boneh_lynn_shacham_short_signature.py`: Implementation of Boneh-Lynn-Shacham's Short Signature
 
+# Setup
+
+```
+> sudo pip install --upgrade .
+```
+
+ecpy does not need other module(s) for install & use. but, If installed gmpy, ecpy uses that.
+If you want to install Native Module, see [cpp/README.md](cpp/README.md).
+
 # License
 this software released under MIT License. Please see /LICENSE.
 
@@ -21,35 +30,38 @@ this software released under MIT License. Please see /LICENSE.
 See `bench_pairing.py` .
 
 ```
-Sun Jun 19 14:41:46 JST 2016 ~/prog/lab/mathematics/ecpy 100%
+Mon Jul 11 15:28:39 JST 2016 ~/prog/lab/mathematics/ecpy 100%
 > python bench_pairing.py 
 [+] found gmpy! use gmpy.is_prime
-Point (25 : 7572690594L + 1936823611Lw : 1) on Elliptic Curve y^2 = x^3 + 1 over ExtendedFiniteField(13208557577, "x^2+x+1")
+[+] Native Module Enabled.
+Point (25 : 5635866983L + 11271733966Lw : 1) on Elliptic Curve y^2 = x^3 + 1 over ExtendedFiniteField(13208557577, "x^2+x+1")
 [+] Weil Pairing: 
-weil: 72908.25 usec/pass
-weil: 72549.59 usec/pass
-weil: 73382.09 usec/pass
-weil: 72033.70 usec/pass
-weil: 72523.50 usec/pass
-weil: 73150.35 usec/pass
-weil: 71082.10 usec/pass
-weil: 71405.10 usec/pass
-weil: 71139.05 usec/pass
-weil: 71303.40 usec/pass
+weil: 57110.20 usec/pass
+weil: 56711.49 usec/pass
+weil: 56519.84 usec/pass
+weil: 56879.90 usec/pass
+weil: 56478.80 usec/pass
+weil: 56457.00 usec/pass
+weil: 56551.49 usec/pass
+weil: 56521.75 usec/pass
+weil: 56802.75 usec/pass
+weil: 56370.65 usec/pass
 [+] Tate Pairing: 
-tate: 16398.80 usec/pass
-tate: 16166.14 usec/pass
-tate: 16186.20 usec/pass
-tate: 16099.99 usec/pass
-tate: 16463.35 usec/pass
-tate: 16662.90 usec/pass
-tate: 16177.30 usec/pass
-tate: 16113.84 usec/pass
-tate: 16220.25 usec/pass
-tate: 16178.00 usec/pass
+tate: 13734.56 usec/pass
+tate: 13636.45 usec/pass
+tate: 13704.19 usec/pass
+tate: 13656.04 usec/pass
+tate: 13635.49 usec/pass
+tate: 13655.15 usec/pass
+tate: 13785.70 usec/pass
+tate: 13688.85 usec/pass
+tate: 13643.40 usec/pass
+tate: 13741.49 usec/pass
 ================================================================
-weil: 72147.71 usec/pass
-tate: 16266.68 usec/pass
+weil: 56640.39 usec/pass
+tate: 13688.13 usec/pass
+Mon Jul 11 15:28:54 JST 2016 ~/prog/lab/mathematics/ecpy 100%
+> 
 ```
 
 # Special Thanks
