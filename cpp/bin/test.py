@@ -12,3 +12,23 @@ print E
 R = E.add(P, Q)
 print R
 print E.normalize(R)
+
+p = 37139
+q = 11087
+n = p*q
+a = 3
+
+r = ecpy_native.modular_square_root(a, n)
+print r
+print (r[0] ** 2 % n), (r[1] ** 2 % n)
+
+r = ecpy_native.modular_square_root(9, p)
+print r
+print (r[0] ** 2 % p), (r[1] ** 2 % p)
+
+p = 3472313333
+a = 9
+
+r = ecpy_native.modular_square_root(a, p)
+print r
+print (r[0] ** 2 % p), (r[1] ** 2 % p)

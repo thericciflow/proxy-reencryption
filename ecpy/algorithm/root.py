@@ -1,7 +1,4 @@
-from ..util import is_prime, legendre_symbol
-from ..structure.ExtendedFiniteField import ExtendedFiniteFieldElement
 import random
-
 
 def _find_power_divisor(base, x, modulo=None):
   k = 0
@@ -18,13 +15,22 @@ def _find_power(power_base, x, crib, modulo=None):
     k += 1
   return k
 
-
 def modular_square_root(a, m, force=False):
+  from ..structure.ExtendedFiniteField import ExtendedFiniteFieldElement
+  from ..util import is_prime, legendre_symbol, _modular_square_root
   """
   Calculate Quadratic Residue
   """
   if isinstance(a, ExtendedFiniteFieldElement) and not force:
     return modular_square_root_extended(a)
+  else:
+    return _modular_square_root(int(a), m)
+
+def __modular_square_root(a, m):
+  from ..util import is_prime, legendre_symbol, _modular_square_root
+  """
+  Calculate Quadratic Residue
+  """
   if is_prime(m):
     return tonelli_shanks(a, m)
   if m == 2:
@@ -61,6 +67,7 @@ def modular_square_root(a, m, force=False):
 
 
 def tonelli_shanks(n, p):
+  from ..util import legendre_symbol
   """
   Tonelli-Shanks calculate quadratic residue algorithm implementation
   """
@@ -88,6 +95,7 @@ def tonelli_shanks(n, p):
 
 
 def extended_legendre_symbol(a):
+  from ..util import legendre_symbol
   """
   Legendre Symbol on the Extended Field
   """

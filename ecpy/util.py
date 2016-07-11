@@ -1,3 +1,4 @@
+from ecpy.algorithm.root import __modular_square_root
 import random
 import sys
 
@@ -140,8 +141,10 @@ try:
   import ecpy_native
   sys.stderr.write("[+] Native Module Enabled.\n")
   _modinv = ecpy_native.modinv
+  _modular_square_root = ecpy_native.modular_square_root
 except:
   _modinv = __modinv
+  _modular_square_root = __modular_square_root
 
 @memoize
 def is_prime(x):

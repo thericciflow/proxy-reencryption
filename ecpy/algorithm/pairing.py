@@ -1,5 +1,4 @@
 from root import cubic_root
-from ..util import is_prime
 from random import randint
 
 
@@ -72,6 +71,7 @@ def gen_supersingular_ec(bits=70):
   from ..structure import EllipticCurve, ExtendedFiniteField
 
   def _next_prime(n):
+    from ..util import is_prime
     """
     return next prime of n
     """

@@ -54,6 +54,7 @@ struct ZZPoint_from_python {
     }
     void *storage = ((boost::python::converter::rvalue_from_python_storage<ZZPoint>*) data) -> storage.bytes;
     new (storage) ZZPoint(x, y, z);
+    data->convertible = storage;
   }
 };
 

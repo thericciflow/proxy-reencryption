@@ -1,7 +1,5 @@
-from ..util import modinv
-
-
 def hensel_lift(curve, P):
+  from ..util import modinv
   """
   Calculate Lifted Point using Hensel's Lemma
   """
@@ -13,6 +11,7 @@ def hensel_lift(curve, P):
 
 
 def SSSA_Attack(F, E, P, Q):
+  from ..util import modinv
   """
   Attack to Anomalous Curve: SSSA-Attack Implementation
   """
