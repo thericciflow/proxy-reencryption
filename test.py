@@ -152,7 +152,6 @@ def test():
   assert_eq(SSSA_Attack(F, E, G, P),
             0x746a6374667b6f6f70735f656c6c31707431635f6375727665735f525f683472647d,
             "SSSA-Attack (TJCTF 2016 Crypto 200: curvature2)\n")
-
   z = CC(1, 2)  # 1+2i
   w = CC(5, 1)  # 5+i
   print "z, w = %r, %r" % (z, w)

@@ -1,4 +1,4 @@
-class AdditiveGroup:
+class AdditiveGroup(object):
   def __init__(s, element_class):
     s.element_class = element_class
 
@@ -27,7 +27,7 @@ class AdditiveGroup:
     return 0
 
 
-class AdditiveGroupElement:
+class AdditiveGroupElement(object):
   def __init__(s, group, x):
     s.group = group
     s.x = x

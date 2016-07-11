@@ -1,4 +1,4 @@
-class Field:
+class Field(object):
   def __init__(s, element_class):
     s.element_class = element_class
 
@@ -42,7 +42,7 @@ class Field:
     return 1
 
 
-class FieldElement:
+class FieldElement(object):
   def __init__(s, field, x):
     s.field = field
     s.x = x
