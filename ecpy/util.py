@@ -1,6 +1,7 @@
 import random
 import sys
 
+
 def memoize(f):
   """
   Auto-Memoize Decorator.
@@ -141,12 +142,14 @@ except:
   _modular_square_root = __modular_square_root
   enable_native_module = False
 
+
 @memoize
 def is_prime(x):
   """
   Is x prime?
   """
   return _is_prime(x)
+
 
 def modinv(a, n):
   return _modinv(a, n)

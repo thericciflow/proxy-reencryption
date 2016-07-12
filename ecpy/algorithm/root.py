@@ -1,5 +1,6 @@
 import random
 
+
 def _find_power_divisor(base, x, modulo=None):
   k = 0
   m = base
@@ -15,9 +16,10 @@ def _find_power(power_base, x, crib, modulo=None):
     k += 1
   return k
 
+
 def modular_square_root(a, m, force=False):
   from ..structure.ExtendedFiniteField import ExtendedFiniteFieldElement
-  from ..util import is_prime, legendre_symbol, _modular_square_root
+  from ..util import _modular_square_root
   """
   Calculate Quadratic Residue
   """
@@ -26,8 +28,9 @@ def modular_square_root(a, m, force=False):
   else:
     return _modular_square_root(int(a), m)
 
+
 def __modular_square_root(a, m):
-  from ..util import is_prime, legendre_symbol, _modular_square_root
+  from ..util import is_prime
   """
   Calculate Quadratic Residue
   """

@@ -1,5 +1,6 @@
-from ..util import modinv, is_prime
+from ..util import modinv
 from ..abstract.Field import Field, FieldElement
+
 
 class Zmod(Field):
   def __init__(s, n):

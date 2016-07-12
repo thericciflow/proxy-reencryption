@@ -1,5 +1,4 @@
 from ecpy import ExtendedFiniteField, EllipticCurve, weil_pairing
-from timeit import timeit
 from random import randint
 
 

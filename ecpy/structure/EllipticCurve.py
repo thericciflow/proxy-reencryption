@@ -37,7 +37,7 @@ class GenericEllipticCurve(AdditiveGroup):
     """
     return s._is_on_curve(point.x, point.y, point.z)
 
-  def _is_on_curve(s, x, y, z = 1):
+  def _is_on_curve(s, x, y, z=1):
     """
     Is on curve (`x`, `y`)?
      - this is inner function of `is_on_curve`.

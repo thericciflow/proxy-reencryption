@@ -89,6 +89,7 @@ def gen_supersingular_ec(bits=70):
     next_prime = _next_prime
 
   def gen_prime():
+    from ..util import is_prime
     """
     Generate Prime for Super Singular Elliptic Curve
     """

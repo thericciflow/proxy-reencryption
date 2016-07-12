@@ -15,7 +15,7 @@ print E.normalize(R)
 
 p = 37139
 q = 11087
-n = p*q
+n = p * q
 a = 3
 
 r = ecpy_native.modular_square_root(a, n)

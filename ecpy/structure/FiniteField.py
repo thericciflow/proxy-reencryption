@@ -1,4 +1,4 @@
-from Zmod import Zmod, ZmodElement
+from Zmod import Zmod
 
 
 class FiniteField(Zmod):
