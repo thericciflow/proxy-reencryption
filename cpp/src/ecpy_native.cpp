@@ -8,7 +8,7 @@ py_object to_py_object(PyObject *obj) {
   return py_object(boost::python::handle<>(boost::python::borrowed(obj)));
 }
 
-ZZ _find_power_divisor(ZZ base, ZZ x, ZZ modulo=mpz_class(-1)) {
+inline ZZ _find_power_divisor(ZZ base, ZZ x, ZZ modulo=mpz_class(-1)) {
   auto k = 0_mpz;
   auto m = base;
   while (x % m == 0) {
@@ -21,7 +21,7 @@ ZZ _find_power_divisor(ZZ base, ZZ x, ZZ modulo=mpz_class(-1)) {
   return k;
 }
 
-ZZ _find_power(ZZ base, ZZ x, ZZ crib, ZZ modulo=mpz_class(-1)) {
+inline ZZ _find_power(ZZ base, ZZ x, ZZ crib, ZZ modulo=mpz_class(-1)) {
   auto k = 1_mpz;
   if (modulo != -1) {
     while (powermod(x, power(base, k), modulo) != crib) {
