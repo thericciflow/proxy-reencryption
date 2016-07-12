@@ -1,4 +1,3 @@
-from ecpy.algorithm.root import __modular_square_root
 import random
 import sys
 
@@ -143,6 +142,7 @@ try:
   _modinv = ecpy_native.modinv
   _modular_square_root = ecpy_native.modular_square_root
 except:
+  from ecpy.algorithm.root import __modular_square_root
   _modinv = __modinv
   _modular_square_root = __modular_square_root
 
