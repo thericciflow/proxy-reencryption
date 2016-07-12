@@ -8,3 +8,4 @@ engines:
 ratings:
   paths:
     - "**.py"
+    - "**.cpp"

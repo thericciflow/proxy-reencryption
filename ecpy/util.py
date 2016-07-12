@@ -152,4 +152,8 @@ def is_prime(x):
 
 
 def modinv(a, n):
+  """
+  Calculate Modular Inverse.
+  - Find x satisfy ax \equiv 1 \mod m
+  """
   return _modinv(a, n)
