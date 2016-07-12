@@ -199,9 +199,9 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return s.mult_binary(rhs)
 
   def mult_binary(s, rhs):
-    if rhs == 0:
-      return s.group.O
     d = s.group.field(rhs).int()
+    if d == 0:
+      return s.group.O
     bits = map(int, bin(d)[2:])[::-1]
     x = s
     if bits[0]:
