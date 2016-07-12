@@ -1,5 +1,5 @@
-from .FiniteField import FiniteField, FiniteFieldElement
-from .Zmod import Zmod
+from .FiniteField import FiniteField
+from .Zmod import Zmod, ZmodElement
 from ..util import is_prime, modinv
 
 
@@ -80,7 +80,7 @@ class ExtendedFiniteField(FiniteField):
     return 2
 
 
-class ExtendedFiniteFieldElement(FiniteFieldElement):
+class ExtendedFiniteFieldElement(ZmodElement):
   def __init__(s, field, x, y=0):
     if isinstance(x, s.__class__):
       x, y = x.x, x.y

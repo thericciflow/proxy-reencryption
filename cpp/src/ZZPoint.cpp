@@ -61,7 +61,7 @@ struct ZZPoint_from_python {
 void initializeZZPointConverter() {
   using namespace boost::python;
 
-  //to_python_converter<ZZPoint, ZZPoint_to_python>();
+  to_python_converter<ZZPoint, ZZPoint_to_python>();
 
-  ZZPoint_from_python();
+  //ZZPoint_from_python();
 }

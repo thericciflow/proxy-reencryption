@@ -119,17 +119,23 @@ BOOST_PYTHON_MODULE(ecpy_native) {
 
   class_<ZZPoint>("ZZPoint", init<py_object, py_object>())
     .def(init<py_object, py_object, py_object>())
-    .def_readwrite("x", &ZZPoint::x)
-    .def_readwrite("y", &ZZPoint::y)
-    .def_readwrite("z", &ZZPoint::z)
+    .add_property("x", make_getter(&ZZPoint::x, return_value_policy<return_by_value>()),
+                       make_setter(&ZZPoint::x, return_value_policy<return_by_value>()))
+    .add_property("y", make_getter(&ZZPoint::y, return_value_policy<return_by_value>()),
+                       make_setter(&ZZPoint::y, return_value_policy<return_by_value>()))
+    .add_property("z", make_getter(&ZZPoint::z, return_value_policy<return_by_value>()),
+                       make_setter(&ZZPoint::z, return_value_policy<return_by_value>()))
     .def("__str__", &ZZPoint::to_string)
     .def("__repr__", &ZZPoint::to_raw_string)
   ;
 
   class_<EC_Mod>("EC_Mod", init<ZZ, ZZ, ZZ>())
-    .def_readwrite("a", &EC_Mod::a)
-    .def_readwrite("b", &EC_Mod::b)
-    .def_readwrite("modulo", &EC_Mod::modulo)
+    .add_property("a", make_getter(&EC_Mod::a, return_value_policy<return_by_value>()),
+                       make_setter(&EC_Mod::a, return_value_policy<return_by_value>()))
+    .add_property("b", make_getter(&EC_Mod::a, return_value_policy<return_by_value>()),
+                       make_setter(&EC_Mod::a, return_value_policy<return_by_value>()))
+    .add_property("modulo", make_getter(&EC_Mod::modulo, return_value_policy<return_by_value>()),
+                            make_setter(&EC_Mod::modulo, return_value_policy<return_by_value>()))
     .def("add", &EC_Mod::add)
     .def("sub", &EC_Mod::sub)
     .def("scalarMult", &EC_Mod::scalarMult)

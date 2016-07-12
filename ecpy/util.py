@@ -1,13 +1,6 @@
 import random
 import sys
 
-class ModinvNotFoundError(ArithmeticError):
-  """
-  Raise if modular inverse not found.
-  """
-  pass
-
-
 def memoize(f):
   """
   Auto-Memoize Decorator.
@@ -141,10 +134,12 @@ try:
   sys.stderr.write("[+] Native Module Enabled.\n")
   _modinv = ecpy_native.modinv
   _modular_square_root = ecpy_native.modular_square_root
+  enable_native_module = True
 except:
   from ecpy.algorithm.root import __modular_square_root
   _modinv = __modinv
   _modular_square_root = __modular_square_root
+  enable_native_module = False
 
 @memoize
 def is_prime(x):

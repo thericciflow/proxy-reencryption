@@ -1,5 +1,5 @@
 from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from ..util import ModinvNotFoundError
+from ..util import enable_native_module
 from ..algorithm.root import modular_square_root
 from random import randint
 from FiniteField import FiniteField
@@ -289,6 +289,11 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
     s.a = a
     s.b = b
     s.O = s.element_class(s, 0, 1, 0)
+    if enable_native_module and field.degree() == 1:
+      import ecpy_native
+      s.native_ec = ecpy_native.EC_Mod(a, b, field.n)
+    else:
+      s.native_ec = None
 
   def get_corresponding_y(s, x):
     """
