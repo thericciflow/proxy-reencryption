@@ -196,6 +196,9 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     """
     Multiple Operation Wrapper
     """
+    return s.mult_binary(rhs)
+
+  def mult_binary(s, rhs):
     if rhs == 0:
       return s.group.O
     d = s.group.field(rhs).int()
@@ -209,6 +212,32 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
       x += x
       if cur:
         res += x
+    return res
+
+  def mult_m_ary(s, rhs, power=2):
+    k = s.group.field(rhs).int()
+    if k == 0:
+      return s.group.O
+    elif k == 1:
+      return s
+    elif k == 2:
+      return s + s
+    m = 2**power
+    r = k
+    expanded_k = []
+    while r != 0:
+      expanded_k = [r % m] + expanded_k
+      r /= m
+    Pi = []
+    Pi += [s.group.O]
+    for i in xrange(1, m):
+      Pi += [Pi[-1] + s]
+    res = s.group.O
+    for x in expanded_k:
+      for _ in xrange(power):
+        res = res + res
+      if x != 0:
+        res += Pi[x]
     return res
 
   def __neg__(s):
