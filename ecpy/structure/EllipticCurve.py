@@ -186,7 +186,6 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     Multiple Operation Wrapper
     """
     return s.mult_binary(rhs)
-    return d
 
   def mult_binary(s, rhs):
     d = s.group.field(rhs).int()

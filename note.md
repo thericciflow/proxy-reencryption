@@ -10,61 +10,7 @@ notes
 * ~~~ 旧式クラス定義を新式へ変更~~~ -> 完了(40d70b28c0486a9739842ef69ab486f98674e0c0)
 * リファクタリング
 * ドキュメント整備
+* ネイティブモジュールの実装をBoost.Pythonからctypes経由にする?
+  - 扱いやすいは扱いやすい
+* swig, Boost.Python, Python API等々いろいろあるにはある
 
-```
-全体:
-pydocがまばらに書かれていて非常によろしくない
-relative importの排除
-superキーワードを用いたコンストラクタ呼び出しへの切り替え
-
-
-各クラスごと:
-ecpy.util
-modinvのpydoc
-
-ecpy.abstract.AdditiveGroup
-特になし
-
-ecpy.abstract.Field
-AdditiveFieldとかぶっている部分がある→統合?
-
-ecpy.algorithm.pairing
-miller関数が射影座標に対応していない
-MapToPoint, gen_supersingular_ec辺りは別にしたほうがいい?
-symmetric_****_pairing関数は残して良いと思う
-
-ecpy.algorithm.root
-/**modular_square_rootのpydocが機能していない(コメントは先頭じゃないとダメっぽい)
-tonelli_shanks関数は統合してもよさげ
-modular_square_root_extendが書きかけのままだったのでこれを全部書くべき
-後151行目のraise NotImplementedError()は絶対に呼ばれないので気づいたら修正しておく
-
-ecpy.algorithm.sssa_attack
-特になし
-
-ecpy.structure.ComplexField
-Fieldクラスの継承全体に言えるが、未だに旧式クラス定義のままの部分が大半なので書きなおしていかないとダメ
-
-ecpy.structure.EllipticCurve
-早めにNative Moduleを導入したい。
-GenericEllipticCurve._add関数が射影座標で計算してるのに最後に1/z計算してる
-GenericEembedding_degree関数でいいなあ
-
-ecpy.structure.ExtendedFiniteField
-ExtendedFiniteFieldのpydocを書いていない
-計算量と呼び出される量的にネイティブモジュールで書いたほうが良い?
-
-ecpy.structure.FiniteField
-特になし, Zmodの別名で良いという気もする
-
-ecpy.structure.RationalField
-pydocを書く
-
-ecpy.structure.RealField
-RealFieldElementクラスは普通にFieldElementだけで事足りるのでは?
-結局ここだけ精度が落ちているのでそれぐらい
-
-ecpy.structure.Zmod
-中途半端なZmod#_ordとZmod#orderの実装
-ネイティブモジュールで書いたので移行したい
-```
