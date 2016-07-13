@@ -1,5 +1,3 @@
-from ..util import modinv
-
 def hensel_lift(curve, P):
   """
   Calculate Lifted Point using Hensel's Lemma
@@ -9,6 +7,7 @@ def hensel_lift(curve, P):
   Returns:
     The "lifted" Point
   """
+  from ecpy.util import modinv
   x, y, _ = map(int, tuple(P))
   p = curve.field.p
   t = (((x * x * x + curve.a * x + curve.b) - y * y) / p) % p
@@ -27,9 +26,10 @@ def SSSA_Attack(F, E, P, Q):
   Returns:
     Return x where satisfies Q = xP.
   """
-  from ..structure.EllipticCurve import EllipticCurve
-  from ..structure.RationalField import QQ
-  from ..structure.Zmod import Zmod
+  from ecpy.structure.EllipticCurve import EllipticCurve
+  from ecpy.structure.RationalField import QQ
+  from ecpy.structure.Zmod import Zmod
+  from ecpy.util import modinv
   A = E.a
   # lP, lQ, ... is "lifted" P, Q, ...
   x1, y1 = hensel_lift(E, P)

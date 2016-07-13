@@ -1,4 +1,4 @@
-from ..abstract.Field import Field, FieldElement
+from ecpy.abstract.Field import Field, FieldElement
 
 
 class ComplexField(Field):

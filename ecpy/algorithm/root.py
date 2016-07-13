@@ -28,8 +28,8 @@ def modular_square_root(a, m, force=False):
   Returns:
     A Quadratic Residue of a modulo m
   """
-  from ..structure.ExtendedFiniteField import ExtendedFiniteFieldElement
-  from ..util import _modular_square_root
+  from ecpy.structure.ExtendedFiniteField import ExtendedFiniteFieldElement
+  from ecpy.util import _modular_square_root
   if isinstance(a, ExtendedFiniteFieldElement) and not force:
     return modular_square_root_extended(a)
   else:
@@ -37,7 +37,7 @@ def modular_square_root(a, m, force=False):
 
 
 def __modular_square_root(a, m):
-  from ..util import is_prime, legendre_symbol
+  from ecpy.util import is_prime, legendre_symbol
   if is_prime(m):
     # Tonelli-Shanks Algorithm
     p = m
@@ -103,7 +103,7 @@ def extended_legendre_symbol(a):
   Returns:
     Legendre Symbol of a
   """
-  from ..util import legendre_symbol
+  from ecpy.util import legendre_symbol
   m = a.field.degree()
   p = a.field.p
   b = pow(a, sum([p**i for i in xrange(0, m)]), p)
