@@ -4,13 +4,7 @@ from ..util import gcd, lcm
 
 class RationalField(Field):
   def __init__(s):
-    Field.__init__(s, RationalFieldElement)
-
-  def __repr__(s):
-    return "RationalField()"
-
-  def __str__(s):
-    return "RationalField()"
+    super(RationalField, s).__init__(RationalFieldElement)
 
   def _add(s, a, b):
     if a[1] == b[1]:
@@ -54,18 +48,17 @@ class RationalFieldElement(FieldElement):
           q = args[2]
     if p == None or q == None:
       raise TypeError("Invalid Argument: '%s'" % args)
-    FieldElement.__init__(s, field, p)
+    super(RationalFieldElement, s).__init__(field, p)
     s.y = q
     s.p = p / gcd(p, q)
     s.q = q / gcd(p, q)
 
   def int(s):
-    if s.q == 1:
-      return int(s.p)
-    else:
-      return int(s.real())
+    return int(s.real())
 
   def real(s):
+    if s.q == 1:
+      return s.p
     return s.p * 1.0 / s.q
 
   def __repr__(s):
