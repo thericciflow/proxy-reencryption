@@ -40,28 +40,27 @@ def __modular_square_root(a, m):
   from ecpy.util import is_prime, legendre_symbol
   if is_prime(m):
     # Tonelli-Shanks Algorithm
-    p = m
-    if p % 4 == 3:
-      r = pow(n, (p + 1) / 4, p)
-      return [r, p - r]
-    s = _find_power_divisor(2, p - 1)
-    q = (p - 1) / 2**s
+    if m % 4 == 3:
+      r = pow(a, (m + 1) / 4, m)
+      return [r, m - r]
+    s = _find_power_divisor(2, m - 1)
+    q = (m - 1) / 2**s
     z = 0
-    while legendre_symbol(z, p) != -1:
-      z = random.randint(1, p)
-    c = pow(z, q, p)
-    r = pow(n, (q + 1) / 2, p)
-    t = pow(n, q, p)
-    m = s
+    while legendre_symbol(z, m) != -1:
+      z = random.randint(1, m)
+    c = pow(z, q, m)
+    r = pow(a, (q + 1) / 2, m)
+    t = pow(a, q, m)
+    l = s
     while True:
-      if t % p == 1:
-        return [r, p - r]
-      i = _find_power(2, t, 1, p)
-      b = pow(c, 2 ** (m - i - 1), p)
-      r = (r * b) % p
-      t = (t * (b**2)) % p
-      c = pow(b, 2, p)
-      m = i
+      if t % m == 1:
+        return [r, m - r]
+      i = _find_power(2, t, 1, m)
+      b = pow(c, 2 ** (l - i - 1), m)
+      r = (r * b) % m
+      t = (t * (b**2)) % m
+      c = pow(b, 2, m)
+      l = i
   if m == 2:
     return a
   if m % 4 == 3:
