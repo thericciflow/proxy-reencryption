@@ -93,7 +93,7 @@ ZZPoint EC_Mod::scalarMult(ZZPoint P, ZZ n) const {
 
 ZZPoint EC_Mod::normalize(ZZPoint P) const {
   auto inv = static_cast<ZZ>(modinv(P.z, modulo));
-  return ZZPoint((P.x * inv) % modulo, (P.y * inv) % modulo, ZZ(1));
+  return ZZPoint((P.x * inv) % modulo, (P.y * inv) % modulo, ZZ(1_mpz));
 }
 
 std::string EC_Mod::to_string() const {
