@@ -12,17 +12,24 @@ def _find_power_divisor(base, x, modulo=None):
 
 def _find_power(power_base, x, crib, modulo=None):
   k = 1
-  while pow(x, power_base**k, modulo) != crib:
+  r = power_base
+  while pow(x, r, modulo) != crib:
     k += 1
+    r *= power_base
   return k
 
 
 def modular_square_root(a, m, force=False):
-  from ..structure.ExtendedFiniteField import ExtendedFiniteFieldElement
-  from ..util import _modular_square_root
   """
   Calculate Quadratic Residue
+  Args:
+    a: The Target
+    m: Modulus
+  Returns:
+    A Quadratic Residue of a modulo m
   """
+  from ..structure.ExtendedFiniteField import ExtendedFiniteFieldElement
+  from ..util import _modular_square_root
   if isinstance(a, ExtendedFiniteFieldElement) and not force:
     return modular_square_root_extended(a)
   else:
@@ -30,12 +37,31 @@ def modular_square_root(a, m, force=False):
 
 
 def __modular_square_root(a, m):
-  from ..util import is_prime
-  """
-  Calculate Quadratic Residue
-  """
+  from ..util import is_prime, legendre_symbol
   if is_prime(m):
-    return tonelli_shanks(a, m)
+    # Tonelli-Shanks Algorithm
+    p = m
+    if p % 4 == 3:
+      r = pow(n, (p + 1) / 4, p)
+      return [r, p - r]
+    s = _find_power_divisor(2, p - 1)
+    q = (p - 1) / 2**s
+    z = 0
+    while legendre_symbol(z, p) != -1:
+      z = random.randint(1, p)
+    c = pow(z, q, p)
+    r = pow(n, (q + 1) / 2, p)
+    t = pow(n, q, p)
+    m = s
+    while True:
+      if t % p == 1:
+        return [r, p - r]
+      i = _find_power(2, t, 1, p)
+      b = pow(c, 2 ** (m - i - 1), p)
+      r = (r * b) % p
+      t = (t * (b**2)) % p
+      c = pow(b, 2, p)
+      m = i
   if m == 2:
     return a
   if m % 4 == 3:
@@ -69,39 +95,15 @@ def __modular_square_root(a, m):
       w = w * y % m
 
 
-def tonelli_shanks(n, p):
-  from ..util import legendre_symbol
-  """
-  Tonelli-Shanks calculate quadratic residue algorithm implementation
-  """
-  if p % 4 == 3:
-    r = pow(n, (p + 1) / 4, p)
-    return [r, p - r]
-  s = _find_power_divisor(2, p - 1)
-  q = (p - 1) / 2**s
-  z = 0
-  while legendre_symbol(z, p) != -1:
-    z = random.randint(1, p)
-  c = pow(z, q, p)
-  r = pow(n, (q + 1) / 2, p)
-  t = pow(n, q, p)
-  m = s
-  while True:
-    if t % p == 1:
-      return [r, p - r]
-    i = _find_power(2, t, 1, p)
-    b = pow(c, 2 ** (m - i - 1), p)
-    r = (r * b) % p
-    t = (t * (b**2)) % p
-    c = pow(b, 2, p)
-    m = i
-
-
 def extended_legendre_symbol(a):
-  from ..util import legendre_symbol
   """
   Legendre Symbol on the Extended Field
+  Args:
+    a: The Target
+  Returns:
+    Legendre Symbol of a
   """
+  from ..util import legendre_symbol
   m = a.field.degree()
   p = a.field.p
   b = pow(a, sum([p**i for i in xrange(0, m)]), p)
@@ -111,6 +113,10 @@ def extended_legendre_symbol(a):
 def modular_square_root_extended(x):
   """
   Calculate Quadratic Residue on Extended Field
+  Args:
+    x: The Target
+  Returns:
+    A square root of x
   """
   if extended_legendre_symbol(x) != 1:
     return []
@@ -154,6 +160,10 @@ def modular_square_root_extended(x):
 def cubic_root(x):
   """
   Calculate Cubic Residue
+  Args:
+    x: The Target
+  Returns:
+    A Cubic Residue of x
   """
   F = x.field
   p = F.p
