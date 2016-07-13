@@ -1,11 +1,9 @@
+import operator as op
 import random
 import sys
 
 
 def memoize(f):
-  """
-  Auto-Memoize Decorator.
-  """
   cache = {}
 
   def helper(*args):
@@ -18,24 +16,26 @@ def memoize(f):
 
 def gcd(x, y):
   """
-  Calculate Greatest Common Divisor using Euclidean Algorithm.
+  Calculate greatest common divisor
   """
   while y != 0:
-    t = x % y
-    x, y = y, t
+      t = x % y
+      x, y = y, t
   return x
 
 
 def gcd_multiple(*a):
   """
   Apply gcd to some variables.
+  Args: 
+    a: args list
   """
   return reduce(gcd, a)
 
 
 def egcd(a, b):
   """
-  Calculate x, y satisfy ax + by = gcd(a, b) using Extended Euclidean Algorithm
+  Calculate Extended-gcd
   """
   x, y, u, v = 0, 1, 1, 0
   while a != 0:
@@ -46,9 +46,6 @@ def egcd(a, b):
 
 
 def __modinv(a, m):
-  """
-  Calculate Modular Inverse. i.e. Find x satisfy ax \equiv 1 \mod m.
-  """
   if gcd(a, m) != 1:
     return 0
   if a < 0:
@@ -58,23 +55,34 @@ def __modinv(a, m):
 
 def lcm(*a):
   """
-  Calculate Least Common Multiple.
+  Calculate Least Common Multiple
+  Args:
+    *a: args list
   """
-  return reduce(lambda x, y: x * y, a, 1) / gcd_multiple(*a)
+  return reduce(op.mul, a) / gcd_multiple(*a)
 
+def crt(ak, nk):
+  """
+  Chinese-Reminders-Theorem Implementation
+  using Gauss's proof and generalization on gcd(n1, n2) != 1
+  Should be len(ak) == len(nk)
+  Original: https://gist.github.com/elliptic-shiho/901d223135965308a5f9ff0cf99dd7c8
+  Explanation: http://elliptic-shiho.hatenablog.com/entry/2016/04/03/020117
 
-def crt(a, n):
+  Args:
+    ak: A Numbers [a1, a2, ..., ak]
+    nk: A Modulus [n1, n2, ..., nk]
   """
-  Calculate Chinese-Reminder-Theorem. by proof of the gauss.
-  """
-  N = reduce(lambda x, y: x * y, n, 1)
-  if gcd_multiple(*n) > 1:
-    # TODO: implement in gcd(modulo) > 0
-    print "Warning: gcd(modulo) > 1"
-    return None
-  nk = map(lambda x: N / x, n)
-  ik = map(lambda x: modinv(x[0], x[1]), zip(nk, n))
-  return sum(map(lambda x: (x[0] * x[1] * x[2]) % N, zip(a, nk, ik))) % lcm(*n)
+  assert len(ak) == len(nk)
+  N = reduce(lambda x, y: x * y, nk, 1)
+  l = lcm(*nk)
+  s = 0
+  for n, a in zip(nk, ak):
+    m = N / n
+    g, x, y = egcd(m, n)
+    s += (m / g) * x * a
+    s %= l
+  return s
 
 
 def legendre_symbol(a, p):
@@ -95,21 +103,22 @@ def jacobi_symbol(a, n):
   """
   if is_prime(n):
     return legendre_symbol(a, n)
-  if a == 0:
-    if n == 1:
-      return 1
-    else:
-      return 0
-    if a % 2 == 1:
-        return (-1) ** ((a - 1) * (n - 1) / 4) * jacobi_symbol(n % a, a)
-    else:
-        return (-1) ** ((n * n - 1) / 8) * jacobi_symbol(a / 2, n)
+  j = 1
+  while a != 0:
+    while not a % 2:
+      a /= 2
+      if n & 7 == 3 or n & 7 == 5:
+        j = -j
+    a, n = n, a
+    if a & 3 == 3 and n & 3 == 3:
+      j = -j
+    a %= n
+  if n:
+    return j
+  return 0
 
 
 def miller_rabin(x):
-  """
-  Miller-Rabin Primarity test implementation.
-  """
   s = 0
   while (x - 1) % 2**(s + 1) == 0:
     s += 1
@@ -127,7 +136,7 @@ try:
   import gmpy
   _is_prime = gmpy.is_prime
   sys.stderr.write("[+] found gmpy! use gmpy.is_prime\n")
-except:
+except ImportError:
   _is_prime = miller_rabin
 
 try:
@@ -136,7 +145,7 @@ try:
   _modinv = ecpy_native.modinv
   _modular_square_root = ecpy_native.modular_square_root
   enable_native_module = True
-except:
+except ImportError:
   from ecpy.algorithm.root import __modular_square_root
   _modinv = __modinv
   _modular_square_root = __modular_square_root
@@ -147,6 +156,8 @@ except:
 def is_prime(x):
   """
   Is x prime?
+  Args:
+    x: Test Number (should be positive integer)
   """
   return _is_prime(x)
 
@@ -155,5 +166,9 @@ def modinv(a, n):
   """
   Calculate Modular Inverse.
   - Find x satisfy ax \equiv 1 \mod m
+
+  Args:
+    a: target number
+    n: modulus
   """
   return _modinv(a, n)
