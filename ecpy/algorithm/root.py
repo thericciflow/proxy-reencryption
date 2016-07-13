@@ -154,7 +154,6 @@ def modular_square_root_extended(x):
     raise NotImplementedError("If you want to use function, please implement "
                               "Shanks, Atkin, Kong et al, Mueller, Tonelli-"
                               "Shanks, ... algorithm.")
-  raise NotImplementedError()
 
 
 def cubic_root(x):

@@ -1,11 +1,9 @@
 from ..abstract.Field import Field, FieldElement
-from .RationalField import QQ
-import math
 
 
 class ComplexField(Field):
   def __init__(s):
-    Field.__init__(s, ComplexFieldElement)
+    super(ComplexField, s).__init__(ComplexFieldElement)
 
   def _add(s, a, b):
     return s.element_class(s, a[0] + b[0], a[1] + b[1])
@@ -29,22 +27,38 @@ class ComplexField(Field):
 
   def _div(s, z, w):
     a, b, c, d = z[0], z[1], w[0], w[1]
-    u = QQ(1, c**2 + d**2).real()
+    u = 1./(c**2 + d**2)
     return s.element_class(s, (a * c + b * d) * u, (b * c - a * d) * u)
 
 
 class ComplexFieldElement(FieldElement):
   def __init__(s, field, x, y=0):
-    FieldElement.__init__(s, field, x)
+    super(ComplexFieldElement, s).__init__(field, x)
     s.y = y
 
   def norm(s):
+    """
+    Calculate Norm
+    Returns:
+      ||self||
+    """
     return s.x ** 2 - s.y ** 2
 
   def absolute_value(s):
+    """
+    Calculate Absolute Value
+    Returns:
+      |self|
+    """
+    import math
     return math.sqrt(s.x ** 2 + s.y ** 2)
 
   def conjugate(s):
+    """
+    Calculate conjugate complex
+    Returns:
+      \overline{self}
+    """
     return s.__class__(s.field, s.x, -s.y)
 
   def __repr__(s):
@@ -52,9 +66,6 @@ class ComplexFieldElement(FieldElement):
 
   def __str__(s):
     return "%r + %ri" % (s.x, s.y)
-
-  def __eq__(s, rhs):
-    return s.field._equ(tuple(s), s._to_tuple(rhs))
 
   def __iter__(s):
     return (s.x, s.y).__iter__()
@@ -65,6 +76,6 @@ class ComplexFieldElement(FieldElement):
     elif isinstance(d, tuple):
       return d
     else:
-      return (d, d)
+      return (d, 0)
 
 CC = ComplexField()
