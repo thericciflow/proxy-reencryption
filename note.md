@@ -12,6 +12,13 @@ notes
 * ドキュメント整備
 
 ```
+全体:
+pydocがまばらに書かれていて非常によろしくない
+relative importの排除
+superキーワードを用いたコンストラクタ呼び出しへの切り替え
+
+
+各クラスごと:
 ecpy.util
 modinvのpydoc
 
@@ -44,4 +51,20 @@ GenericEllipticCurve._add関数が射影座標で計算してるのに最後に1
 GenericEembedding_degree関数でいいなあ
 
 ecpy.structure.ExtendedFiniteField
+ExtendedFiniteFieldのpydocを書いていない
+計算量と呼び出される量的にネイティブモジュールで書いたほうが良い?
+
+ecpy.structure.FiniteField
+特になし, Zmodの別名で良いという気もする
+
+ecpy.structure.RationalField
+pydocを書く
+
+ecpy.structure.RealField
+RealFieldElementクラスは普通にFieldElementだけで事足りるのでは?
+結局ここだけ精度が落ちているのでそれぐらい
+
+ecpy.structure.Zmod
+中途半端なZmod#_ordとZmod#orderの実装
+ネイティブモジュールで書いたので移行したい
 ```
