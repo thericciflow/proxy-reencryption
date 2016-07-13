@@ -1,10 +1,13 @@
-from root import cubic_root
-from random import randint
-
-
 def miller(E, P, Q, m):
   """
-  Calculate f_P(Q)
+  Calculate Divisor by Miller's Algorithm
+  Args:
+    E: The Elliptic Curve
+    P: A point over E which has order m
+    Q: A point over E which has order m to apply function f_P
+    m: The order of P, Q on E
+  Returns:
+    f_P(Q)
   """
   def h(P, Q, R):
     # if \lambda is infinity
@@ -31,6 +34,14 @@ def miller(E, P, Q, m):
 def weil_pairing(E, P, Q, m, S=None):
   """
   Calculate Weil Pairing
+  Args:
+    E: The Elliptic Curve
+    P: A point over E which has order m
+    Q: A point over E which has order m
+    m: The order of P, Q on E
+    S: [Optional] A random point on E
+  Returns:
+    e_m(P, Q)
   """
   if S is None:
     S = E.random_point()
@@ -44,6 +55,12 @@ def weil_pairing(E, P, Q, m, S=None):
 def tate_pairing(E, P, Q, m, k=2):
   """
   Calculate Tate Pairing
+  Args:
+    E: The Elliptic Curve
+    P: A point over E which has order m
+    Q: A point over E which has order m
+    m: The order of P, Q on E
+    k: [Optional] The Embedding Degree of m on E
   """
   f = miller(E, P, Q, m)
   return f ** (((E.field.p ** k) - 1) / m)
@@ -52,12 +69,14 @@ def tate_pairing(E, P, Q, m, k=2):
 def MapToPoint(E, y):
   """
   MapToPoint Function: Given by Boneh-Durfee's ID-based Encryption Paper.
+  Args:
+    E: The Elliptic Curve
+    y: Any Value (should be E.field element)
 
-  E: Elliptic Curve
-  y: Any Value (should be E.field element)
-
-  return: Point (corresponding x, y) on E
+  Returns:
+    Correspond point of y on E
   """
+  from root import cubic_root
   x = cubic_root(y**2 - 1)
   Q = E(x, y)
   return 6 * Q
@@ -66,12 +85,17 @@ def MapToPoint(E, y):
 def gen_supersingular_ec(bits=70):
   """
   Generate Super-Singluar Elliptic Curve
-  bits: Security Parameter -> log_2 p = bits
+  Args:
+    bits: The Security Parameter: log_2 p = bits
+
+  Returns:
+    A (Super Singular) Elliptic Curve, Extended Finite Field, l
+    l is need to calculate Pairing
   """
-  from ..structure import EllipticCurve, ExtendedFiniteField
+  from ecpy.structure import EllipticCurve, ExtendedFiniteField
 
   def _next_prime(n):
-    from ..util import is_prime
+    from ecpy.util import is_prime
     """
     return next prime of n
     """
@@ -89,10 +113,8 @@ def gen_supersingular_ec(bits=70):
     next_prime = _next_prime
 
   def gen_prime():
-    from ..util import is_prime
-    """
-    Generate Prime for Super Singular Elliptic Curve
-    """
+    from ecpy.util import is_prime
+    from random import randint
     while True:
       p = int(next_prime(randint(2**(bits - 1), 2**bits)))
       if is_prime(p * 6 - 1):
@@ -106,7 +128,13 @@ def gen_supersingular_ec(bits=70):
 
 def find_point_by_order(E, l):
   """
-  Find a Elliptic Curve Point P, that point has order l.
+  Find a Elliptic Curve Point P which has order l.
+  Args:
+    E: The Elliptic Curve
+    l: Order of Point on E
+
+  Returns:
+    Point on E which has order l.
   """
   i = 3
   while True:
@@ -122,6 +150,11 @@ def symmetric_weil_pairing(E, P, Q, m):
   """
   Symmetric Weil Pairing
   \hat{e}(P, Q) = e(P, \phi(Q)) (\phi is Distortion Map)
+  Args:
+    E: The Elliptic Curve
+    P: A point on E which has order m
+    Q: A point on E which has order m
+    m: The order of P, Q
   """
   return weil_pairing(E, P, Q.distortion_map(), m)
 
@@ -130,5 +163,11 @@ def symmetric_tate_pairing(E, P, Q, m, k=2):
   """
   Symmetric Tate Pairing
   \hat{e}(P, Q) = e(P, \phi(Q)) (\phi is Distortion Map)
+  Args:
+    E: The Elliptic Curve
+    P: A point on E which has order m
+    Q: A point on E which has order m
+    m: The order of P, Q
+    k: [Optional] The Embedding Degree of m on E
   """
   return tate_pairing(E, P, Q.distortion_map(), m)
