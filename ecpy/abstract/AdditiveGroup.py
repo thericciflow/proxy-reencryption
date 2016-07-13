@@ -38,6 +38,9 @@ class AdditiveGroupElement(object):
   def order(s):
     return s.group._ord(tuple(s))
 
+  def int(s):
+    return int(s.x)
+
   def __add__(s, rhs):
     return s.group._add(tuple(s), s._to_tuple(rhs))
 
@@ -45,7 +48,7 @@ class AdditiveGroupElement(object):
     return s.group._add(tuple(s), s._to_tuple(-rhs))
 
   def __neg__(s):
-    return s.group._neg(s.x)
+    return s.group._neg(tuple(s))
 
   def __radd__(s, lhs):
     return s + lhs
@@ -75,3 +78,10 @@ class AdditiveGroupElement(object):
 
   def __iter__(s):
     return (s.x, ).__iter__()
+
+  def __int__(s):
+    return s.int()
+
+  def __hash__(s):
+    return s.x
+

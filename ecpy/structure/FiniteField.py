@@ -10,7 +10,7 @@ class FiniteField(Zmod):
     Constructor of FiniteField
     p should be prime
     """
-    Zmod.__init__(s, p)
+    super(FiniteField, s).__init__(p)
     s.p = p
 
   def __str__(s):
