@@ -1,6 +1,6 @@
-from ..abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from ..util import enable_native_module
-from ..algorithm.root import modular_square_root
+from ecpy.abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
+from ecpy.util import enable_native_module
+from ecpy.algorithm.root import modular_square_root
 from random import randint
 from FiniteField import FiniteField
 from ExtendedFiniteField import ExtendedFiniteField
@@ -25,7 +25,7 @@ class GenericEllipticCurve(AdditiveGroup):
     Constructor of Elliptic Curve.
       y^2 = x^3 + `a`x+ `b` on `field`
     """
-    AdditiveGroup.__init__(s, GenericEllipticCurvePoint)
+    super(GenericEllipticCurve, s).__init__(GenericEllipticCurvePoint)
     s.field = field
     s.a = a
     s.b = b
@@ -39,8 +39,7 @@ class GenericEllipticCurve(AdditiveGroup):
 
   def _is_on_curve(s, x, y, z=1):
     """
-    Is on curve (`x`, `y`)?
-     - this is inner function of `is_on_curve`.
+    Is on curve (`x`, `y`, `z`)?
     """
     x = s.field(x)
     y = s.field(y)
@@ -127,14 +126,13 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
   Elliptic Curve Point on General Field
   """
   def __init__(s, group, x, y, z=1):
-    s.group = group
 
     def F(x):
       if type(x) == tuple:
         return group.field(*x)
       return group.field(x)
 
-    s.x = F(x)
+    super(GenericEllipticCurvePoint, s).__init__(group, F(x))
     s.y = F(y)
     s.z = F(z)
     s.inf = s.x == 0 and s.y == 1 and s.z == 0
@@ -143,14 +141,12 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 
   def is_infinity(s):
     """
-    Is self == O?
+    Returns:
+      Is self equals to O?
     """
     return s.inf
 
   def order(s):
-    """
-    Return m satisfy m*self == Infinity
-    """
     i = 0
     t = s
     while i <= s.group.field.order() ** s.group.field.degree():
@@ -161,9 +157,6 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return 0
 
   def change_group(s, _group):
-    """
-    Change Curve
-    """
     return s.__class__(_group, *tuple(s))
 
   def line_coeff(s, Q):
@@ -181,9 +174,6 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return l
 
   def __add__(s, rhs):
-    """
-    Add Operation Wrapper
-    """
     if isinstance(rhs, GenericEllipticCurvePoint) and rhs.is_infinity():
         return s
     d = s._to_tuple(rhs)
@@ -251,7 +241,7 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
 
   def __eq__(s, rhs):
     """
-    self is Equals to rhs?
+    Is self equals to rhs?
     """
     if rhs == None:
       return False
@@ -284,11 +274,8 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
   Elliptic Curve on Finite Field or Extended Finite Field
   """
   def __init__(s, field, a, b):
+    super(FiniteFieldEllipticCurve, s).__init__(field, a, b)
     s.element_class = FiniteFieldEllipticCurvePoint
-    s.field = field
-    s.a = a
-    s.b = b
-    s.O = s.element_class(s, 0, 1, 0)
     if enable_native_module and field.degree() == 1:
       import ecpy_native
       s.native_ec = ecpy_native.EC_Mod(a, b, field.n)
