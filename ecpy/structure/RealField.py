@@ -28,8 +28,7 @@ class RealField(Field):
 
 
 class RealFieldElement(FieldElement):
-  def __init__(s, field, x):
-    FieldElement.__init__(s, field, x)
+  pass
 
 
 RR = RealField()

@@ -151,7 +151,6 @@ except ImportError:
   _modular_square_root = __modular_square_root
   enable_native_module = False
 
-
 @memoize
 def is_prime(x):
   """

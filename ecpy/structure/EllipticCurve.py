@@ -3,14 +3,13 @@ from ecpy.util import enable_native_module
 from ecpy.algorithm.root import modular_square_root
 from random import randint
 from FiniteField import FiniteField
-from ExtendedFiniteField import ExtendedFiniteField
 
 
 def EllipticCurve(field, a, b):
   """
   Return Elliptic Curve Instance.
   """
-  if field.__class__ in (FiniteField, ExtendedFiniteField):
+  if isinstance(field, FiniteField):
     return FiniteFieldEllipticCurve(field, a, b)
   else:
     return GenericEllipticCurve(field, a, b)
@@ -58,10 +57,10 @@ class GenericEllipticCurve(AdditiveGroup):
     return -1728 * ((4 * s.a**3) / s.determinant())
 
   def __repr__(s):
-    return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
+    return "GenericEllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
 
   def __str__(s):
-    res = "Elliptic Curve y^2 = x^3"
+    res = "Generic Elliptic Curve y^2 = x^3"
     if s.a != 0:
       if s.a == 1:
         res += " + x"
@@ -187,6 +186,7 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     Multiple Operation Wrapper
     """
     return s.mult_binary(rhs)
+    return d
 
   def mult_binary(s, rhs):
     d = s.group.field(rhs).int()
@@ -248,12 +248,12 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
     return s.group._equ(tuple(s), s._to_tuple(rhs))
 
   def _to_tuple(s, d):
-    if isinstance(d, s.__class__):
+    if isinstance(d, GenericEllipticCurvePoint):
       return tuple(d)
     elif isinstance(d, tuple):
       return d
     else:
-      raise ArithmeticError("Invalid Parameter")
+      raise ArithmeticError("Invalid Parameter: %r" % d)
 
   def __iter__(s):
     return (s.x, s.y, s.z).__iter__()
@@ -276,11 +276,27 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
   def __init__(s, field, a, b):
     super(FiniteFieldEllipticCurve, s).__init__(field, a, b)
     s.element_class = FiniteFieldEllipticCurvePoint
+    s.O = s.element_class(s, 0, 1, 0)
     if enable_native_module and field.degree() == 1:
       import ecpy_native
       s.native_ec = ecpy_native.EC_Mod(a, b, field.n)
     else:
       s.native_ec = None
+
+  def __str__(s):
+    res = "FiniteField Elliptic Curve y^2 = x^3"
+    if s.a != 0:
+      if s.a == 1:
+        res += " + x"
+      else:
+        res += " + %rx" % s.a
+    if s.b != 0:
+      res += " + %r" % s.b
+    res += " over %r" % s.field
+    return res
+
+  def __repr__(s):
+    return "FiniteFieldEllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
 
   def get_corresponding_y(s, x):
     """
@@ -319,6 +335,8 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
 
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
+  def __init__(s, group, x, y, z=1):
+    super(FiniteFieldEllipticCurvePoint, s).__init__(group, x, y, z)
   def distortion_map(s):
     """
     IMPORTANT: If you want to use this function,
