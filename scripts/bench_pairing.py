@@ -1,7 +1,20 @@
-from ecpy import ExtendedFiniteField, EllipticCurve
+from ecpy import *
 from timeit import timeit
 from random import randint
 
+test_param = []
+
+def init_test(t, *args):
+  global test_param
+  cond = {
+      'weil':weil_pairing,
+      'tate':tate_pairing
+  }
+  test_param = [cond[t], args[0]]
+
+def do_test():
+  global test_param
+  test_param[0](*test_param[1])
 
 def show_results(name, result, count):
     per_pass = 1000000 * (result / count)
@@ -29,20 +42,17 @@ def main():
   weil_time = []
   print "[+] Weil Pairing: "
   for x in rand:
-    r = timeit("weil_pairing(%r, %r, %r.distortion_map(), %r)" % (E, P, x * P,
-                                                                  l),
-               setup="from ecpy import EllipticCurve, ExtendedFiniteField,"
-                     "weil_pairing", number=count)
+    r = timeit("bench_pairing.do_test()",
+               setup="import bench_pairing; from ecpy import EllipticCurve, ExtendedFiniteField; bench_pairing.init_test('weil', [%r, %r, %r.distortion_map(), %r])" % (E, P, x*P, l),
+               number=count)
     weil_time += [r]
     show_results("weil", r, count)
 
   print "[+] Tate Pairing: "
   tate_time = []
   for x in rand:
-    r = timeit("tate_pairing(%r, %r, %r.distortion_map(), %r, 2)" % (E, P,
-                                                                     x * P, l),
-               setup="from ecpy import EllipticCurve, ExtendedFiniteField, "
-                     "tate_pairing", number=count)
+    r = timeit("bench_pairing.do_test()",
+               setup="import bench_pairing; from ecpy import EllipticCurve, ExtendedFiniteField; bench_pairing.init_test('tate', [%r, %r, %r.distortion_map(), %r, 2])" % (E, P, x*P, l), number=count)
     tate_time += [r]
     show_results("tate", r, count)
 

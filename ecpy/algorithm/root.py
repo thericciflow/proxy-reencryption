@@ -29,11 +29,10 @@ def modular_square_root(a, m, force=False):
     A Quadratic Residue of a modulo m
   """
   from ecpy.structure.ExtendedFiniteField import ExtendedFiniteFieldElement
-  from ecpy.util import _modular_square_root
   if isinstance(a, ExtendedFiniteFieldElement) and not force:
     return modular_square_root_extended(a)
   else:
-    return _modular_square_root(int(a), m)
+    return __modular_square_root(int(a), m)
 
 
 def __modular_square_root(a, m):

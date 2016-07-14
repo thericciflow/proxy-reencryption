@@ -1,5 +1,4 @@
 from ecpy.abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-from ecpy.util import enable_native_module
 from ecpy.algorithm.root import modular_square_root
 from random import randint
 from FiniteField import FiniteField
@@ -57,10 +56,10 @@ class GenericEllipticCurve(AdditiveGroup):
     return -1728 * ((4 * s.a**3) / s.determinant())
 
   def __repr__(s):
-    return "GenericEllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
+    return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
 
   def __str__(s):
-    res = "Generic Elliptic Curve y^2 = x^3"
+    res = "Elliptic Curve y^2 = x^3"
     if s.a != 0:
       if s.a == 1:
         res += " + x"
@@ -276,26 +275,6 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
     super(FiniteFieldEllipticCurve, s).__init__(field, a, b)
     s.element_class = FiniteFieldEllipticCurvePoint
     s.O = s.element_class(s, 0, 1, 0)
-    if enable_native_module and field.degree() == 1:
-      import ecpy_native
-      s.native_ec = ecpy_native.EC_Mod(a, b, field.n)
-    else:
-      s.native_ec = None
-
-  def __str__(s):
-    res = "FiniteField Elliptic Curve y^2 = x^3"
-    if s.a != 0:
-      if s.a == 1:
-        res += " + x"
-      else:
-        res += " + %rx" % s.a
-    if s.b != 0:
-      res += " + %r" % s.b
-    res += " over %r" % s.field
-    return res
-
-  def __repr__(s):
-    return "FiniteFieldEllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
 
   def get_corresponding_y(s, x):
     """

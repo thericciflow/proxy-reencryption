@@ -139,18 +139,6 @@ try:
 except ImportError:
   _is_prime = miller_rabin
 
-try:
-  import ecpy_native
-  sys.stderr.write("[+] Native Module Enabled.\n")
-  _modinv = ecpy_native.modinv
-  _modular_square_root = ecpy_native.modular_square_root
-  enable_native_module = True
-except ImportError:
-  from ecpy.algorithm.root import __modular_square_root
-  _modinv = __modinv
-  _modular_square_root = __modular_square_root
-  enable_native_module = False
-
 @memoize
 def is_prime(x):
   """
@@ -170,4 +158,4 @@ def modinv(a, n):
     a: target number
     n: modulus
   """
-  return _modinv(a, n)
+  return __modinv(a, n)
