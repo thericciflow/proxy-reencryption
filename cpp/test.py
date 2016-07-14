@@ -23,11 +23,15 @@ class ZZ_Native(Structure):
       a = ZZ_create(a)
     return cast(lib.ZZ_div(LPZZ(s), LPZZ(a)), LPZZ).contents
 
+  def __mod__(s, a):
+    if not isinstance(a, ZZ_Native):
+      a = ZZ_create(a)
+    return cast(lib.ZZ_mod(LPZZ(s), LPZZ(a)), LPZZ).contents
+
   def __str__(s):
     return cast(lib.ZZ_to_string(LPZZ(s)), c_char_p).value
 
   def __del__(s):
-    print "destroy %s" % s
     lib.ZZ_destroy(LPZZ(s))
 
 LPZZ = POINTER(ZZ_Native)
@@ -35,6 +39,16 @@ LPZZ = POINTER(ZZ_Native)
 def ZZ_create(x):
   return cast(lib.ZZ_create(str(x)), LPZZ).contents
 
-x = ZZ_create(22) * 0xdeadbeef
-print str(x)
-del x
+def modinv(a, m):
+  res = cast(lib.ZZ_modinv(LPZZ(ZZ_create(a)), LPZZ(ZZ_create(m))), LPZZ).contents
+  return int(str(res))
+
+def main():
+  x = ZZ_create(22) * 0xdeadbeef
+  print str(x)
+
+  print modinv(3, 65537)
+  del x
+
+if __name__ == "__main__":
+  main()
