@@ -9,11 +9,12 @@ This is Native module of [ecpy](https://github.com/elliptic-shiho/ecpy/).
 ```
 > make
 > sudo make install
+> cd py
+> pip install --upgrade .
 ```
 
 # Requirements
 * g++
  - require C++11 ~ Support
-* Boost C++ Library (boost::python)
 * Python 2.x Development Package
 * GNU MP
