@@ -8,3 +8,5 @@
 
 #include <gmp.h>
 #include <gmpxx.h>
+
+#define __EXPORT__ extern "C"

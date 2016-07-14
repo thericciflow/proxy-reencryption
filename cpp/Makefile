@@ -1,4 +1,4 @@
-TARGET   := ecpy_native.so
+TARGET   := libecpy_native.so
 CC       := g++
 LD       := g++
 LDFLAGS  := -lgmp -lgmpxx
@@ -6,7 +6,7 @@ CFLAGS   := -Iincludes/
 OPTFLAGS := -O3 -Os -mtune=corei7 -mavx -g -fPIC -shared -std=c++11
 OBJS     := ecpy_native.o
 CP       := cp
-DESTDIR  := $(shell python -c 'import sys; sys.stdout.write(__import__("sysconfig").get_path("purelib"))')
+DESTDIR  := /usr/local/lib/
 
 
 vpath %.cpp src/
