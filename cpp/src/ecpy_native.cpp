@@ -91,5 +91,5 @@ __EXPORT__ const char *FF_to_string(FF *ff) {
 }
 
 __EXPORT__ bool FF_is_equals(FF *ee, FF *ff) {
-  return ee->x == ff->x && ee->p == ff->p;
+  return ZZ_is_equals(ee->x, ff->x) && ZZ_is_equals(ee->p, ff->p);
 }

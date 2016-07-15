@@ -36,7 +36,7 @@ class FF_Native(Structure):
     return cast(lib.FF_to_string(LPFF(s)), c_char_p).value
 
   def __repr__(s):
-    return "FF_Native('%s', '%s')" % (str(s.x), str(s.p))
+    return "FF_Native('%s', '%s')" % (str(s.x.contents), str(s.p.contents))
 
   def __eq__(s, rhs):
     return lib.FF_is_equals(LPFF(s), LPFF(rhs))
@@ -47,10 +47,8 @@ class FF_Native(Structure):
 LPFF = POINTER(FF_Native)
 
 def FF_create(x, p):
-  if isinstance(x, ZZ_Native):
-    x = ZZ_create(x)
-  if isinstance(p, ZZ_Native):
-    p = ZZ_create(p)
-  return cast(lib.FF_create(LPZZ(x), LPZZ(p)), LPFF).contents
+  t = cast(lib.FF_create(str(x), str(p)), LPFF).contents
+  print t.p.contents
+  return t
 
 
