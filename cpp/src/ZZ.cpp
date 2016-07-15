@@ -14,41 +14,41 @@ __EXPORT__ ZZ *ZZ_create(const char *num) {
   return zz;
 }
 
-__EXPORT__ void ZZ_destroy(ZZ *zz) {
+__EXPORT__ void ZZ_destroy(const ZZ *zz) {
   delete zz;
 }
 
-__EXPORT__ ZZ *ZZ_add(ZZ *a, ZZ *b) {
+__EXPORT__ ZZ *ZZ_add(const ZZ *a, const ZZ *b) {
   ZZ *ret = new ZZ;
   ret->x = a->x + b->x;
   return ret;
 }
 
-__EXPORT__ ZZ *ZZ_neg(ZZ *a) {
+__EXPORT__ ZZ *ZZ_neg(const ZZ *a) {
   ZZ *ret = new ZZ;
   ret->x = -a->x;
   return ret;
 }
 
-__EXPORT__ ZZ *ZZ_mul(ZZ *a, ZZ *b) {
+__EXPORT__ ZZ *ZZ_mul(const ZZ *a, const ZZ *b) {
   ZZ *ret = new ZZ;
   ret->x = a->x * b->x;
   return ret;
 }
 
-__EXPORT__ ZZ *ZZ_div(ZZ *a, ZZ *b) {
+__EXPORT__ ZZ *ZZ_div(const ZZ *a, const ZZ *b) {
   ZZ *ret = new ZZ;
   ret->x = a->x / b->x;
   return ret;
 }
 
-__EXPORT__ ZZ *ZZ_mod(ZZ *a, ZZ *b) {
+__EXPORT__ ZZ *ZZ_mod(const ZZ *a, const ZZ *b) {
   ZZ *ret = new ZZ;
   ret->x = a->x % b->x;
   return ret;
 }
 
-__EXPORT__ ZZ *ZZ_modinv(ZZ *a, ZZ *m) {
+__EXPORT__ ZZ *ZZ_modinv(const ZZ *a, const ZZ *m) {
   auto _a = a->x;
   auto _m = m->x;
   if (_a < 0) {
@@ -77,7 +77,7 @@ string ZZ_to_string_as_std_string(const ZZ *zz) {
   return zz->x.get_str();
 }
 
-__EXPORT__ bool ZZ_is_equals(ZZ *yy, ZZ *zz) {
+__EXPORT__ bool ZZ_is_equals(const ZZ *yy, const ZZ *zz) {
   return yy->x == zz->x;
 }
 

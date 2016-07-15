@@ -2,7 +2,7 @@
 
 using namespace std;
 
-__EXPORT__ FF *FF_create_from_mpz_class(mpz_class x, mpz_class p) {
+FF *FF_create_from_mpz_class(mpz_class x, mpz_class p) {
   FF *ff = new FF;
   ff->p = ZZ_create_from_mpz_class(p);
   ff->x = ZZ_create_from_mpz_class(x % p);
@@ -18,13 +18,13 @@ __EXPORT__ FF *FF_create(const char *x, const char *p) {
   return ff;
 }
 
-__EXPORT__ void FF_destroy(FF *ff) {
+__EXPORT__ void FF_destroy(const FF *ff) {
   ZZ_destroy(ff->x);
   ZZ_destroy(ff->p);
   delete ff;
 }
 
-__EXPORT__ FF *FF_add(FF *a, FF *b) {
+__EXPORT__ FF *FF_add(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->p = ZZ_copy(a->p);
   if (ZZ_is_equals(a->p, b->p)) {
@@ -38,7 +38,7 @@ __EXPORT__ FF *FF_add(FF *a, FF *b) {
   return ret;
 }
 
-__EXPORT__ FF *FF_neg(FF *a) {
+__EXPORT__ FF *FF_neg(const FF *a) {
   FF *ret = new FF;
   auto t = ZZ_neg(a->x);
   ret->x = ZZ_add(t, a->p);
@@ -47,7 +47,7 @@ __EXPORT__ FF *FF_neg(FF *a) {
   return ret;
 }
 
-__EXPORT__ FF *FF_mul(FF *a, FF *b) {
+__EXPORT__ FF *FF_mul(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->p = ZZ_copy(a->p);
   if (ZZ_is_equals(a->p, b->p)) {
@@ -61,7 +61,7 @@ __EXPORT__ FF *FF_mul(FF *a, FF *b) {
   return ret;
 }
 
-__EXPORT__ FF *FF_div(FF *a, FF *b) {
+__EXPORT__ FF *FF_div(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->p = ZZ_copy(a->p);
   if (ZZ_is_equals(a->p, b->p)) {
@@ -77,7 +77,7 @@ __EXPORT__ FF *FF_div(FF *a, FF *b) {
   return ret;
 }
 
-__EXPORT__ FF *FF_mod(FF *a, FF *b) {
+__EXPORT__ FF *FF_mod(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->p = ZZ_copy(a->p);
   ret->x = ZZ_mod(a->x, b->x);
@@ -114,6 +114,6 @@ string FF_to_string_as_std_string(const FF *ff) {
   return ss.str();
 }
 
-__EXPORT__ bool FF_is_equals(FF *ee, FF *ff) {
+__EXPORT__ bool FF_is_equals(const FF *ee, const FF *ff) {
   return ZZ_is_equals(ee->x, ff->x) && ZZ_is_equals(ee->p, ff->p);
 }

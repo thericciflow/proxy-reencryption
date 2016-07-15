@@ -1,4 +1,6 @@
 from ecpy.native import *
+from ecpy import *
+import time
 import sys
 
 ac_count = 0

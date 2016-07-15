@@ -3,7 +3,7 @@ CC       := g++
 LD       := g++
 LDFLAGS  := -lgmp -lgmpxx
 CFLAGS   := -Iincludes/
-OPTFLAGS := -O3 -Os -mtune=corei7 -mavx -g -fPIC -shared -std=c++11
+OPTFLAGS := -O2 -Os -mtune=corei7 -mavx -g -fPIC -shared -std=c++11
 OBJS     := ecpy_native.o ZZ.o
 CP       := cp
 DESTDIR  := /usr/local/lib/
