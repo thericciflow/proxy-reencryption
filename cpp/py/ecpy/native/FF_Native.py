@@ -42,13 +42,19 @@ class FF_Native(Structure):
     return lib.FF_is_equals(LPFF(s), LPFF(rhs))
 
   def __del__(s):
+    import sys
+    sys.stderr.write("Delete: %r" % s)
     lib.FF_destroy(LPFF(s))
+    sys.stderr.write("\n")
 
 LPFF = POINTER(FF_Native)
 
 def FF_create(x, p):
   t = cast(lib.FF_create(str(x), str(p)), LPFF).contents
-  print t.p.contents
+  t._x = t.x.contents
+  t._p = t.p.contents
   return t
 
-
+import gc
+gc.set_debug(gc.DEBUG_STATS | gc.DEBUG_COLLECTABLE | gc.DEBUG_INSTANCES | gc.DEBUG_LEAK | gc.DEBUG_OBJECTS)
+print gc.garbage

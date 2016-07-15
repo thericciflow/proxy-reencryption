@@ -33,10 +33,7 @@ def main():
   assert_eq(modinv(7, 65537), 18725, "modinv(7, 65537)")
 
   FF = FF_create
-  p = 31
-  x = FF(25, p)
-  y = FF(50, p)
-  assert_eq(y, FF(19, p), "modulo check")
+  x = FF(25, 31)
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)

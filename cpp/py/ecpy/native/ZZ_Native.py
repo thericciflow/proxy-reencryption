@@ -41,7 +41,10 @@ class ZZ_Native(Structure):
     return lib.ZZ_is_equals(LPZZ(s), LPZZ(rhs))
 
   def __del__(s):
+    import sys
+    sys.stderr.write("Delete: %r..." % s)
     lib.ZZ_destroy(LPZZ(s))
+    sys.stderr.write("\n")
 
 LPZZ = POINTER(ZZ_Native)
 
