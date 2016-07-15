@@ -45,4 +45,6 @@ __EXPORT__ FF *FF_div(FF*, FF*);
 __EXPORT__ FF *FF_mod(FF*, FF*);
 __EXPORT__ bool FF_is_equals(FF*, FF*);
 __EXPORT__ bool FF_to_string(const FF*, char*, int);
+__EXPORT__ bool FF_to_raw_string(const FF*, char*, int);
 std::string FF_to_string_as_std_string(const FF*);
+std::string FF_to_raw_string_as_std_string(const FF*);

@@ -39,18 +39,16 @@ class FF_Native(Structure):
     return d.value
 
   def __repr__(s):
-    st = "FF_Native('%s', '%s')" % (str(s.x.contents), str(s.p.contents))
-    return st
+    d = create_string_buffer(1024)
+    lib.FF_to_raw_string(LPFF(s), d, 1024)
+    return d.value
 
   def __eq__(s, rhs):
     return lib.FF_is_equals(LPFF(s), LPFF(rhs))
 
   def __del__(s):
     import sys
-    sys.stderr.write("Prepare Delete: %s\n" % s.__class__.__name__)
-    sys.stderr.write("Delete: %r" % s)
     lib.FF_destroy(LPFF(s))
-    sys.stderr.write("\n")
 
 LPFF = POINTER(FF_Native)
 

@@ -84,6 +84,15 @@ __EXPORT__ FF *FF_mod(FF *a, FF *b) {
   return ret;
 }
 
+__EXPORT__ bool FF_to_raw_string(const FF *ff, char *p, int maxlen) {
+  auto c = FF_to_raw_string_as_std_string(ff);
+  if (c.size() < maxlen) {
+    strcpy(p, c.c_str());
+    return true;
+  }
+  return false;
+}
+
 __EXPORT__ bool FF_to_string(const FF *ff, char *p, int maxlen) {
   auto c = FF_to_string_as_std_string(ff);
   if (c.size() < maxlen) {
@@ -91,6 +100,12 @@ __EXPORT__ bool FF_to_string(const FF *ff, char *p, int maxlen) {
     return true;
   }
   return false;
+}
+
+string FF_to_raw_string_as_std_string(const FF *ff) {
+  stringstream ss;
+  ss << "FF_Native('" << ZZ_to_string_as_std_string(ff->x) << "', '" << ZZ_to_string_as_std_string(ff->p) << "')";
+  return ss.str();
 }
 
 string FF_to_string_as_std_string(const FF *ff) {

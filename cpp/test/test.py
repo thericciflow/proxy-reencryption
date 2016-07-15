@@ -32,10 +32,15 @@ def main():
   assert_eq(y/x, ZZ(4), "y/x")
   assert_eq(modinv(7, 65537), 18725, "modinv(7, 65537)")
 
-  FF = FF_create
-  x = FF(25, 31)
-  print x
-  print repr(x)
+  FF = lambda x: FF_create(x, p)
+  p = 31
+  x = FF(25)
+  y = FF(41)
+  assert_eq(y, FF(10), "y modulo check")
+  assert_eq(x+y, FF(4), "x+y")
+  assert_eq(x-y, FF(15), "x-y")
+  assert_eq(x*y, FF(2), "x*y")
+  assert_eq(x/y, FF(18), "x/y")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)

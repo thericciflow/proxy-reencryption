@@ -62,13 +62,6 @@ __EXPORT__ ZZ *ZZ_modinv(ZZ *a, ZZ *m) {
   return ZZ_create_from_mpz_class(t);
 }
 
-/*__EXPORT__ const char *ZZ_to_string(ZZ *zz) {
-  stringstream ss;
-  ss << zz->x;
-  return ss.str().c_str();
-}
-*/
-
 __EXPORT__ bool ZZ_to_string(const ZZ *zz, char *p, int maxlen) {
   const int base = 10;
   auto x = zz->x.get_mpz_t();

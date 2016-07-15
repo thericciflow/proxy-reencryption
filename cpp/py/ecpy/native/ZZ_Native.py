@@ -44,10 +44,7 @@ class ZZ_Native(Structure):
 
   def __del__(s):
     import sys
-    sys.stderr.write("Prepare Delete: %s\n" % s.__class__.__name__)
-    sys.stderr.write("Delete: %r..." % s)
     lib.ZZ_destroy(LPZZ(s))
-    sys.stderr.write("\n")
 
 LPZZ = POINTER(ZZ_Native)
 
