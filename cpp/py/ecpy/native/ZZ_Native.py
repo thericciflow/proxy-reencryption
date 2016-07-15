@@ -8,6 +8,11 @@ class ZZ_Native(Structure):
       a = ZZ_create(a)
     return cast(lib.ZZ_add(LPZZ(s), LPZZ(a)), LPZZ).contents
 
+  def __sub__(s, a):
+    if not isinstance(a, ZZ_Native):
+      a = ZZ_create(a)
+    return cast(lib.ZZ_add(LPZZ(s), LPZZ(-a)), LPZZ).contents
+
   def __neg__(s):
     return cast(lib.ZZ_neg(LPZZ(s)), LPZZ).contents
 
@@ -28,6 +33,12 @@ class ZZ_Native(Structure):
 
   def __str__(s):
     return cast(lib.ZZ_to_string(LPZZ(s)), c_char_p).value
+
+  def __repr__(s):
+    return "ZZ_Native('%s')" % str(s)
+
+  def __eq__(s, rhs):
+    return lib.ZZ_is_equals(LPZZ(s), LPZZ(rhs))
 
   def __del__(s):
     lib.ZZ_destroy(LPZZ(s))

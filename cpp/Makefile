@@ -7,6 +7,8 @@ OPTFLAGS := -O3 -Os -mtune=corei7 -mavx -g -fPIC -shared -std=c++11
 OBJS     := ecpy_native.o ZZ.o
 CP       := cp
 DESTDIR  := /usr/local/lib/
+SUDO     := sudo
+PIP      := pip
 
 
 vpath %.cpp src/
@@ -26,8 +28,9 @@ bin/$(TARGET): $(OBJS)
 
 .PHONY: install
 install: bin/$(TARGET)
-	cp -rf bin/$(TARGET) $(DESTDIR)
+	$(SUDO) $(CP) -rf bin/$(TARGET) $(DESTDIR)
+	$(PIP) install --upgrade py/
 
 .PHONY: test
-test: 
+test: install
 	$(MAKE) -C test all

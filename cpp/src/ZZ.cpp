@@ -65,4 +65,8 @@ __EXPORT__ const char *ZZ_to_string(ZZ *zz) {
   return ss.str().c_str();
 }
 
+__EXPORT__ bool ZZ_is_equals(ZZ *yy, ZZ *zz) {
+  return yy->x == zz->x;
+}
+
 
