@@ -14,26 +14,71 @@ static int wa_count = 0;
 #define ES_ASSERT_NEQ(x,y) ES_ASSERT_NEQ_M(x, y, #x)
 
 #define ES_ASSERTION(cond, msg) do {\
-  std::cout << boost::format("[+] %-16s...%-8s") % msg % "";\
+  cout << boost::format("[+] %-16s...%-8s") % msg % "";\
   try { \
     if(!(cond)) { \
-      std::cout << "\033[31m[ FAILED ]\033[0m" << std::endl; \
+      cout << "\033[31m[ FAILED ]\033[0m" << endl; \
       wa_count++; \
     } else { \
-      std::cout << "\033[33m[   OK   ]\033[0m" << std::endl; \
+      cout << "\033[33m[   OK   ]\033[0m" << endl; \
       ac_count++;\
     }\
-  } catch (const std::runtime_error& e) { \
-      std::cout << "\033[31mFAILED(EXCEPTION)\033[0m" << std::endl; \
-      std::cerr << "[-] \033[31mAssertion Failed: <" \
+  } catch (const runtime_error& e) { \
+      cout << "\033[31mFAILED(EXCEPTION)\033[0m" << endl; \
+      cerr << "[-] \033[31mAssertion Failed: <" \
           << __FILE__ << "> " << __FUNCTION__ << ":" << __LINE__ \
           << "(Exception occurerd!) -> !(" << #cond << ")\033[0m" \
-          << "\n\t-> \033[01;04;31m" << e.what() << "\033[0m" << std::endl;\
+          << "\n\t-> \033[01;04;31m" << e.what() << "\033[0m" << endl;\
       wa_count++; \
   } \
 } while(0)
 
-void zz_test() {
+#define TEST(name) void _ ## name ## _test(); void name ## _test() { \
+  clock_t start, end; \
+  double time;\
+  cout << boost::format("Start Test: %s\n") % #name; \
+  start = clock();\
+  _ ## name ## _test(); \
+  end = clock();\
+  time = ((double)(end - start) / CLOCKS_PER_SEC); \
+  cout << boost::format("Test Finished. Time: %s sec (%s usec)\n") % time % (time * 1e+6); \
+} \
+void _ ## name ## _test()
+
+TEST(ff) {
+  auto x = FF_create("3", "7");
+  auto y = FF_create_from_mpz_class(13, 7);
+
+  ES_ASSERT_EQ(x->x->x, 3);
+  // check modulo
+  ES_ASSERT_EQ(y->x->x, 6);
+  ES_ASSERT_NEQ(y->x->x, 13);
+  ES_ASSERT_EQ_FM(strcmp(FF_to_string(x), "3 modulo 7"), 0, "str(x)");
+  {
+    auto z = FF_add(x, y);
+    ES_ASSERT_EQ_M(z->x->x, 2, "x+y");
+    FF_destroy(z);
+  }
+  {
+    auto z = FF_neg(x);
+    ES_ASSERT_EQ_M(z->x->x, 4, "-x");
+    FF_destroy(z);
+  }
+  {
+    auto z = FF_mul(x, y);
+    ES_ASSERT_EQ_M(z->x->x, 4, "x*y");
+    FF_destroy(z);
+  }
+  {
+    auto z = FF_div(x, y);
+    ES_ASSERT_EQ_M(z->x->x, 4, "x/y");
+    FF_destroy(z);
+  }
+  FF_destroy(x);
+  FF_destroy(y);
+}
+
+TEST(zz) {
   auto x = ZZ_create("3");
   auto y = ZZ_create_from_mpz_class(9);
   ES_ASSERT_EQ(x->x, 3);
@@ -78,10 +123,12 @@ void zz_test() {
     ZZ_destroy(z);
   }
   ZZ_destroy(x);
+  ZZ_destroy(y);
 }
 
 void exec_test() {
   zz_test();
+  ff_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count

@@ -56,6 +56,9 @@ __EXPORT__ ZZ *ZZ_modinv(ZZ *a, ZZ *m) {
   }
   mpz_class t;
   mpz_invert(t.get_mpz_t(), _a.get_mpz_t(), _m.get_mpz_t());
+  if (t < 0) {
+    t += m->x;
+  }
   return ZZ_create_from_mpz_class(t);
 }
 
@@ -69,4 +72,8 @@ __EXPORT__ bool ZZ_is_equals(ZZ *yy, ZZ *zz) {
   return yy->x == zz->x;
 }
 
-
+ZZ *ZZ_copy(ZZ *zz) {
+  ZZ *ret = new ZZ;
+  ret->x = zz->x;
+  return ret;
+}

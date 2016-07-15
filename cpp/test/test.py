@@ -30,7 +30,7 @@ def main():
   assert_eq(x-y, ZZ(-6), "x-y")
   assert_eq(x*y, ZZ(16), "x*y")
   assert_eq(y/x, ZZ(4), "y/x")
-  assert_eq(modinv(7, 65537), 18725, "modinv(7, 65537")
+  assert_eq(modinv(7, 65537), 18725, "modinv(7, 65537)")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)
