@@ -34,12 +34,12 @@ class FF_Native(Structure):
     return cast(lib.FF_mod(LPFF(s), LPFF(a)), LPFF).contents
 
   def __str__(s):
-    return cast(lib.FF_to_string(LPFF(s)), c_char_p).value
+    d = create_string_buffer(1024)
+    lib.FF_to_string(LPFF(s), d, 1024)
+    return d.value
 
   def __repr__(s):
-    a = weakref(s.x)
-    b = weakref(s.p)
-    st = "FF_Native('%s', '%s')" % (str(a().contents), str(b().contents))
+    st = "FF_Native('%s', '%s')" % (str(s.x.contents), str(s.p.contents))
     return st
 
   def __eq__(s, rhs):
@@ -47,6 +47,7 @@ class FF_Native(Structure):
 
   def __del__(s):
     import sys
+    sys.stderr.write("Prepare Delete: %s\n" % s.__class__.__name__)
     sys.stderr.write("Delete: %r" % s)
     lib.FF_destroy(LPFF(s))
     sys.stderr.write("\n")

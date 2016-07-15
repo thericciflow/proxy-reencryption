@@ -32,7 +32,9 @@ class ZZ_Native(Structure):
     return cast(lib.ZZ_mod(LPZZ(s), LPZZ(a)), LPZZ).contents
 
   def __str__(s):
-    return cast(lib.ZZ_to_string(LPZZ(s)), c_char_p).value
+    d = create_string_buffer(1024)
+    lib.ZZ_to_string(LPZZ(s), d, 1024)
+    return d.value
 
   def __repr__(s):
     return "ZZ_Native('%s')" % str(s)
@@ -42,6 +44,7 @@ class ZZ_Native(Structure):
 
   def __del__(s):
     import sys
+    sys.stderr.write("Prepare Delete: %s\n" % s.__class__.__name__)
     sys.stderr.write("Delete: %r..." % s)
     lib.ZZ_destroy(LPZZ(s))
     sys.stderr.write("\n")
