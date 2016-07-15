@@ -34,6 +34,8 @@ def main():
 
   FF = FF_create
   x = FF(25, 31)
+  print x
+  print repr(x)
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)

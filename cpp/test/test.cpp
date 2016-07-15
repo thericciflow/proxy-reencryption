@@ -53,7 +53,7 @@ TEST(ff) {
   // check modulo
   ES_ASSERT_EQ(y->x->x, 6);
   ES_ASSERT_NEQ(y->x->x, 13);
-  ES_ASSERT_EQ_FM(strcmp(FF_to_string(x), "3 modulo 7"), 0, "str(x)");
+  ES_ASSERT_EQ_FM(FF_to_string_as_std_string(x), "3 modulo 7", "str(x)");
   {
     auto z = FF_add(x, y);
     ES_ASSERT_EQ_M(z->x->x, 2, "x+y");
@@ -83,7 +83,7 @@ TEST(zz) {
   auto y = ZZ_create_from_mpz_class(9);
   ES_ASSERT_EQ(x->x, 3);
   ES_ASSERT_EQ(y->x, 9);
-  ES_ASSERT_EQ_FM(strcmp(ZZ_to_string(x), "3"), 0, "str(x)==3");
+  ES_ASSERT_EQ_FM(ZZ_to_string_as_std_string(x), "3", "str(x)==3");
   {
     auto z = ZZ_add(x, y);
     ES_ASSERT_EQ_M(z->x, 12, "x+y");

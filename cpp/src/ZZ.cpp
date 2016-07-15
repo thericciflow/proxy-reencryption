@@ -62,10 +62,26 @@ __EXPORT__ ZZ *ZZ_modinv(ZZ *a, ZZ *m) {
   return ZZ_create_from_mpz_class(t);
 }
 
-__EXPORT__ const char *ZZ_to_string(ZZ *zz) {
+/*__EXPORT__ const char *ZZ_to_string(ZZ *zz) {
   stringstream ss;
   ss << zz->x;
   return ss.str().c_str();
+}
+*/
+
+__EXPORT__ bool ZZ_to_string(const ZZ *zz, char *p, int maxlen) {
+  const int base = 10;
+  auto x = zz->x.get_mpz_t();
+  auto len = mpz_sizeinbase(x, base) + 2;
+  if (len <= maxlen) {
+    mpz_get_str(p, base, x);
+    return true;
+  }
+  return false;
+}
+
+string ZZ_to_string_as_std_string(const ZZ *zz) {
+  return zz->x.get_str();
 }
 
 __EXPORT__ bool ZZ_is_equals(ZZ *yy, ZZ *zz) {

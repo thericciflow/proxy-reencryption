@@ -1,5 +1,6 @@
 from library import *
 from ZZ_Native import *
+from weakref import ref as weakref
 
 class FF_Native(Structure):
   _fields_ = [("x", LPZZ), ("p", LPZZ)]
@@ -36,7 +37,10 @@ class FF_Native(Structure):
     return cast(lib.FF_to_string(LPFF(s)), c_char_p).value
 
   def __repr__(s):
-    return "FF_Native('%s', '%s')" % (str(s.x.contents), str(s.p.contents))
+    a = weakref(s.x)
+    b = weakref(s.p)
+    st = "FF_Native('%s', '%s')" % (str(a().contents), str(b().contents))
+    return st
 
   def __eq__(s, rhs):
     return lib.FF_is_equals(LPFF(s), LPFF(rhs))
@@ -51,10 +55,4 @@ LPFF = POINTER(FF_Native)
 
 def FF_create(x, p):
   t = cast(lib.FF_create(str(x), str(p)), LPFF).contents
-  t._x = t.x.contents
-  t._p = t.p.contents
   return t
-
-import gc
-gc.set_debug(gc.DEBUG_STATS | gc.DEBUG_COLLECTABLE | gc.DEBUG_INSTANCES | gc.DEBUG_LEAK | gc.DEBUG_OBJECTS)
-print gc.garbage
