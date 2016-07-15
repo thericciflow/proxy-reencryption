@@ -6,22 +6,21 @@ using namespace std;
 static int ac_count = 0;
 static int wa_count = 0;
 
-#define ES_ASSERT_EQ_M(x,y,m) ES_ASSERTION(x == y, m " == " #y)
-
-#define ES_ASSERT_NEQ_M(x,y,m) ES_ASSERTION(x != y, m " != " #y)
-
-#define ES_ASSERT_EQ(x,y) ES_ASSERTION(x == y, #x " == " #y)
-
-#define ES_ASSERT_NEQ(x,y) ES_ASSERTION(x != y, #x " != " #y)
+#define ES_ASSERT_EQ_FM(x,y,m) ES_ASSERTION(x == y, m)
+#define ES_ASSERT_NEQ_FM(x,y,m) ES_ASSERTION(x != y, m)
+#define ES_ASSERT_EQ_M(x,y,m) ES_ASSERT_EQ_FM(x, y, m " == " #y)
+#define ES_ASSERT_NEQ_M(x,y,m) ES_ASSERT_NEQ_FM(x, y, m " != " #y)
+#define ES_ASSERT_EQ(x,y) ES_ASSERT_EQ_M(x, y, #x)
+#define ES_ASSERT_NEQ(x,y) ES_ASSERT_NEQ_M(x, y, #x)
 
 #define ES_ASSERTION(cond, msg) do {\
-  std::cout << "[+] "<< msg << "...";\
+  std::cout << boost::format("[+] %-16s...%-8s") % msg % "";\
   try { \
     if(!(cond)) { \
-      std::cout << "\033[31mFAILED\033[0m" << std::endl; \
+      std::cout << "\033[31m[ FAILED ]\033[0m" << std::endl; \
       wa_count++; \
     } else { \
-      std::cout << "\033[32mOK\033[0m" << std::endl; \
+      std::cout << "\033[33m[   OK   ]\033[0m" << std::endl; \
       ac_count++;\
     }\
   } catch (const std::runtime_error& e) { \
@@ -39,7 +38,7 @@ void zz_test() {
   auto y = ZZ_create_from_mpz_class(9);
   ES_ASSERT_EQ(x->x, 3);
   ES_ASSERT_EQ(y->x, 9);
-  ES_ASSERT_EQ(strcmp(ZZ_to_string(x), "3"), 0);
+  ES_ASSERT_EQ_FM(strcmp(ZZ_to_string(x), "3"), 0, "str(x)==3");
   {
     auto z = ZZ_add(x, y);
     ES_ASSERT_EQ_M(z->x, 12, "x+y");
@@ -73,7 +72,7 @@ void zz_test() {
     auto a = ZZ_create_from_mpz_class(7);
     auto b = ZZ_create_from_mpz_class(17);
     auto z = ZZ_modinv(a, b);
-    ES_ASSERT_EQ_M(z->x, 5, "modinv(a, b)");
+    ES_ASSERT_EQ_FM(z->x, 5, "1/a mod b");
     ZZ_destroy(a);
     ZZ_destroy(b);
     ZZ_destroy(z);
