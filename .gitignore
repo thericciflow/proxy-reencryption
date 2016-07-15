@@ -29,3 +29,4 @@
 
 *.pyc
 *.sage.py
+!.gitkeep
