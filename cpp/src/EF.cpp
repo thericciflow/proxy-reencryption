@@ -61,3 +61,64 @@ __EXPORT__ void EF_destroy(const EF *ef) {
   delete ef;
 }
 
+__EXPORT__ EF *EF_add(const EF *a, const EF *b) {
+  EF *ret = new EF;
+  if (a->poly == b->poly && ZZ_is_equals(a->modulo, b->modulo)) {
+    switch (a->poly) { // addition is same operation
+    case IrreduciblePolynomialType::X2_1:
+    case IrreduciblePolynomialType::X2_X_1:
+      {
+        auto t = ZZ_add(a->x, b->x);
+        ret->x = ZZ_mod(t, a->modulo);
+        ZZ_destroy(t);
+      }
+      {
+        auto t = ZZ_add(a->y, b->y);
+        ret->y = ZZ_mod(t, a->modulo);
+        ZZ_destroy(t);
+      }
+    }
+    ret->modulo = ZZ_copy(a->modulo);
+    ret->poly = a->poly;
+  } else {
+    ret->x = ZZ_create_from_mpz_class(-1);
+    ret->y = ZZ_create_from_mpz_class(-1);
+    ret->modulo = ZZ_create_from_mpz_class(-1);
+    ret->poly = IrreduciblePolynomialType::X2_1;
+  }
+  return ret;
+}
+
+__EXPORT__ bool EF_is_equals(const EF *a, const EF *b) {
+  return (a->poly == b->poly) &&
+    ZZ_is_equals(a->modulo, b->modulo) &&
+    ZZ_is_equals(a->x, b->x) &&
+    ZZ_is_equals(a->y, b->y);
+}
+
+__EXPORT__ bool EF_to_string(const EF *ef, char *p, int maxlen) {
+  auto c = EF_to_string_as_std_string(ef);
+  if (c.size() < maxlen) {
+    strcpy(p, c.c_str());
+    return true;
+  }
+  return false;
+}
+
+string EF_to_string_as_std_string(const EF *ef) {
+  stringstream ss;
+  ss << "(" << ZZ_to_string_as_std_string(ef->x)
+     << ", " << ZZ_to_string_as_std_string(ef->y)
+     << ") over Extended Field GF("
+     << ZZ_to_string_as_std_string(ef->modulo)
+     << "^2), Irreducible Polynomial: ";
+  switch (ef->poly) {
+  case IrreduciblePolynomialType::X2_1:
+    ss << "x^2 + 1";
+    break;
+  case IrreduciblePolynomialType::X2_X_1:
+    ss << "x^2 + x + 1";
+    break;
+  }
+  return ss.str();
+}

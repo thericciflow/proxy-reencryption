@@ -72,8 +72,12 @@ bool is_prime(mpz_class);
 IrreduciblePolynomialType EF_Detect_Polynomial(const ZZ*);
 IrreduciblePolynomialType EF_Get_Polynomial(const char*);
 EF *EF_create_from_mpz_class(mpz_class, mpz_class, mpz_class, IrreduciblePolynomialType);
+std::string EF_to_string_as_std_string(const EF*);
 
 __EXPORT__ {
   EF *EF_create(const char*, const char*, const char*, const char*);
   void EF_destroy(const EF*);
+  bool EF_to_string(const EF*, char*, int);
+  bool EF_is_equals(const EF*, const EF*);
+  EF *EF_add(const EF*, const EF*);
 }

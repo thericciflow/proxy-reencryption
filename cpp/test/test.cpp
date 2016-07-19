@@ -49,6 +49,18 @@ TEST(ef) {
   auto x = EF_create("3", "0", "7", "x^2+1");
   auto y = EF_create_from_mpz_class(0, 5, 7, IrreduciblePolynomialType::X2_1);
 
+  ES_ASSERT_EQ_FM(EF_to_string_as_std_string(x),
+      "(3, 0) over Extended Field GF(7^2), Irreducible Polynomial: x^2 + 1",
+      "str(x)");
+
+  {
+    auto z = EF_add(x, y);
+    auto t = EF_create_from_mpz_class(3, 5, 7, IrreduciblePolynomialType::X2_1);
+    ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x+y = 3+5i");
+    EF_destroy(z);
+    EF_destroy(t);
+  }
+
   EF_destroy(x);
   EF_destroy(y);
 }
