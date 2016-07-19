@@ -45,6 +45,14 @@ static int wa_count = 0;
 } \
 void _ ## name ## _test()
 
+TEST(ef) {
+  auto x = EF_create("3", "0", "7", "x^2+1");
+  auto y = EF_create_from_mpz_class(0, 5, 7, IrreduciblePolynomialType::X2_1);
+
+  EF_destroy(x);
+  EF_destroy(y);
+}
+
 TEST(ff) {
   auto x = FF_create("3", "7");
   auto y = FF_create_from_mpz_class(13, 7);
@@ -145,6 +153,7 @@ TEST(zz) {
 void exec_test() {
   zz_test();
   ff_test();
+  ef_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count
