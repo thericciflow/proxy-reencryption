@@ -78,38 +78,54 @@ TEST(ef) {
       EF_destroy(t);
     }
 
+    {
+      auto z = EF_inv(y);
+      auto t = EF_create_from_mpz_class(0, 4, 7, IrreduciblePolynomialType::X2_1);
+      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "1/y = 4i");
+      EF_destroy(z);
+      EF_destroy(t);
+    }
+
     EF_destroy(x);
     EF_destroy(y);
   }
   {
-    auto x = EF_create("61", "0", "31", "x^2 + x + 1");
-    auto y = EF_create_from_mpz_class(0, 20, 31, IrreduciblePolynomialType::X2_X_1);
+    auto x = EF_create("61", "0", "41", "x^2 + x + 1");
+    auto y = EF_create_from_mpz_class(0, 20, 41, IrreduciblePolynomialType::X2_X_1);
     {
-      auto t = EF_create_from_mpz_class(30, 0, 31, IrreduciblePolynomialType::X2_X_1);
+      auto t = EF_create_from_mpz_class(20, 0, 41, IrreduciblePolynomialType::X2_X_1);
       ES_ASSERT_EQ_FM(EF_is_equals(x, t), true, "modulo check");
       EF_destroy(t);
     }
     {
       auto z = EF_add(x, y);
-      auto t = EF_create_from_mpz_class(30, 20, 31, IrreduciblePolynomialType::X2_X_1);
+      auto t = EF_create_from_mpz_class(20, 20, 41, IrreduciblePolynomialType::X2_X_1);
       ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x+y = 30+20w");
       EF_destroy(z);
       EF_destroy(t);
     }
     {
       auto z = EF_neg(x);
-      auto t = EF_create_from_mpz_class(1, 0, 31, IrreduciblePolynomialType::X2_X_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "-x = 1");
+      auto t = EF_create_from_mpz_class(21, 0, 41, IrreduciblePolynomialType::X2_X_1);
+      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "-x = 21");
       EF_destroy(z);
       EF_destroy(t);
     }
     {
       auto z = EF_mul(x, y);
-      auto t = EF_create_from_mpz_class(0, 11, 31, IrreduciblePolynomialType::X2_X_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x*y = 11w");
+      auto t = EF_create_from_mpz_class(0, 31, 41, IrreduciblePolynomialType::X2_X_1);
+      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x*y = 31w");
       EF_destroy(z);
       EF_destroy(t);
     }
+    {
+      auto z = EF_inv(y);
+      auto t = EF_create_from_mpz_class(2, 2, 41, IrreduciblePolynomialType::X2_X_1);
+      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "1/y = 2+2w");
+      EF_destroy(z);
+      EF_destroy(t);
+    }
+
     EF_destroy(x);
     EF_destroy(y);
   }

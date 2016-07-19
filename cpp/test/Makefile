@@ -9,7 +9,7 @@ vpath %.o ../bin/
 
 .PHONY: all
 all: bin/test
-	valgrind ./bin/test
+	valgrind -v ./bin/test
 	$(PYTHON) test.py
 
 bin/test: bin/test.o $(OBJS)

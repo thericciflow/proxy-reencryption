@@ -82,4 +82,5 @@ __EXPORT__ {
   EF *EF_add(const EF*, const EF*);
   EF *EF_neg(const EF*);
   EF *EF_mul(const EF*, const EF*);
+  EF *EF_inv(const EF*);
 }

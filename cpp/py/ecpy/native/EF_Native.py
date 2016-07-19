@@ -15,6 +15,15 @@ class EF_Native(Structure):
       raise TypeError("%r must be EF_Native instance." % a)
     return cast(lib.EF_mul(LPEF(s), LPEF(a)), LPEF).contents
 
+  def inv(s):
+    return cast(lib.EF_inv(LPEF(s)), LPEF).contents
+
+  def __div__(s, a):
+    if not isinstance(a, EF_Native):
+      raise TypeError("%r must be EF_Native instance." % a)
+    return a.inv() * s
+
+
   def __neg__(s):
     return cast(lib.EF_neg(LPEF(s)), LPEF).contents
 

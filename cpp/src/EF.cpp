@@ -180,6 +180,69 @@ __EXPORT__ EF *EF_mul(const EF *a, const EF *b) {
   return ret;
 }
 
+__EXPORT__ EF *EF_inv(const EF *x) {
+  EF *ret = new EF;
+  auto a = x->x;
+  auto b = x->y;
+  auto r = ZZ_mul(a, a); // a^2
+  auto s = ZZ_mul(b, b); // b^2
+  auto t = ZZ_add(r, s); // a^2+b^2
+  ZZ_destroy(r);
+  ZZ_destroy(s);
+  switch (x->poly) {
+  case IrreduciblePolynomialType::X2_1:
+    {
+      auto u = ZZ_modinv(t, x->modulo);
+      {
+        auto z = ZZ_mul(a, u);
+        ret->x = ZZ_mod(z, x->modulo);
+        ZZ_destroy(z);
+      }
+      {
+        auto s = ZZ_mul(b, u);
+        auto z = ZZ_neg(s);
+        ret->y = ZZ_mod(z, x->modulo);
+        ZZ_destroy(z);
+        ZZ_destroy(s);
+      }
+      ZZ_destroy(u);
+    }
+    break;
+  case IrreduciblePolynomialType::X2_X_1:
+    {
+      auto f = ZZ_mul(a, b); // ab
+      auto g = ZZ_neg(f);    // -ab
+      auto h = ZZ_add(t, g); // a^2-ab+b^2
+      ZZ_destroy(f);
+      ZZ_destroy(g);
+      auto u = ZZ_modinv(h, x->modulo);
+      ZZ_destroy(h);
+      {
+        auto g = ZZ_neg(b);
+        auto h = ZZ_add(g, a);
+        auto z = ZZ_mul(h, u);
+        ret->x = ZZ_mod(z, x->modulo);
+        ZZ_destroy(g);
+        ZZ_destroy(h);
+        ZZ_destroy(z);
+      }
+      {
+        auto s = ZZ_mul(b, u);
+        auto z = ZZ_neg(s);
+        ret->y = ZZ_mod(z, x->modulo);
+        ZZ_destroy(s);
+        ZZ_destroy(z);
+      }
+      ZZ_destroy(u);
+    }
+    break;
+  }
+  ZZ_destroy(t);
+  ret->modulo = ZZ_copy(x->modulo);
+  ret->poly = x->poly;
+  return ret;
+}
+
 __EXPORT__ bool EF_is_equals(const EF *a, const EF *b) {
   return (a->poly == b->poly) &&
     ZZ_is_equals(a->modulo, b->modulo) &&
