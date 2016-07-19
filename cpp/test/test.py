@@ -28,11 +28,17 @@ def main():
   ZZ = ZZ_create
   x = ZZ(2)
   y = ZZ(8)
+  a = ZZ(12345)
+  b = ZZ(331)
+  c = ZZ(1001)
+  d = ZZ(9907)
   assert_eq(x+y, ZZ(10), "x+y")
   assert_eq(x-y, ZZ(-6), "x-y")
   assert_eq(x*y, ZZ(16), "x*y")
   assert_eq(y/x, ZZ(4), "y/x")
   assert_eq(modinv(7, 65537), 18725, "modinv(7, 65537)")
+  assert_eq(legendre(a, b), -1, "(12345|331) = -1")
+  assert_eq(jacobi(c, d), -1, "(1001|9907) = -1")
 
   FF = lambda x: FF_create(x, p)
   p = 31

@@ -139,6 +139,12 @@ try:
 except ImportError:
   _is_prime = miller_rabin
 
+try:
+  import ecpy.native.method as native_method
+  _modinv = native_method.modinv
+except ImportError:
+  _modinv = __modinv
+
 @memoize
 def is_prime(x):
   """
@@ -158,4 +164,4 @@ def modinv(a, n):
     a: target number
     n: modulus
   """
-  return __modinv(a, n)
+  return _modinv(a, n)

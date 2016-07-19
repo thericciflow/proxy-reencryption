@@ -48,20 +48,6 @@ __EXPORT__ ZZ *ZZ_mod(const ZZ *a, const ZZ *b) {
   return ret;
 }
 
-__EXPORT__ ZZ *ZZ_modinv(const ZZ *a, const ZZ *m) {
-  auto _a = a->x;
-  auto _m = m->x;
-  if (_a < 0) {
-    _a = _a + _m;
-  }
-  mpz_class t;
-  mpz_invert(t.get_mpz_t(), _a.get_mpz_t(), _m.get_mpz_t());
-  if (t < 0) {
-    t += m->x;
-  }
-  return ZZ_create_from_mpz_class(t);
-}
-
 __EXPORT__ bool ZZ_to_string(const ZZ *zz, char *p, int maxlen) {
   const int base = 10;
   auto x = zz->x.get_mpz_t();
@@ -85,4 +71,30 @@ ZZ *ZZ_copy(ZZ *zz) {
   ZZ *ret = new ZZ;
   ret->x = zz->x;
   return ret;
+}
+
+__EXPORT__ ZZ *ZZ_modinv(const ZZ *a, const ZZ *m) {
+  auto _a = a->x;
+  auto _m = m->x;
+  if (_a < 0) {
+    _a = _a + _m;
+  }
+  mpz_class t;
+  mpz_invert(t.get_mpz_t(), _a.get_mpz_t(), _m.get_mpz_t());
+  if (t < 0) {
+    t += m->x;
+  }
+  return ZZ_create_from_mpz_class(t);
+}
+
+__EXPORT__ int ZZ_jacobi(ZZ *a, ZZ *b) {
+  auto t = a->x.get_mpz_t();
+  auto u = b->x.get_mpz_t();
+  return mpz_jacobi(t, u);
+}
+
+__EXPORT__ int ZZ_legendre(ZZ *a, ZZ *b) {
+  auto t = a->x.get_mpz_t();
+  auto u = b->x.get_mpz_t();
+  return mpz_legendre(t, u);
 }

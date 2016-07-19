@@ -122,6 +122,22 @@ TEST(zz) {
     ZZ_destroy(b);
     ZZ_destroy(z);
   }
+  {
+    auto a = ZZ_create_from_mpz_class(12345);
+    auto b = ZZ_create_from_mpz_class(331);
+    auto z = ZZ_legendre(a, b);
+    ES_ASSERT_EQ_FM(z, -1, "(12345|331) = -1");
+    ZZ_destroy(a);
+    ZZ_destroy(b);
+  }
+  {
+    auto a = ZZ_create_from_mpz_class(1001);
+    auto b = ZZ_create_from_mpz_class(9907);
+    auto z = ZZ_jacobi(a, b);
+    ES_ASSERT_EQ_FM(z, -1, "(1001|9907) = -1");
+    ZZ_destroy(a);
+    ZZ_destroy(b);
+  }
   ZZ_destroy(x);
   ZZ_destroy(y);
 }

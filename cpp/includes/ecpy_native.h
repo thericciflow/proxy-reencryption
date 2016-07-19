@@ -30,6 +30,8 @@ __EXPORT__ {
   ZZ *ZZ_modinv(const ZZ*, const ZZ*);
   bool ZZ_to_string(const ZZ *zz, char *p, int maxlen);
   bool ZZ_is_equals(const ZZ*, const ZZ*);
+  int ZZ_jacobi(ZZ*, ZZ*);
+  int ZZ_legendre(ZZ*, ZZ*);
 }
 
 ZZ *ZZ_create_from_mpz_class(mpz_class);
