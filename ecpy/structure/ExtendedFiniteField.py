@@ -5,7 +5,8 @@ from ..util import is_prime, modinv
 
 class ExtendedFiniteField(FiniteField):
   def __init__(s, p, poly="x^2+1"):
-    super(ExtendedFiniteField, s).__init__(p)
+    s.p = s.n = p
+    s.element_class = ExtendedFiniteFieldElement
     if poly == "x^2+1":
       assert p % 4 == 3
       s.t = 1
@@ -14,7 +15,6 @@ class ExtendedFiniteField(FiniteField):
       s.t = 2
     else:
       raise ValueError("Invalid Polynomial: %s" % poly)
-    s.element_class = ExtendedFiniteFieldElement
 
   def __str__(s):
     res = Zmod.__str__(s, "p^%d" % s.degree()) + " : Polynomial is :"
@@ -83,7 +83,8 @@ class ExtendedFiniteFieldElement(ZmodElement):
   def __init__(s, field, x, y=0):
     if isinstance(x, s.__class__):
       x, y = x.x, x.y
-    super(ExtendedFiniteFieldElement, s).__init__(field, x % field.p)
+    s.group = s.field = field
+    s.x = x % s.field.p
     s.y = y % s.field.p
 
   def __repr__(s):
@@ -102,7 +103,7 @@ class ExtendedFiniteFieldElement(ZmodElement):
         res += " + "
       if s.y != 1:
         res += "%r" % s.y
-      res += " iw"[s.field.degree()]
+      res += " iw"[s.field.t]
     return res
 
   def __iter__(s):

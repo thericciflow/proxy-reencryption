@@ -1,4 +1,4 @@
-from Zmod import Zmod
+from Zmod import Zmod, ZmodElement
 
 
 class FiniteField(Zmod):
@@ -10,8 +10,8 @@ class FiniteField(Zmod):
     Constructor of FiniteField
     p should be prime
     """
-    super(FiniteField, s).__init__(p)
-    s.p = p
+    s.n = s.p = p
+    s.element_class = ZmodElement
 
   def __str__(s):
     return Zmod.__str__(s, "p")

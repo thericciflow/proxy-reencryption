@@ -23,7 +23,7 @@ class GenericEllipticCurve(AdditiveGroup):
     Constructor of Elliptic Curve.
       y^2 = x^3 + `a`x+ `b` on `field`
     """
-    super(GenericEllipticCurve, s).__init__(GenericEllipticCurvePoint)
+    s.element_class = GenericEllipticCurvePoint
     s.field = field
     s.a = a
     s.b = b
@@ -130,7 +130,8 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
         return group.field(*x)
       return group.field(x)
 
-    super(GenericEllipticCurvePoint, s).__init__(group, F(x))
+    s.group = group
+    s.x = F(x)
     s.y = F(y)
     s.z = F(z)
     s.inf = s.x == 0 and s.y == 1 and s.z == 0
@@ -272,7 +273,9 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
   Elliptic Curve on Finite Field or Extended Finite Field
   """
   def __init__(s, field, a, b):
-    super(FiniteFieldEllipticCurve, s).__init__(field, a, b)
+    s.field = field
+    s.a = a
+    s.b = b
     s.element_class = FiniteFieldEllipticCurvePoint
     s.O = s.element_class(s, 0, 1, 0)
 
@@ -314,7 +317,19 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
   def __init__(s, group, x, y, z=1):
-    super(FiniteFieldEllipticCurvePoint, s).__init__(group, x, y, z)
+    def F(x):
+      if type(x) == tuple:
+        return group.field(*x)
+      return group.field(x)
+
+    s.group = group
+    s.x = F(x)
+    s.y = F(y)
+    s.z = F(z)
+    s.inf = s.x == 0 and s.y == 1 and s.z == 0
+    if not (s.inf or s.group.is_on_curve(s)):
+      raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
+
   def distortion_map(s):
     """
     IMPORTANT: If you want to use this function,

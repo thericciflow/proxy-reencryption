@@ -2,7 +2,7 @@ from ecpy.abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 
 class Field(AdditiveGroup):
   def __init__(s, element_class):
-    super(Field, s).__init__(element_class)
+    s.element_class = element_class
 
   def _mul(s, a, b):
     raise NotImplementedError()
@@ -22,8 +22,8 @@ class Field(AdditiveGroup):
 
 class FieldElement(AdditiveGroupElement):
   def __init__(s, field, x):
-    super(FieldElement, s).__init__(field, x)
-    s.field = s.group
+    s.group = s.field = field
+    s.x = x
 
   def change_field(s, _field):
     return s.__class__(_field, *tuple(s))

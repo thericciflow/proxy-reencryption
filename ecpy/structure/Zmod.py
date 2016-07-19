@@ -4,7 +4,7 @@ from ..abstract.Field import Field, FieldElement
 
 class Zmod(Field):
   def __init__(s, n):
-    super(Zmod, s).__init__(ZmodElement)
+    s.element_class = ZmodElement
     s.n = n
 
   def __repr__(s):
@@ -50,7 +50,8 @@ class ZmodElement(FieldElement):
       x = x.x % (field.n)
     else:
       x = x % (field.n)
-    super(ZmodElement, s).__init__(field, x)
+    s.group = s.field = field
+    s.x = x
 
   def __repr__(s):
     return "%r(%s)" % (s.field, s.x)

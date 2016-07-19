@@ -164,4 +164,4 @@ def modinv(a, n):
     a: target number
     n: modulus
   """
-  return _modinv(a, n)
+  return __modinv(a, n)
