@@ -63,6 +63,14 @@ TEST(ef) {
     }
 
     {
+      auto z = EF_neg(x);
+      auto t = EF_create_from_mpz_class(4, 0, 7, IrreduciblePolynomialType::X2_1);
+      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "-x = 4");
+      EF_destroy(z);
+      EF_destroy(t);
+    }
+
+    {
       auto z = EF_mul(x, y);
       auto t = EF_create_from_mpz_class(0, 1, 7, IrreduciblePolynomialType::X2_1);
       ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x*y = i");
@@ -85,6 +93,13 @@ TEST(ef) {
       auto z = EF_add(x, y);
       auto t = EF_create_from_mpz_class(30, 20, 31, IrreduciblePolynomialType::X2_X_1);
       ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x+y = 30+20w");
+      EF_destroy(z);
+      EF_destroy(t);
+    }
+    {
+      auto z = EF_neg(x);
+      auto t = EF_create_from_mpz_class(1, 0, 31, IrreduciblePolynomialType::X2_X_1);
+      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "-x = 1");
       EF_destroy(z);
       EF_destroy(t);
     }

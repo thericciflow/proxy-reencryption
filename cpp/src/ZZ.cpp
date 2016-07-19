@@ -45,6 +45,9 @@ __EXPORT__ ZZ *ZZ_div(const ZZ *a, const ZZ *b) {
 __EXPORT__ ZZ *ZZ_mod(const ZZ *a, const ZZ *b) {
   ZZ *ret = new ZZ;
   ret->x = a->x % b->x;
+  if (ret->x < 0) {
+    ret->x += b->x;
+  }
   return ret;
 }
 

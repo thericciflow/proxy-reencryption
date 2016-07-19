@@ -89,6 +89,27 @@ __EXPORT__ EF *EF_add(const EF *a, const EF *b) {
   return ret;
 }
 
+__EXPORT__ EF *EF_neg(const EF *a) {
+  EF *ret = new EF;
+  switch (a->poly) {
+  case IrreduciblePolynomialType::X2_1:
+  case IrreduciblePolynomialType::X2_X_1:
+    {
+      auto t = ZZ_neg(a->x);
+      ret->x = ZZ_mod(t, a->modulo);
+      ZZ_destroy(t);
+    }
+    {
+      auto t = ZZ_neg(a->y);
+      ret->y = ZZ_mod(t, a->modulo);
+      ZZ_destroy(t);
+    }
+  }
+  ret->modulo = ZZ_copy(a->modulo);
+  ret->poly = a->poly;
+  return ret;
+}
+
 __EXPORT__ EF *EF_mul(const EF *a, const EF *b) {
   EF *ret = new EF;
     auto i = a->x;
@@ -96,7 +117,7 @@ __EXPORT__ EF *EF_mul(const EF *a, const EF *b) {
     auto k = b->x;
     auto l = b->y;
   if (a->poly == b->poly && ZZ_is_equals(a->modulo, b->modulo)) {
-    switch (a->poly) { // addition is same operation
+    switch (a->poly) {
     case IrreduciblePolynomialType::X2_1:
       {
         auto t = ZZ_mul(i, k); // ac

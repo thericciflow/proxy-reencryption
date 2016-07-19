@@ -55,6 +55,7 @@ def main():
   x = EF(3, 0)
   y = EF(0, 5)
   assert_eq(x+y, EF(3, 5), "x+y")
+  assert_eq(-x, EF(4, 0), "-x")
   assert_eq(x*y, EF(0, 1), "x*y")
 
   modulo = 31
@@ -63,6 +64,7 @@ def main():
   y = EF(0, 20)
   assert_eq(x, EF(30, 0), "x modulo check")
   assert_eq(x+y, EF(30, 20), "x+y")
+  assert_eq(-x, EF(1, 0), "-x")
   assert_eq(x*y, EF(0, 11), "x*y")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
