@@ -47,7 +47,6 @@ class FF_Native(Structure):
     return lib.FF_is_equals(LPFF(s), LPFF(rhs))
 
   def __del__(s):
-    import sys
     lib.FF_destroy(LPFF(s))
 
 LPFF = POINTER(FF_Native)

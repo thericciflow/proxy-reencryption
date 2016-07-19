@@ -49,6 +49,19 @@ def main():
   assert_eq(x-y, FF(15), "x-y")
   assert_eq(x*y, FF(2), "x*y")
   assert_eq(x/y, FF(18), "x/y")
+
+  modulo = 7
+  EF = lambda x, y: EF_create(x, y, modulo, "x^2+1")
+  x = EF(3, 0)
+  y = EF(0, 5)
+  assert_eq(x+y, EF(3, 5), "x+y")
+
+  modulo = 31
+  EF = lambda x, y: EF_create(x, y, modulo, "x^2+x+1")
+  x = EF(61, 0)
+  y = EF(0, 20)
+  assert_eq(x, EF(30, 0), "x modulo check")
+  assert_eq(x+y, EF(30, 20), "x+y")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)

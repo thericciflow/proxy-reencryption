@@ -5,27 +5,30 @@ from weakref import ref as weakref
 class EF_Native(Structure):
   _fields_ = [("x", LPZZ), ("y", LPZZ), ("modulo", LPZZ)]
 
-  """
+  def __add__(s, a):
+    if not isinstance(a, EF_Native):
+      raise TypeError("%r must be EF_Native instance." % a)
+    return cast(lib.EF_add(LPEF(s), LPEF(a)), LPEF).contents
+
   def __str__(s):
     d = create_string_buffer(1024)
-    lib.FF_to_string(LPFF(s), d, 1024)
+    lib.EF_to_string(LPEF(s), d, 1024)
     return d.value
 
   def __repr__(s):
     d = create_string_buffer(1024)
-    lib.FF_to_raw_string(LPFF(s), d, 1024)
+    lib.EF_to_string(LPEF(s), d, 1024)
     return d.value
+
   def __eq__(s, rhs):
-    return lib.FF_is_equals(LPFF(s), LPFF(rhs))
-  """
+    return lib.EF_is_equals(LPEF(s), LPEF(rhs))
 
   def __del__(s):
-    import sys
     lib.EF_destroy(LPEF(s))
 
 LPEF = POINTER(EF_Native)
 
 def EF_create(x, y, modulo, poly):
-  t = cast(lib.EF_create(str(x), str(p)), LPEF).contents
+  t = cast(lib.EF_create(str(x), str(y), str(modulo), poly), LPEF).contents
   return t
 
