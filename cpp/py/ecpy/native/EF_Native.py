@@ -10,6 +10,11 @@ class EF_Native(Structure):
       raise TypeError("%r must be EF_Native instance." % a)
     return cast(lib.EF_add(LPEF(s), LPEF(a)), LPEF).contents
 
+  def __mul__(s, a):
+    if not isinstance(a, EF_Native):
+      raise TypeError("%r must be EF_Native instance." % a)
+    return cast(lib.EF_mul(LPEF(s), LPEF(a)), LPEF).contents
+
   def __str__(s):
     d = create_string_buffer(1024)
     lib.EF_to_string(LPEF(s), d, 1024)

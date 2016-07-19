@@ -89,6 +89,76 @@ __EXPORT__ EF *EF_add(const EF *a, const EF *b) {
   return ret;
 }
 
+__EXPORT__ EF *EF_mul(const EF *a, const EF *b) {
+  EF *ret = new EF;
+    auto i = a->x;
+    auto j = a->y;
+    auto k = b->x;
+    auto l = b->y;
+  if (a->poly == b->poly && ZZ_is_equals(a->modulo, b->modulo)) {
+    switch (a->poly) { // addition is same operation
+    case IrreduciblePolynomialType::X2_1:
+      {
+        auto t = ZZ_mul(i, k); // ac
+        auto u = ZZ_mul(j, l); // bd
+        auto v = ZZ_neg(u);    // -bd
+        auto w = ZZ_add(t, v); // ac-bd
+        ret->x = ZZ_mod(w, a->modulo);
+        ZZ_destroy(t);
+        ZZ_destroy(u);
+        ZZ_destroy(v);
+        ZZ_destroy(w);
+      }
+      {
+        auto t = ZZ_mul(i, l); // ad
+        auto u = ZZ_mul(j, k); // bc
+        auto v = ZZ_add(t, u); // ad+bc
+        ret->y = ZZ_mod(v, a->modulo);
+        ZZ_destroy(t);
+        ZZ_destroy(u);
+        ZZ_destroy(v);
+      }
+      break;
+    case IrreduciblePolynomialType::X2_X_1:
+      {
+        auto t = ZZ_mul(i, k); // ac
+        auto u = ZZ_mul(j, l); // bd
+        auto v = ZZ_neg(u);    // -bd
+        auto w = ZZ_add(t, v); // ac-bd
+        ret->x = ZZ_mod(w, a->modulo);
+        ZZ_destroy(t);
+        ZZ_destroy(u);
+        ZZ_destroy(v);
+        ZZ_destroy(w);
+      }
+      {
+        auto t = ZZ_mul(i, l); // ad
+        auto u = ZZ_mul(j, k); // bc
+        auto v = ZZ_add(t, u); // ad+bc
+        auto w = ZZ_mul(j, l); // bd
+        auto x = ZZ_neg(w);    // -bd
+        auto y = ZZ_add(v, x); // ad+bc-bd
+        ret->y = ZZ_mod(y, a->modulo);
+        ZZ_destroy(t);
+        ZZ_destroy(u);
+        ZZ_destroy(v);
+        ZZ_destroy(w);
+        ZZ_destroy(x);
+        ZZ_destroy(y);
+      }
+      break;
+    }
+    ret->modulo = ZZ_copy(a->modulo);
+    ret->poly = a->poly;
+  } else {
+    ret->x = ZZ_create_from_mpz_class(-1);
+    ret->y = ZZ_create_from_mpz_class(-1);
+    ret->modulo = ZZ_create_from_mpz_class(-1);
+    ret->poly = IrreduciblePolynomialType::X2_1;
+  }
+  return ret;
+}
+
 __EXPORT__ bool EF_is_equals(const EF *a, const EF *b) {
   return (a->poly == b->poly) &&
     ZZ_is_equals(a->modulo, b->modulo) &&

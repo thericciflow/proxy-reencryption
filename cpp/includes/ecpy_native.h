@@ -80,4 +80,5 @@ __EXPORT__ {
   bool EF_to_string(const EF*, char*, int);
   bool EF_is_equals(const EF*, const EF*);
   EF *EF_add(const EF*, const EF*);
+  EF *EF_mul(const EF*, const EF*);
 }
