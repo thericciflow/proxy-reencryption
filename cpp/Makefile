@@ -4,7 +4,7 @@ LD       := g++
 LDFLAGS  := -lgmp -lgmpxx
 CFLAGS   := -Iincludes/
 OPTFLAGS := -O2 -Os -mtune=corei7 -mavx -g -fPIC -shared -std=c++11
-OBJS     := ecpy_native.o ZZ.o
+OBJS     := ecpy_native.o ZZ.o FF.o
 CP       := cp
 DESTDIR  := /usr/local/lib/
 SUDO     := sudo
