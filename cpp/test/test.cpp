@@ -1,4 +1,6 @@
 #include "ecpy_native.h"
+#include "ZZ_impl.h"
+#include "FF_impl.h"
 #include <stdexcept>
 #include <boost/format.hpp>
 using namespace std;
@@ -131,33 +133,37 @@ TEST(ef) {
   }
 }
 
+constexpr ZZ *to_ZZ_ptr(const g_object_t *ptr) {
+  return (ptr->type == ObjectType::ZZ) ? reinterpret_cast<ZZ*>(const_cast<g_object_t*>(ptr)) : nullptr;
+}
+
 TEST(ff) {
   auto x = FF_create("3", "7");
   auto y = FF_create_from_mpz_class(13, 7);
 
-  ES_ASSERT_EQ(x->x->x, 3);
+  ES_ASSERT_EQ(to_ZZ_ptr(x->x)->x, 3);
   // check modulo
-  ES_ASSERT_EQ(y->x->x, 6);
-  ES_ASSERT_NEQ(y->x->x, 13);
+  ES_ASSERT_EQ(to_ZZ_ptr(y->x)->x, 6);
+  ES_ASSERT_NEQ(to_ZZ_ptr(y->x)->x, 13);
   ES_ASSERT_EQ_FM(FF_to_string_as_std_string(x), "3 modulo 7", "str(x)");
   {
     auto z = FF_add(x, y);
-    ES_ASSERT_EQ_M(z->x->x, 2, "x+y");
+    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 2, "x+y");
     FF_destroy(z);
   }
   {
     auto z = FF_neg(x);
-    ES_ASSERT_EQ_M(z->x->x, 4, "-x");
+    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 4, "-x");
     FF_destroy(z);
   }
   {
     auto z = FF_mul(x, y);
-    ES_ASSERT_EQ_M(z->x->x, 4, "x*y");
+    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 4, "x*y");
     FF_destroy(z);
   }
   {
     auto z = FF_div(x, y);
-    ES_ASSERT_EQ_M(z->x->x, 4, "x/y");
+    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 4, "x/y");
     FF_destroy(z);
   }
   FF_destroy(x);

@@ -2,15 +2,6 @@
 
 using namespace std;
 
-IrreduciblePolynomialType EF_Detect_Polynomial(const ZZ *n) {
-  if (n->x % 4 == 3) {
-    return IrreduciblePolynomialType::X2_1;
-  } else if (n->x % 3 == 2 && n->x % 6 == 5 && is_prime((n->x + 1) / 6)) {
-    return IrreduciblePolynomialType::X2_X_1;
-  }
-  throw invalid_argument("cannot determine irreducible polynomial");
-}
-
 IrreduciblePolynomialType EF_Get_Polynomial(const char *poly_str) {
   auto poly_ = string(poly_str);
   transform(poly_.begin(), poly_.end(), poly_.begin(), ::tolower);
