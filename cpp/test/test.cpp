@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <boost/format.hpp>
 using namespace std;
+using namespace g_object;
 
 static int ac_count = 0;
 static int wa_count = 0;
@@ -50,189 +51,186 @@ void _ ## name ## _test()
 
 TEST(ef) {
   {
-    auto x = EF_create("3", "0", "7", "x^2+1");
-    auto y = EF_create_from_mpz_class(0, 5, 7, IrreduciblePolynomialType::X2_1);
+    auto x = AS_OBJECT(EF_create("3", "0", "7", "x^2+1"));
+    auto y = AS_OBJECT(EF_create_from_mpz_class(0, 5, 7, IrreduciblePolynomialType::X2_1));
+    auto r = to_FF(x);
 
-    ES_ASSERT_EQ_FM(EF_to_string_as_std_string(x),
+    ES_ASSERT_EQ_FM(to_std_string(x),
         "(3, 0) over Extended Field GF(7^2), Irreducible Polynomial: x^2 + 1",
         "str(x)");
 
     {
-      auto z = EF_add(x, y);
-      auto t = EF_create_from_mpz_class(3, 5, 7, IrreduciblePolynomialType::X2_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x+y = 3+5i");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = add(x, y);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(3, 5, 7, IrreduciblePolynomialType::X2_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "x+y = 3+5i");
+      destroy(z);
+      destroy(t);
     }
 
     {
-      auto z = EF_neg(x);
-      auto t = EF_create_from_mpz_class(4, 0, 7, IrreduciblePolynomialType::X2_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "-x = 4");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = neg(x);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(4, 0, 7, IrreduciblePolynomialType::X2_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "-x = 4");
+      destroy(z);
+      destroy(t);
     }
 
     {
-      auto z = EF_mul(x, y);
-      auto t = EF_create_from_mpz_class(0, 1, 7, IrreduciblePolynomialType::X2_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x*y = i");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = mul(x, y);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(0, 1, 7, IrreduciblePolynomialType::X2_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "x*y = i");
+      destroy(z);
+      destroy(t);
     }
 
     {
-      auto z = EF_inv(y);
-      auto t = EF_create_from_mpz_class(0, 4, 7, IrreduciblePolynomialType::X2_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "1/y = 4i");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = inv(y);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(0, 4, 7, IrreduciblePolynomialType::X2_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "1/y = 4i");
+      destroy(z);
+      destroy(t);
     }
 
-    EF_destroy(x);
-    EF_destroy(y);
+    destroy(x);
+    destroy(y);
   }
   {
-    auto x = EF_create("61", "0", "41", "x^2 + x + 1");
-    auto y = EF_create_from_mpz_class(0, 20, 41, IrreduciblePolynomialType::X2_X_1);
+    auto x = AS_OBJECT(EF_create("61", "0", "41", "x^2 + x + 1"));
+    auto y = AS_OBJECT(EF_create_from_mpz_class(0, 20, 41, IrreduciblePolynomialType::X2_X_1));
     {
-      auto t = EF_create_from_mpz_class(20, 0, 41, IrreduciblePolynomialType::X2_X_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(x, t), true, "modulo check");
-      EF_destroy(t);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(20, 0, 41, IrreduciblePolynomialType::X2_X_1));
+      ES_ASSERT_EQ_FM(equals(x, t), true, "modulo check");
+      destroy(t);
     }
     {
-      auto z = EF_add(x, y);
-      auto t = EF_create_from_mpz_class(20, 20, 41, IrreduciblePolynomialType::X2_X_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x+y = 30+20w");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = add(x, y);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(20, 20, 41, IrreduciblePolynomialType::X2_X_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "x+y = 30+20w");
+      destroy(z);
+      destroy(t);
     }
     {
-      auto z = EF_neg(x);
-      auto t = EF_create_from_mpz_class(21, 0, 41, IrreduciblePolynomialType::X2_X_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "-x = 21");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = neg(x);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(21, 0, 41, IrreduciblePolynomialType::X2_X_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "-x = 21");
+      destroy(z);
+      destroy(t);
     }
     {
-      auto z = EF_mul(x, y);
-      auto t = EF_create_from_mpz_class(0, 31, 41, IrreduciblePolynomialType::X2_X_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "x*y = 31w");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = mul(x, y);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(0, 31, 41, IrreduciblePolynomialType::X2_X_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "x*y = 31w");
+      destroy(z);
+      destroy(t);
     }
     {
-      auto z = EF_inv(y);
-      auto t = EF_create_from_mpz_class(2, 2, 41, IrreduciblePolynomialType::X2_X_1);
-      ES_ASSERT_EQ_FM(EF_is_equals(z, t), true, "1/y = 2+2w");
-      EF_destroy(z);
-      EF_destroy(t);
+      auto z = inv(y);
+      auto t = AS_OBJECT(EF_create_from_mpz_class(2, 2, 41, IrreduciblePolynomialType::X2_X_1));
+      ES_ASSERT_EQ_FM(equals(z, t), true, "1/y = 2+2w");
+      destroy(z);
+      destroy(t);
     }
 
-    EF_destroy(x);
-    EF_destroy(y);
+    destroy(x);
+    destroy(y);
   }
-}
-
-constexpr ZZ *to_ZZ_ptr(const g_object_t *ptr) {
-  return (ptr->type == ObjectType::ZZ) ? reinterpret_cast<ZZ*>(const_cast<g_object_t*>(ptr)) : nullptr;
 }
 
 TEST(ff) {
-  auto x = FF_create("3", "7");
-  auto y = FF_create_from_mpz_class(13, 7);
+  auto x = AS_OBJECT(FF_create("3", "7"));
+  auto y = AS_OBJECT(FF_create_from_mpz_class(13, 7));
 
-  ES_ASSERT_EQ(to_ZZ_ptr(x->x)->x, 3);
+  ES_ASSERT_EQ_M(to_ZZ(to_FF(x)->x)->x, 3, "x");
   // check modulo
-  ES_ASSERT_EQ(to_ZZ_ptr(y->x)->x, 6);
-  ES_ASSERT_NEQ(to_ZZ_ptr(y->x)->x, 13);
-  ES_ASSERT_EQ_FM(FF_to_string_as_std_string(x), "3 modulo 7", "str(x)");
+  ES_ASSERT_EQ_M(to_ZZ(to_FF(y)->x)->x, 6, "y");
+  ES_ASSERT_NEQ_M(to_ZZ(to_FF(y)->x)->x, 13, "y");
+  ES_ASSERT_EQ_FM(to_std_string(x), "3 modulo 7", "str(x)");
   {
-    auto z = FF_add(x, y);
-    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 2, "x+y");
-    FF_destroy(z);
+    auto z = add(x, y);
+    ES_ASSERT_EQ_M(to_ZZ(to_FF(z)->x)->x, 2, "x+y");
+    destroy(z);
   }
   {
-    auto z = FF_neg(x);
-    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 4, "-x");
-    FF_destroy(z);
+    auto z = neg(x);
+    ES_ASSERT_EQ_M(to_ZZ(to_FF(z)->x)->x, 4, "-x");
+    destroy(z);
   }
   {
-    auto z = FF_mul(x, y);
-    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 4, "x*y");
-    FF_destroy(z);
+    auto z = mul(x, y);
+    ES_ASSERT_EQ_M(to_ZZ(to_FF(z)->x)->x, 4, "x*y");
+    destroy(z);
   }
   {
-    auto z = FF_div(x, y);
-    ES_ASSERT_EQ_M(to_ZZ_ptr(z->x)->x, 4, "x/y");
-    FF_destroy(z);
+    auto z = div(x, y);
+    ES_ASSERT_EQ_M(to_ZZ(to_FF(z)->x)->x, 4, "x/y");
+    destroy(z);
   }
-  FF_destroy(x);
-  FF_destroy(y);
+  destroy(x);
+  destroy(y);
 }
 
 TEST(zz) {
-  auto x = ZZ_create("3");
-  auto y = ZZ_create_from_mpz_class(9);
-  ES_ASSERT_EQ(x->x, 3);
-  ES_ASSERT_EQ(y->x, 9);
-  ES_ASSERT_EQ_FM(ZZ_to_string_as_std_string(x), "3", "str(x)==3");
+  auto x = AS_OBJECT(ZZ_create("3"));
+  auto y = AS_OBJECT(ZZ_create_from_mpz_class(9));
+  ES_ASSERT_EQ(to_ZZ(x)->x, 3);
+  ES_ASSERT_EQ(to_ZZ(y)->x, 9);
+  ES_ASSERT_EQ_FM(to_std_string(x), "3", "str(x)==3");
   {
-    auto z = ZZ_add(x, y);
-    ES_ASSERT_EQ_M(z->x, 12, "x+y");
-    ZZ_destroy(z);
+    auto z = add(x, y);
+    ES_ASSERT_EQ_M(to_ZZ(z)->x, 12, "x+y");
+    destroy(z);
   }
   {
-    auto z = ZZ_neg(x);
-    ES_ASSERT_EQ_M(z->x, -3, "x-y");
-    ZZ_destroy(z);
+    auto z = neg(x);
+    ES_ASSERT_EQ_M(to_ZZ(z)->x, -3, "x-y");
+    destroy(z);
   }
   {
-    auto z = ZZ_mul(x, y);
-    ES_ASSERT_EQ_M(z->x, 27, "x*y");
-    ZZ_destroy(z);
+    auto z = mul(x, y);
+    ES_ASSERT_EQ_M(to_ZZ(z)->x, 27, "x*y");
+    destroy(z);
   }
   {
-    auto z = ZZ_div(y, x);
-    ES_ASSERT_EQ_M(z->x, 3, "y/x");
-    ZZ_destroy(z);
+    auto z = div(y, x);
+    ES_ASSERT_EQ_M(to_ZZ(z)->x, 3, "y/x");
+    destroy(z);
   }
   {
-    auto a = ZZ_create_from_mpz_class(24);
-    auto b = ZZ_create_from_mpz_class(17);
-    auto z = ZZ_mod(a, b);
-    ES_ASSERT_EQ_M(z->x, 7, "a%b");
-    ZZ_destroy(a);
-    ZZ_destroy(b);
-    ZZ_destroy(z);
+    auto a = AS_OBJECT(ZZ_create_from_mpz_class(24));
+    auto b = AS_OBJECT(ZZ_create_from_mpz_class(17));
+    auto z = mod(a, b);
+    ES_ASSERT_EQ_M(to_ZZ(z)->x, 7, "a%b");
+    destroy(a);
+    destroy(b);
+    destroy(z);
   }
   {
     auto a = ZZ_create_from_mpz_class(7);
     auto b = ZZ_create_from_mpz_class(17);
     auto z = ZZ_modinv(a, b);
     ES_ASSERT_EQ_FM(z->x, 5, "1/a mod b");
-    ZZ_destroy(a);
-    ZZ_destroy(b);
-    ZZ_destroy(z);
+    destroy(AS_OBJECT(a));
+    destroy(AS_OBJECT(b));
+    destroy(AS_OBJECT(z));
   }
   {
     auto a = ZZ_create_from_mpz_class(12345);
     auto b = ZZ_create_from_mpz_class(331);
     auto z = ZZ_legendre(a, b);
     ES_ASSERT_EQ_FM(z, -1, "(12345|331) = -1");
-    ZZ_destroy(a);
-    ZZ_destroy(b);
+    destroy(AS_OBJECT(a));
+    destroy(AS_OBJECT(b));
   }
   {
     auto a = ZZ_create_from_mpz_class(1001);
     auto b = ZZ_create_from_mpz_class(9907);
     auto z = ZZ_jacobi(a, b);
     ES_ASSERT_EQ_FM(z, -1, "(1001|9907) = -1");
-    ZZ_destroy(a);
-    ZZ_destroy(b);
+    destroy(AS_OBJECT(a));
+    destroy(AS_OBJECT(b));
   }
-  ZZ_destroy(x);
-  ZZ_destroy(y);
+  destroy(x);
+  destroy(y);
 }
 
 void exec_test() {

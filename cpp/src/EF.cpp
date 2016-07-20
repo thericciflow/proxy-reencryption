@@ -4,7 +4,7 @@
 using namespace std;
 using namespace g_object;
 
-MAKE_FUNC_TABLE(_ef_func, EF_destroy, EF_add, EF_neg, EF_mul, nullptr, EF_inv, nullptr, EF_is_equals, nullptr, EF_to_string_as_std_string, nullptr);
+MAKE_FUNC_TABLE(_ef_func, EF_destroy, EF_add, EF_neg, EF_mul, nullptr, EF_inv, nullptr, EF_is_equals, EF_is_same_type, EF_to_string_as_std_string, nullptr);
 
 IrreduciblePolynomialType EF_Get_Polynomial(const char *poly_str) {
   auto poly_ = string(poly_str);
@@ -115,10 +115,12 @@ __EXPORT__ EF *EF_neg(const EF *a) {
 
 __EXPORT__ EF *EF_mul(const EF *a, const EF *b) {
   EF *ret = new EF;
-    auto i = a->x;
-    auto j = a->y;
-    auto k = b->x;
-    auto l = b->y;
+  ret->type = ObjectType::EF;
+  ret->functions = _ef_func;
+  auto i = a->x;
+  auto j = a->y;
+  auto k = b->x;
+  auto l = b->y;
   if (a->poly == b->poly && equals(a->modulo, b->modulo)) {
     switch (a->poly) {
     case IrreduciblePolynomialType::X2_1:
@@ -185,6 +187,8 @@ __EXPORT__ EF *EF_mul(const EF *a, const EF *b) {
 
 __EXPORT__ EF *EF_inv(const EF *x) {
   EF *ret = new EF;
+  ret->type = ObjectType::EF;
+  ret->functions = _ef_func;
   auto a = x->x;
   auto b = x->y;
   auto r = mul(a, a); // a^2
@@ -251,6 +255,11 @@ __EXPORT__ bool EF_is_equals(const EF *a, const EF *b) {
     equals(a->modulo, b->modulo) &&
     equals(a->x, b->x) &&
     equals(a->y, b->y);
+}
+
+bool EF_is_same_type(const g_object_t *a, const g_object_t *b) {
+  return (a->type == b->type && a->type == ObjectType::EF &&
+      to_EF(a)->poly == to_EF(b)->poly && equals(to_EF(a)->modulo, to_EF(b)->modulo));
 }
 
 __EXPORT__ bool EF_to_string(const EF *ef, char *p, int maxlen) {

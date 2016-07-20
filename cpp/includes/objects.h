@@ -1,5 +1,6 @@
 #pragma once
 #include "ecpy_native.h"
+#include <assert.h>
 
 #define MAKE_FUNC_TABLE(var, \
     _destroy, _add, _neg, _mul, _div, _inv, \
@@ -79,8 +80,8 @@ namespace g_object {
   OP(to_std_string, std::string)
   OP(copy, LPOBJ)
 
-#define MAKE_TO_TYPE(totype) constexpr totype *to_##totype (g_object_t *ptr) { \
-  return (ptr->type == ObjectType::totype) ? reinterpret_cast<totype*>(ptr) : nullptr; \
+#define MAKE_TO_TYPE(totype) constexpr totype *to_##totype (const g_object_t *ptr) { \
+  return (ptr->type == ObjectType::totype) ? reinterpret_cast<totype *>(const_cast<g_object_t*>(ptr)) : throw std::logic_error("Invalid Pointer: ptr->type != ObjectType::" #totype);\
 }
 
   MAKE_TO_TYPE(ZZ)

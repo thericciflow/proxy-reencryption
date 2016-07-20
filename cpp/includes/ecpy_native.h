@@ -39,5 +39,6 @@ IrreduciblePolynomialType EF_Detect_Polynomial(const ZZ*);
 IrreduciblePolynomialType EF_Get_Polynomial(const char*);
 EF *EF_create_from_mpz_class(mpz_class, mpz_class, mpz_class, IrreduciblePolynomialType);
 std::string EF_to_string_as_std_string(const EF*);
+bool EF_is_same_type(const g_object_t*, const g_object_t*);
 
 #include "exports.h"
