@@ -68,5 +68,11 @@ __EXPORT__ bool EC_is_equals(const EC *a, const EC *b) {
 }
 
 bool EC_is_same_type(const g_object_t *a, const g_object_t *b) {
-  return a->type == b->type && (a->type == ObjectType::EC_FF) ? (to_EC_FF(a)->type == to_EC_FF(b)->type) : (a->type == ObjectType::EC_EF) ? (to_EC_EF(a)->type == to_EC_EF(b)->type) : false;
+  return a->type == b->type && (a->type == ObjectType::EC_FF) ?
+    (to_EC_FF(a)->type == to_EC_FF(b)->type) :
+        (
+         (a->type == ObjectType::EC_EF) ?
+            (to_EC_EF(a)->type == to_EC_EF(b)->type) :
+        false
+        );
 }

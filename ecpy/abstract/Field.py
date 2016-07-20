@@ -1,8 +1,26 @@
 from ecpy.abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 
-class Field(AdditiveGroup):
+class Field(object):
   def __init__(s, element_class):
     s.element_class = element_class
+
+  def __repr__(s):
+    return "%s()" % s.__class__.__name__
+
+  def __str__(s):
+    return s.__class__.__name__
+
+  def __call__(s, *x):
+    return s.element_class(s, *x)
+
+  def _add(s, a, b):
+    raise NotImplementedError()
+
+  def _neg(s, a, b):
+    raise NotImplementedError()
+
+  def _equ(s, a, b):
+    raise NotImplementedError()
 
   def _mul(s, a, b):
     raise NotImplementedError()
@@ -16,11 +34,18 @@ class Field(AdditiveGroup):
   def _div(s, a, b):
     return s._mul(a, (s._inv(b)))
 
+  def order(s):
+    return 0
+
+  def _ord(s, a):
+    return 0
+
+
   def degree(s):
     return 1
 
 
-class FieldElement(AdditiveGroupElement):
+class FieldElement(object):
   def __init__(s, field, x):
     s.group = s.field = field
     s.x = x
@@ -71,3 +96,54 @@ class FieldElement(AdditiveGroupElement):
 
   def __len__(s):
     return 1
+
+  def order(s):
+    return s.group._ord(tuple(s))
+
+  def int(s):
+    return int(s.x)
+
+  def __add__(s, rhs):
+    return s.group._add(tuple(s), s._to_tuple(rhs))
+
+  def __sub__(s, rhs):
+    return s.group._add(tuple(s), s._to_tuple(-rhs))
+
+  def __neg__(s):
+    return s.group._neg(tuple(s))
+
+  def __radd__(s, lhs):
+    return s + lhs
+
+  def __rsub__(s, lhs):
+    return -s + lhs
+
+  def __ne__(s, rhs):
+    return not (s == rhs)
+
+  def __eq__(s, rhs):
+    return s.group._equ(tuple(s), s._to_tuple(rhs))
+
+  def __repr__(s):
+    return "%r(%s)" % (s.group, s.x)
+
+  def __str__(s):
+    return "%s" % s.x
+
+  def _to_tuple(s, d):
+    if isinstance(d, s.__class__):
+      return tuple(d)
+    elif isinstance(d, tuple):
+      return d
+    else:
+      return (d, )
+
+  def __iter__(s):
+    return (s.x, ).__iter__()
+
+  def __int__(s):
+    return s.int()
+
+  def __hash__(s):
+    return s.x
+
