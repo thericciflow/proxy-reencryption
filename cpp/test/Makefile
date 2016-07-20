@@ -11,6 +11,7 @@ vpath %.o ../bin/
 .PHONY: all
 all: bin/test
 	valgrind -v ./bin/test
+	sudo ldconfig
 	$(PYTHON) test.py
 
 bin/test: bin/test.o $(OBJS)
