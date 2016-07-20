@@ -2,6 +2,7 @@
 #include "FF_impl.h"
 
 using namespace std;
+using namespace g_object;
 
 MAKE_FUNC_TABLE(_ff_func, FF_destroy, FF_add, FF_neg, FF_mul, FF_div, nullptr, FF_mod, FF_is_equals, FF_is_same_type, FF_to_string_as_std_string, nullptr);
 
@@ -20,14 +21,14 @@ __EXPORT__ FF *FF_create(const char *x, const char *p) {
   ff->functions = _ff_func;
   ff->p = AS_OBJECT(ZZ_create(p));
   auto t = AS_OBJECT(ZZ_create(x));
-  ff->x = INVOKE(t, mod, ff->p);
-  INVOKESIMPLE(t, destroy);
+  ff->x = mod(t, ff->p);
+  destroy(t);
   return ff;
 }
 
 __EXPORT__ void FF_destroy(const FF *ff) {
-  INVOKESIMPLE(ff->x, destroy);
-  INVOKESIMPLE(ff->p, destroy);
+  destroy(ff->x);
+  destroy(ff->p);
   delete ff;
 }
 
@@ -35,11 +36,11 @@ __EXPORT__ FF *FF_add(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  ret->p = INVOKESIMPLE(a->p, copy);
-  if (INVOKE(a, is_same_type, b)) {
-    auto t = INVOKE(a->x, add, b->x);
-    ret->x = INVOKE(t, mod, a->p);
-    INVOKESIMPLE(t, destroy);
+  ret->p = copy(a->p);
+  if (is_same_type(AS_OBJECT(const_cast<FF*>(a)), AS_OBJECT(const_cast<FF*>(b)))) {
+    auto t = add(a->x, b->x);
+    ret->x = mod(t, a->p);
+    destroy(t);
   } else {
     ret->x = AS_OBJECT(ZZ_create("-1"));
     ret->p = AS_OBJECT(ZZ_create("-1"));
@@ -51,10 +52,10 @@ __EXPORT__ FF *FF_neg(const FF *a) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  auto t = INVOKESIMPLE(a->x, neg);
-  ret->x = INVOKE(t, add, a->p);
-  ret->p = INVOKESIMPLE(a->p, copy);
-  INVOKESIMPLE(t, destroy);
+  auto t = neg(a->x);
+  ret->x = add(t, a->p);
+  ret->p = copy(a->p);
+  destroy(t);
   return ret;
 }
 
@@ -62,11 +63,11 @@ __EXPORT__ FF *FF_mul(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  ret->p = INVOKESIMPLE(a->p, copy);
-  if (INVOKE(a->p, equals, b->p)) {
-    auto t = INVOKE(a->x, mul, b->x);
-    ret->x = INVOKE(t, mod, a->p);
-    INVOKESIMPLE(t, destroy);
+  ret->p = copy(a->p);
+  if (equals(a->p, b->p)) {
+    auto t = mul(a->x, b->x);
+    ret->x = mod(t, a->p);
+    destroy(t);
   } else {
     ret->x = AS_OBJECT(ZZ_create_from_mpz_class(-1));
     ret->p = AS_OBJECT(ZZ_create_from_mpz_class(-1));
@@ -78,13 +79,13 @@ __EXPORT__ FF *FF_div(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  ret->p = INVOKESIMPLE(a->p, copy);
-  if (INVOKE(a->p, is_same_type, b->p) && b->x->type == ObjectType::ZZ && a->p->type == ObjectType::ZZ) {
-    auto t = ZZ_modinv((ZZ*)b->x, (ZZ*)a->p);
-    auto u = INVOKE(a->x, mul, t);
-    ret->x = INVOKE(u, mod, a->p);
-    INVOKESIMPLE(t, destroy);
-    INVOKESIMPLE(u, destroy);
+  ret->p = copy(a->p);
+  if (is_same_type(a->p, b->p)) {
+    auto t = AS_OBJECT(ZZ_modinv(to_ZZ(b->x), to_ZZ(a->p)));
+    auto u = mul(a->x, t);
+    ret->x = mod(u, a->p);
+    destroy(t);
+    destroy(u);
   } else {
     ret->x = AS_OBJECT(ZZ_create_from_mpz_class(-1));
     ret->p = AS_OBJECT(ZZ_create_from_mpz_class(-1));
@@ -96,8 +97,8 @@ __EXPORT__ FF *FF_mod(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  ret->p = INVOKESIMPLE(a->p, copy);
-  ret->x = INVOKE(a->x, mod, b->x);
+  ret->p = copy(a->p);
+  ret->x = mod(a->x, b->x);
   return ret;
 }
 
@@ -127,15 +128,15 @@ string FF_to_raw_string_as_std_string(const FF *ff) {
 
 string FF_to_string_as_std_string(const FF *ff) {
   stringstream ss;
-  ss << INVOKESIMPLE(ff->x, to_std_string) << " modulo " << INVOKESIMPLE(ff->p, to_std_string);
+  ss << to_std_string(ff->x) << " modulo " << to_std_string(ff->p);
   return ss.str();
 }
 
 __EXPORT__ bool FF_is_equals(const FF *ee, const FF *ff) {
-  return INVOKE(ee->x, equals, ff->x) && INVOKE(ee->p, equals, ff->p);
+  return equals(ee->x, ff->x) && equals(ee->p, ff->p);
 }
 
 bool FF_is_same_type(const g_object_t *ee, const g_object_t *ff) {
   return ee->type == ff->type && ff->type == ObjectType::FF
-    && INVOKE(((FF*)ff)->p, equals, ((FF*)ee)->p);
+    && equals(to_FF(const_cast<g_object_t*>(ee))->p, to_FF(const_cast<g_object_t*>(ff))->p);
 }

@@ -1,10 +1,12 @@
 #pragma once
 #include "ecpy_native.h"
 
-struct ZZ {
+struct EF {
   const methods_t *functions;
   ObjectType type;
-  mpz_class x;
+  IrreduciblePolynomialType poly;
+  g_object_t *modulo;
+  g_object_t *x, *y;
 };
 
 

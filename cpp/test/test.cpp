@@ -1,6 +1,7 @@
 #include "ecpy_native.h"
 #include "ZZ_impl.h"
 #include "FF_impl.h"
+#include "EF_impl.h"
 #include <stdexcept>
 #include <boost/format.hpp>
 using namespace std;

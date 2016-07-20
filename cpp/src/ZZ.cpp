@@ -2,6 +2,7 @@
 #include "ZZ_impl.h"
 
 using namespace std;
+using namespace g_object;
 
 MAKE_FUNC_TABLE(_zz_func, ZZ_destroy, ZZ_add, ZZ_neg, ZZ_mul, ZZ_div, nullptr, ZZ_mod, ZZ_is_equals, ZZ_is_same_type, ZZ_to_string_as_std_string, ZZ_copy);
 
