@@ -17,21 +17,25 @@ enum struct IrreduciblePolynomialType : unsigned int {
   X2_X_1, /* x^2+x+1 */
 };
 
+enum struct EC_Type {
+  FF, /* on Finite field */
+  EF, /* on Extended Finite Field */
+};
+
 struct ZZ;
 struct FF;
 struct EF;
+struct EC;
 
 #include "objects.h"
 
 ZZ *ZZ_create_from_mpz_class(mpz_class);
 std::string ZZ_to_string_as_std_string(const ZZ *zz);
 ZZ *ZZ_copy(ZZ*);
-bool ZZ_is_same_type(const g_object_t*, const g_object_t*);
 
 FF *FF_create_from_mpz_class(mpz_class, mpz_class);
 std::string FF_to_string_as_std_string(const FF*);
 std::string FF_to_raw_string_as_std_string(const FF*);
-bool FF_is_same_type(const g_object_t*, const g_object_t*);
 
 bool is_prime(mpz_class);
 
@@ -39,6 +43,12 @@ IrreduciblePolynomialType EF_Detect_Polynomial(const ZZ*);
 IrreduciblePolynomialType EF_Get_Polynomial(const char*);
 EF *EF_create_from_mpz_class(mpz_class, mpz_class, mpz_class, IrreduciblePolynomialType);
 std::string EF_to_string_as_std_string(const EF*);
+
+std::string EC_to_std_string(const EC*);
+
+bool ZZ_is_same_type(const g_object_t*, const g_object_t*);
+bool FF_is_same_type(const g_object_t*, const g_object_t*);
 bool EF_is_same_type(const g_object_t*, const g_object_t*);
+bool EC_is_same_type(const g_object_t*, const g_object_t*);
 
 #include "exports.h"

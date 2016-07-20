@@ -2,6 +2,7 @@
 #include "ZZ_impl.h"
 #include "FF_impl.h"
 #include "EF_impl.h"
+#include "EC_impl.h"
 #include <stdexcept>
 #include <boost/format.hpp>
 using namespace std;
@@ -49,11 +50,16 @@ static int wa_count = 0;
 } \
 void _ ## name ## _test()
 
+TEST(ec) {
+  auto E = AS_OBJECT(EC_create("0", "1", "FF"));
+  cout << to_std_string(E) << endl;
+  destroy(E);
+}
+
 TEST(ef) {
   {
     auto x = AS_OBJECT(EF_create("3", "0", "7", "x^2+1"));
     auto y = AS_OBJECT(EF_create_from_mpz_class(0, 5, 7, IrreduciblePolynomialType::X2_1));
-    auto r = to_FF(x);
 
     ES_ASSERT_EQ_FM(to_std_string(x),
         "(3, 0) over Extended Field GF(7^2), Irreducible Polynomial: x^2 + 1",
@@ -237,6 +243,7 @@ void exec_test() {
   zz_test();
   ff_test();
   ef_test();
+  ec_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count

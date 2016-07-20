@@ -34,4 +34,8 @@ __EXPORT__ {
   EF *EF_neg(const EF*);
   EF *EF_mul(const EF*, const EF*);
   EF *EF_inv(const EF*);
+
+  EC *EC_create(const char*, const char*, const char*);
+  void EC_destroy(const EC*);
+  bool EC_is_equals(const EC*, const EC*);
 }
