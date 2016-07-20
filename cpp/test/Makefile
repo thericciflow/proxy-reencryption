@@ -1,7 +1,8 @@
 CC       := g++
 LD       := g++
 CFLAGS   := -I../includes/
-OPTFLAGS := -O3 -Os -mtune=corei7 -mavx -g -std=c++11
+OPTFLAGS := -O3 -Os -mtune=corei7 -mavx 
+GFLAGS   := -g -std=c++11
 PYTHON   := python
 
 
@@ -13,7 +14,7 @@ all: bin/test
 	$(PYTHON) test.py
 
 bin/test: bin/test.o $(OBJS)
-	$(LD) -o bin/test $(OPTFLAGS) $^ $(LDFLAGS)
+	$(LD) -o bin/test $(GFLAGS) $(OPTFLAGS) $^ $(LDFLAGS)
 
 bin/%.o: %.cpp ../bin/*
-	$(CC) -o $@ -c $< $(OPTFLAGS) $(CFLAGS)
+	$(CC) -o $@ -c $< $(OPTFLAGS) $(CFLAGS) $(GFLAGS)

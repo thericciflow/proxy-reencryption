@@ -9,4 +9,4 @@ install: "pip install ."
 script:
   - "python ./scripts/test.py"
   - "cd cpp"
-  - "make CC=g++-4.8 LD=g++-4.8 test"
+  - "make CC=g++-4.8 LD=g++-4.8 OPTFLAGS= test"
