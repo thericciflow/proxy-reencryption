@@ -4,8 +4,10 @@
 #include <random>
 #include <vector>
 #include <sstream>
+#include <numeric>
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 #include <gmp.h>
 #include <gmpxx.h>
