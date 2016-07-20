@@ -253,5 +253,5 @@ void exec_test() {
 
 int main(int ac, char **av) {
   exec_test();
-  return 0;
+  return wa_count;
 }
