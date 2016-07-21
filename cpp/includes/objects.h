@@ -25,6 +25,7 @@
 #define INVOKESIMPLE(instance, func) FTBL(instance)->func(instance)
 
 #define AS_OBJECT(x) reinterpret_cast<g_object_t*>(x)
+#define AS_OBJECT_CONST(x) reinterpret_cast<const g_object_t*>(x)
 
 struct g_object_t;
 using __vp = void*;
@@ -39,7 +40,8 @@ enum struct ObjectType : unsigned int {
   EF,
   EC_FF,
   EC_EF,
-  EP,
+  EP_FF,
+  EP_EF,
 };
 
 struct methods_t {
@@ -63,22 +65,30 @@ struct g_object_t {
 
 namespace g_object {
 
-  using LPOBJ = g_object_t*;
-
-#define BINOP(op, ret) inline constexpr ret op(const LPOBJ a, const LPOBJ b) { return INVOKE(a, op, b); }
-#define OP(op, ret) inline ret op(const LPOBJ a) { return INVOKESIMPLE(a, op); }
+#define BINOP(op, ret) inline ret op(const g_object_t *a, const g_object_t *b) {\
+  if (FTBL(a)->op == nullptr) {\
+    throw std::runtime_error("Not Implemented Function Call: " # op);\
+  }\
+  return INVOKE(a, op, b);\
+}
+#define OP(op, ret) inline ret op(const g_object_t *a) {\
+  if (FTBL(a)->op == nullptr) {\
+    throw std::runtime_error("Not Implemented Function Call: " # op);\
+  }\
+  return INVOKESIMPLE(a, op);\
+}
 
   OP(destroy, void)
-  BINOP(add, LPOBJ)
-  OP(neg, LPOBJ)
-  BINOP(mul, LPOBJ)
-  BINOP(div, LPOBJ)
-  OP(inv, LPOBJ)
-  BINOP(mod, LPOBJ)
+  BINOP(add, g_object_t *)
+  OP(neg, g_object_t *)
+  BINOP(mul, g_object_t *)
+  BINOP(div, g_object_t *)
+  OP(inv, g_object_t *)
+  BINOP(mod, g_object_t *)
   BINOP(equals, bool)
   BINOP(is_same_type, bool)
   OP(to_std_string, std::string)
-  OP(copy, LPOBJ)
+  OP(copy, g_object_t *)
 
 #define MAKE_TO_TYPE2(totype, objtype) constexpr totype *to_##objtype (const g_object_t *ptr) { \
   return (ptr->type == ObjectType::objtype) ? reinterpret_cast<totype *>(const_cast<g_object_t*>(ptr)) : throw std::logic_error("Invalid Pointer: ptr->type != ObjectType::" #objtype);\
@@ -90,4 +100,6 @@ namespace g_object {
   MAKE_TO_TYPE(EF)
   MAKE_TO_TYPE2(EC, EC_FF)
   MAKE_TO_TYPE2(EC, EC_EF)
+  MAKE_TO_TYPE2(EP, EP_FF)
+  MAKE_TO_TYPE2(EP, EP_EF)
 };

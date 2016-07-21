@@ -28,6 +28,7 @@ struct ZZ;
 struct FF;
 struct EF;
 struct EC;
+struct EP;
 
 #include "objects.h"
 
@@ -48,9 +49,13 @@ std::string EF_to_string_as_std_string(const EF*);
 
 std::string EC_to_std_string(const EC*);
 
+std::string EP_to_std_string(const EP*);
+EP *EP_copy(const EP*);
+
 bool ZZ_is_same_type(const g_object_t*, const g_object_t*);
 bool FF_is_same_type(const g_object_t*, const g_object_t*);
 bool EF_is_same_type(const g_object_t*, const g_object_t*);
 bool EC_is_same_type(const g_object_t*, const g_object_t*);
+bool EP_is_same_type(const g_object_t*, const g_object_t*);
 
 #include "exports.h"

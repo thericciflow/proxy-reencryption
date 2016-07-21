@@ -52,7 +52,10 @@ void _ ## name ## _test()
 
 TEST(ec) {
   auto E = AS_OBJECT(EC_create("0", "1", "FF"));
-  cout << to_std_string(E) << endl;
+  ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Finite Field: y^2 = x^3 + 1", "str(E)");
+  auto P = AS_OBJECT(EP_FF_create(to_EC_FF(E), "0", "1", "1", "7"));
+  cout << to_std_string(P) << endl;
+  destroy(P);
   destroy(E);
 }
 
