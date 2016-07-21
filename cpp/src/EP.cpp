@@ -1,14 +1,15 @@
 #include "ecpy_native.h"
+#include <cassert>
 #include "EP_impl.h"
 #include "EC_impl.h"
 #include "EF_impl.h"
 #include "FF_impl.h"
-#include <cassert>
+#include "ZZ_impl.h"
 
 using namespace std;
 using namespace g_object;
 
-MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
+MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, EP_FF_add, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
 MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
 
 __EXPORT__ EP *EP_FF_create_with_FF(const EC *ec, const FF *x, const FF *y, const FF *z) {
@@ -79,6 +80,13 @@ __EXPORT__ void EP_destroy(EP *ep) {
   delete ep;
 }
 
+bool EP_is_infinity(const EP *ep) {
+  auto x = to_ZZ(to_FF(ep->x)->x)->x;
+  auto y = to_ZZ(to_FF(ep->y)->x)->x;
+  auto z = to_ZZ(to_FF(ep->z)->x)->x;
+  return x == z && y == 1 && x == 0;
+}
+
 bool EP_equals(const EP *ep, const EP *fp) {
   if (is_same_type(AS_OBJECT_CONST(ep), AS_OBJECT_CONST(fp))) {
     auto t = mul(ep->x, fp->y);  // x(P) * y(Q)
@@ -125,4 +133,51 @@ EP *EP_copy(const EP *ep) {
   ret->z = copy(ep->z);
   ret->u = ep->u;
   return ret;
+}
+
+__EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
+  assert(is_same_type(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b)));
+  auto Px = static_cast<mpz_class>(to_ZZ(to_FF(a->x)->x)->x);
+  auto Py = static_cast<mpz_class>(to_ZZ(to_FF(a->y)->x)->x);
+  auto Pz = static_cast<mpz_class>(to_ZZ(to_FF(a->z)->x)->x);
+  auto Qx = to_ZZ(to_FF(b->x)->x)->x;
+  auto Qy = to_ZZ(to_FF(b->y)->x)->x;
+  auto Qz = to_ZZ(to_FF(b->z)->x)->x;
+  auto p = to_ZZ(a->u.FF.p)->x;
+  if (EP_is_infinity(a)) {
+    return to_EP_FF(copy(AS_OBJECT_CONST(b)));
+  } else if (EP_is_infinity(b)) {
+    return to_EP_FF(copy(AS_OBJECT_CONST(a)));
+  }
+  if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) { // Point doubling
+    auto X = Px;
+    auto Y = Py;
+    auto Z = Pz;
+    auto u = static_cast<mpz_class>((3 * X * X + to_ZZ(a->curve->a)->x * Z * Z) % p);
+    auto v = static_cast<mpz_class>((Y * Z) % p);
+    auto a = static_cast<mpz_class>((Y * v) % p);
+    auto w = static_cast<mpz_class>((u * u - 8 * X * a) % p);
+    auto Rx = FF_create_from_mpz_class(2 * v * w,  p);
+    auto Ry = FF_create_from_mpz_class(u * (4 * X * a - w) - 8 * a * a, p);
+    auto Rz = FF_create_from_mpz_class(8 * v * v * v,  p);
+    auto ret = EP_FF_create_with_FF(b->curve, Rx, Ry, Rz);
+    destroy(AS_OBJECT(Rx));
+    destroy(AS_OBJECT(Ry));
+    destroy(AS_OBJECT(Rz));
+    return ret;
+  } else {
+    auto u = static_cast<mpz_class>((Qy * Pz - Py * Qz) % p);
+    auto v = static_cast<mpz_class>((Qx * Pz - Px * Qz) % p);
+    auto v2 = static_cast<mpz_class>((v * v) % p);
+    auto v3 = static_cast<mpz_class>((v2 * v) % p);
+    auto w = static_cast<mpz_class>((u * u * Pz * Qz - v3 - 2 * v2 * Px * Qz) % p);
+    auto Rx = FF_create_from_mpz_class(v * w, p);
+    auto Ry = FF_create_from_mpz_class(u * (v2 * Px * Qz - w) - v3 * Py * Qz, p);
+    auto Rz = FF_create_from_mpz_class(v3 * Pz * Qz, p);
+    auto ret = EP_FF_create_with_FF(b->curve, Rx, Ry, Rz);
+    destroy(AS_OBJECT(Rx));
+    destroy(AS_OBJECT(Ry));
+    destroy(AS_OBJECT(Rz));
+    return ret;
+  }
 }

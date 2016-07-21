@@ -9,6 +9,10 @@ MAKE_FUNC_TABLE(_ff_func, FF_destroy, FF_add, FF_neg, FF_mul, FF_div, nullptr, F
 FF *FF_create_from_mpz_class(mpz_class x, mpz_class p) {
   FF *ff = new FF;
   ff->p = AS_OBJECT(ZZ_create_from_mpz_class(p));
+  x %= p;
+  if (x < p) {
+    x += p;
+  }
   ff->x = AS_OBJECT(ZZ_create_from_mpz_class(x % p));
   ff->type = ObjectType::FF;
   ff->functions = _ff_func;

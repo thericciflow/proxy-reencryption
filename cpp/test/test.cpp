@@ -62,6 +62,20 @@ TEST(ec) {
     ES_ASSERT_NEQ_FM(equals(P, Q), true, "P != Q");
     ES_ASSERT_EQ_FM(equals(P, P), true, "P == P");
     ES_ASSERT_EQ_FM(equals(Q, Q), true, "Q == Q");
+    {
+      auto R = add(P, Q);
+      auto Z = AS_OBJECT(EP_FF_create(to_EC_FF(E), "6", "3", "6", "7"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+Q=(6:3:6)");
+      destroy(R);
+      destroy(Z);
+    }
+    {
+      auto R = add(P, P);
+      auto Z = AS_OBJECT(EP_FF_create(to_EC_FF(E), "0", "6", "1", "7"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+P=(0:6:1)");
+      destroy(R);
+      destroy(Z);
+    }
     destroy(x);
     destroy(y);
     destroy(z);
@@ -81,6 +95,18 @@ TEST(ec) {
     ES_ASSERT_NEQ_FM(equals(P, Q), true, "P != Q");
     ES_ASSERT_EQ_FM(equals(P, P), true, "P == P");
     ES_ASSERT_EQ_FM(equals(Q, Q), true, "Q == Q");
+    /*
+    {
+      auto R = add(P, Q);
+      cout << to_std_string(R) << endl;
+      destroy(R);
+    }
+    {
+      auto R = add(P, P);
+      cout << to_std_string(R) << endl;
+      destroy(R);
+    }
+    */
     destroy(x);
     destroy(y);
     destroy(z);
