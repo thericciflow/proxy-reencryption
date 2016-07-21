@@ -4,7 +4,7 @@
 using namespace std;
 using namespace g_object;
 
-MAKE_FUNC_TABLE(_ff_func, FF_destroy, FF_add, FF_neg, FF_mul, FF_div, nullptr, FF_mod, FF_is_equals, FF_is_same_type, FF_to_string_as_std_string, nullptr);
+MAKE_FUNC_TABLE(_ff_func, FF_destroy, FF_add, FF_neg, FF_mul, FF_div, nullptr, FF_mod, FF_is_equals, FF_is_same_type, FF_to_string_as_std_string, FF_copy);
 
 FF *FF_create_from_mpz_class(mpz_class x, mpz_class p) {
   FF *ff = new FF;
@@ -26,9 +26,10 @@ __EXPORT__ FF *FF_create(const char *x, const char *p) {
   return ff;
 }
 
-__EXPORT__ void FF_destroy(const FF *ff) {
+__EXPORT__ void FF_destroy(FF *ff) {
   destroy(ff->x);
   destroy(ff->p);
+  ff->type = ObjectType::FREE;
   delete ff;
 }
 
@@ -139,4 +140,13 @@ __EXPORT__ bool FF_is_equals(const FF *ee, const FF *ff) {
 bool FF_is_same_type(const g_object_t *ee, const g_object_t *ff) {
   return ee->type == ff->type && ff->type == ObjectType::FF
     && equals(to_FF(const_cast<g_object_t*>(ee))->p, to_FF(const_cast<g_object_t*>(ff))->p);
+}
+
+FF *FF_copy(const FF *ff) {
+  auto ret = new FF;
+  ret->functions = _ff_func;
+  ret->type = ObjectType::FF;
+  ret->x = copy(ff->x);
+  ret->p = copy(ff->p);
+  return ret;
 }

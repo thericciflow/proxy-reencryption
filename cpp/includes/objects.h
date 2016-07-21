@@ -42,6 +42,7 @@ enum struct ObjectType : unsigned int {
   EC_EF,
   EP_FF,
   EP_EF,
+  FREE,
 };
 
 struct methods_t {

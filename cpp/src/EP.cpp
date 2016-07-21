@@ -1,6 +1,9 @@
 #include "ecpy_native.h"
 #include "EP_impl.h"
 #include "EC_impl.h"
+#include "EF_impl.h"
+#include "FF_impl.h"
+#include <cassert>
 
 using namespace std;
 using namespace g_object;
@@ -8,7 +11,20 @@ using namespace g_object;
 MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
 MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
 
-__EXPORT__ EP *EP_FF_create(EC *ec, const char *x, const char *y, const char *z, const char *p) {
+__EXPORT__ EP *EP_FF_create_with_FF(const EC *ec, const FF *x, const FF *y, const FF *z) {
+  assert(is_same_type(AS_OBJECT_CONST(x), AS_OBJECT_CONST(y)) && is_same_type(AS_OBJECT_CONST(y), AS_OBJECT_CONST(z)));
+  EP *P = new EP;
+  P->functions = _ep_ff_func;
+  P->objtype = ObjectType::EP_FF;
+  P->curve = ec;
+  P->x = copy(AS_OBJECT_CONST(x));
+  P->y = copy(AS_OBJECT_CONST(y));
+  P->z = copy(AS_OBJECT_CONST(z));
+  P->u.FF.p = copy(x->p);
+  return P;
+}
+
+__EXPORT__ EP *EP_FF_create(const EC *ec, const char *x, const char *y, const char *z, const char *p) {
   EP *P = new EP;
   P->functions = _ep_ff_func;
   P->objtype = ObjectType::EP_FF;
@@ -20,7 +36,21 @@ __EXPORT__ EP *EP_FF_create(EC *ec, const char *x, const char *y, const char *z,
   return P;
 }
 
-__EXPORT__ EP *EP_EF_create(EC *ec, const char *x1, const char *x2, const char *y1, const char *y2, const char *z1, const char *z2, const char *modulo, const char *poly) {
+__EXPORT__ EP *EP_EF_create_with_EF(const EC *ec, const EF *x, const EF *y, const EF *z) {
+  assert(is_same_type(AS_OBJECT_CONST(x), AS_OBJECT_CONST(y)) && is_same_type(AS_OBJECT_CONST(y), AS_OBJECT_CONST(z)));
+  EP *P = new EP;
+  P->functions = _ep_ef_func;
+  P->objtype = ObjectType::EP_FF;
+  P->curve = ec;
+  P->x = copy(AS_OBJECT_CONST(x));
+  P->y = copy(AS_OBJECT_CONST(y));
+  P->z = copy(AS_OBJECT_CONST(z));
+  P->u.EF.modulo = copy(x->modulo);
+  P->u.EF.type = x->poly;
+  return P;
+}
+
+__EXPORT__ EP *EP_EF_create(const EC *ec, const char *x1, const char *x2, const char *y1, const char *y2, const char *z1, const char *z2, const char *modulo, const char *poly) {
   EP *P = new EP;
   P->functions = _ep_ef_func;
   P->objtype = ObjectType::EP_FF;
@@ -33,7 +63,7 @@ __EXPORT__ EP *EP_EF_create(EC *ec, const char *x1, const char *x2, const char *
   return P;
 }
 
-__EXPORT__ void EP_destroy(const EP *ep) {
+__EXPORT__ void EP_destroy(EP *ep) {
   destroy(ep->x);
   destroy(ep->y);
   destroy(ep->z);
@@ -45,6 +75,7 @@ __EXPORT__ void EP_destroy(const EP *ep) {
     destroy(ep->u.EF.modulo);
     break;
   }
+  ep->objtype = ObjectType::FREE;
   delete ep;
 }
 
@@ -65,11 +96,11 @@ bool EP_is_same_type(const g_object_t *a, const g_object_t *b) {
     if (a->type == ObjectType::EP_FF) {
       auto a_ = to_EP_FF(const_cast<g_object_t*>(a));
       auto b_ = to_EP_FF(const_cast<g_object_t*>(b));
-      return is_same_type(AS_OBJECT(a_->curve), AS_OBJECT(b_->curve)) && equals(a_->u.FF.p, b_->u.FF.p);
+      return is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && equals(a_->u.FF.p, b_->u.FF.p);
     } else if (b->type == ObjectType::EP_EF) {
       auto a_ = to_EP_EF(const_cast<g_object_t*>(a));
       auto b_ = to_EP_EF(const_cast<g_object_t*>(b));
-      return is_same_type(AS_OBJECT(a_->curve), AS_OBJECT(b_->curve)) && equals(a_->u.EF.modulo, b_->u.EF.modulo) && a_->u.EF.type == b_->u.EF.type;
+      return is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && equals(a_->u.EF.modulo, b_->u.EF.modulo) && a_->u.EF.type == b_->u.EF.type;
     }
   }
   return false;
@@ -80,7 +111,7 @@ string EP_to_std_string(const EP *ep) {
   ss << "ECPoint (" << to_std_string(ep->x)
      << ", " << to_std_string(ep->y)
      << ", " << to_std_string(ep->z)
-     << ") over " << to_std_string(AS_OBJECT(ep->curve));
+     << ") over " << to_std_string(AS_OBJECT_CONST(ep->curve));
   return ss.str();
 }
 

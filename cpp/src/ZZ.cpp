@@ -22,7 +22,8 @@ __EXPORT__ ZZ *ZZ_create(const char *num) {
   return zz;
 }
 
-__EXPORT__ void ZZ_destroy(const ZZ *zz) {
+__EXPORT__ void ZZ_destroy(ZZ *zz) {
+  zz->type = ObjectType::FREE;
   delete zz;
 }
 

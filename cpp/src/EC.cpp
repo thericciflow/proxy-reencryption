@@ -28,9 +28,10 @@ __EXPORT__ EC *EC_create(const char *a, const char *b, const char *type) {
   return ec;
 }
 
-__EXPORT__ void EC_destroy(const EC *ec) {
+__EXPORT__ void EC_destroy(EC *ec) {
   destroy(ec->a);
   destroy(ec->b);
+  ec->obj_type = ObjectType::FREE;
   delete ec;
 }
 

@@ -3,7 +3,7 @@
 
 __EXPORT__ {
   ZZ *ZZ_create(const char*);
-  void ZZ_destroy(const ZZ*);
+  void ZZ_destroy(ZZ*);
   ZZ *ZZ_add(const ZZ*, const ZZ*);
   ZZ *ZZ_neg(const ZZ*);
   ZZ *ZZ_mul(const ZZ*, const ZZ*);
@@ -16,7 +16,7 @@ __EXPORT__ {
   int ZZ_legendre(const ZZ*, const ZZ*);
 
   FF *FF_create(const char*, const char*);
-  void FF_destroy(const FF*);
+  void FF_destroy(FF*);
   FF *FF_add(const FF*, const FF*);
   FF *FF_neg(const FF*);
   FF *FF_mul(const FF*, const FF*);
@@ -27,7 +27,7 @@ __EXPORT__ {
   bool FF_to_raw_string(const FF*, char*, int);
 
   EF *EF_create(const char*, const char*, const char*, const char*);
-  void EF_destroy(const EF*);
+  void EF_destroy(EF*);
   bool EF_to_string(const EF*, char*, int);
   bool EF_is_equals(const EF*, const EF*);
   EF *EF_add(const EF*, const EF*);
@@ -36,11 +36,13 @@ __EXPORT__ {
   EF *EF_inv(const EF*);
 
   EC *EC_create(const char*, const char*, const char*);
-  void EC_destroy(const EC*);
+  void EC_destroy(EC*);
   bool EC_is_equals(const EC*, const EC*);
 
-  void EP_destroy(const EP*);
+  void EP_destroy(EP*);
   bool EP_equals(const EP*, const EP*);
-  EP *EP_FF_create(EC*, const char*, const char*, const char*, const char*);
-  EP *EP_FF_create(EC*, const char*, const char*, const char*, const char*);
+  EP *EP_FF_create(const EC*, const char*, const char*, const char*, const char*);
+  EP *EP_EF_create(const EC*, const char*, const char*, const char*, const char*, const char*, const char*, const char*, const char*);
+  EP *EP_FF_create_with_FF(const EC*, const FF*, const FF*, const FF*);
+  EP *EP_EF_create_with_EF(const EC*, const EF*, const EF*, const EF*);
 }

@@ -4,7 +4,7 @@
 using namespace std;
 using namespace g_object;
 
-MAKE_FUNC_TABLE(_ef_func, EF_destroy, EF_add, EF_neg, EF_mul, nullptr, EF_inv, nullptr, EF_is_equals, EF_is_same_type, EF_to_string_as_std_string, nullptr);
+MAKE_FUNC_TABLE(_ef_func, EF_destroy, EF_add, EF_neg, EF_mul, nullptr, EF_inv, nullptr, EF_is_equals, EF_is_same_type, EF_to_string_as_std_string, EF_copy);
 
 IrreduciblePolynomialType EF_Get_Polynomial(const char *poly_str) {
   auto poly_ = string(poly_str);
@@ -53,10 +53,11 @@ __EXPORT__ EF *EF_create(const char *x, const char *y, const char *n, const char
   return ef;
 }
 
-__EXPORT__ void EF_destroy(const EF *ef) {
+__EXPORT__ void EF_destroy(EF *ef) {
   destroy(ef->modulo);
   destroy(ef->x);
   destroy(ef->y);
+  ef->type = ObjectType::FREE;
   delete ef;
 }
 
@@ -287,4 +288,15 @@ string EF_to_string_as_std_string(const EF *ef) {
     break;
   }
   return ss.str();
+}
+
+EF *EF_copy(const EF *ef) {
+  auto ret = new EF;
+  ret->functions = _ef_func;
+  ret->type = ObjectType::EF;
+  ret->poly = ef->poly;
+  ret->modulo = copy(ef->modulo);
+  ret->x = copy(ef->x);
+  ret->y = copy(ef->y);
+  return ret;
 }
