@@ -87,6 +87,40 @@ TEST(ec) {
     auto E = AS_OBJECT(EC_create("0", "1", "EF"));
     ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Extended Finite Field: y^2 = x^3 + 1", "str(E)");
 
+    auto P = AS_OBJECT(EP_EF_create(to_EC_EF(E), "2", "0", "4", "0", "1", "0", "7", "x^2+1"));
+    auto x = AS_OBJECT(EF_create_from_mpz_class(0, 0, 7, IrreduciblePolynomialType::X2_1));
+    auto y = AS_OBJECT(EF_create_from_mpz_class(1, 0, 7, IrreduciblePolynomialType::X2_1));
+    auto z = AS_OBJECT(EF_create_from_mpz_class(1, 0, 7, IrreduciblePolynomialType::X2_1));
+    auto Q = AS_OBJECT(EP_EF_create_with_EF(to_EC_EF(E), to_EF(x), to_EF(y), to_EF(z)));
+    ES_ASSERT_NEQ_FM(equals(P, Q), true, "P != Q");
+    ES_ASSERT_EQ_FM(equals(P, P), true, "P == P");
+    ES_ASSERT_EQ_FM(equals(Q, Q), true, "Q == Q");
+    /*{
+      auto R = add(P, Q);
+      cout << to_std_string(R) << endl;
+      destroy(R);
+    }*/
+    {
+      auto R = add(P, P);
+      cout << to_std_string(R) << endl;
+      destroy(R);
+    }
+    {
+      auto R = add(Q, Q);
+      cout << to_std_string(R) << endl;
+      destroy(R);
+    }
+    destroy(x);
+    destroy(y);
+    destroy(z);
+    destroy(P);
+    destroy(Q);
+    destroy(E);
+  }
+  {
+    auto E = AS_OBJECT(EC_create("0", "1", "EF"));
+    ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Extended Finite Field: y^2 = x^3 + 1", "str(E)");
+
     auto P = AS_OBJECT(EP_EF_create(to_EC_EF(E), "39", "39", "3", "0", "1", "0", "41", "x^2+x+1"));
     auto x = AS_OBJECT(EF_create_from_mpz_class(5, 5, 41, IrreduciblePolynomialType::X2_X_1));
     auto y = AS_OBJECT(EF_create_from_mpz_class(9, 0, 41, IrreduciblePolynomialType::X2_X_1));
@@ -105,8 +139,7 @@ TEST(ec) {
       auto R = add(P, P);
       cout << to_std_string(R) << endl;
       destroy(R);
-    }
-    */
+    }*/
     destroy(x);
     destroy(y);
     destroy(z);

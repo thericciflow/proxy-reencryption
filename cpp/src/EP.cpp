@@ -8,9 +8,10 @@
 
 using namespace std;
 using namespace g_object;
+__EXPORT__ EP *EP_EF_add(const EP*, const EP*);
 
 MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, EP_FF_add, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
-MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
+MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, EP_EF_add, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
 
 __EXPORT__ EP *EP_FF_create_with_FF(const EC *ec, const FF *x, const FF *y, const FF *z) {
   assert(is_same_type(AS_OBJECT_CONST(x), AS_OBJECT_CONST(y)) && is_same_type(AS_OBJECT_CONST(y), AS_OBJECT_CONST(z)));
@@ -80,11 +81,21 @@ __EXPORT__ void EP_destroy(EP *ep) {
   delete ep;
 }
 
-bool EP_is_infinity(const EP *ep) {
+bool EP_FF_is_infinity(const EP *ep) {
   auto x = to_ZZ(to_FF(ep->x)->x)->x;
   auto y = to_ZZ(to_FF(ep->y)->x)->x;
   auto z = to_ZZ(to_FF(ep->z)->x)->x;
   return x == z && y == 1 && x == 0;
+}
+
+bool EP_EF_is_infinity(const EP *ep) {
+  auto x1 = to_ZZ(to_EF(ep->x)->x)->x;
+  auto x2 = to_ZZ(to_EF(ep->x)->y)->x;
+  auto y1 = to_ZZ(to_EF(ep->y)->x)->x;
+  auto y2 = to_ZZ(to_EF(ep->y)->y)->x;
+  auto z1 = to_ZZ(to_EF(ep->z)->x)->x;
+  auto z2 = to_ZZ(to_EF(ep->z)->y)->x;
+  return x1 == z1 && y1 == 1 && x1 == 0 && x2 == y2 && y2 == z2 && x2 == 0;
 }
 
 bool EP_equals(const EP *ep, const EP *fp) {
@@ -144,9 +155,9 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
   auto Qy = to_ZZ(to_FF(b->y)->x)->x;
   auto Qz = to_ZZ(to_FF(b->z)->x)->x;
   auto p = to_ZZ(a->u.FF.p)->x;
-  if (EP_is_infinity(a)) {
+  if (EP_FF_is_infinity(a)) {
     return to_EP_FF(copy(AS_OBJECT_CONST(b)));
-  } else if (EP_is_infinity(b)) {
+  } else if (EP_FF_is_infinity(b)) {
     return to_EP_FF(copy(AS_OBJECT_CONST(a)));
   }
   if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) { // Point doubling
@@ -180,4 +191,82 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
     destroy(AS_OBJECT(Rz));
     return ret;
   }
+}
+
+template <class T>
+inline mpz_class modulo(T a, mpz_class b) {
+  auto c = a % b;
+  if (c < 0) {
+    return c + b;
+  }
+  return c;
+}
+
+__EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
+  assert(is_same_type(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b)));
+  if (EP_EF_is_infinity(a)) {
+    return to_EP_EF(copy(AS_OBJECT_CONST(b)));
+  } else if (EP_EF_is_infinity(b)) {
+    return to_EP_EF(copy(AS_OBJECT_CONST(a)));
+  }
+  if (a->u.EF.type == IrreduciblePolynomialType::X2_1) {
+    auto poly = to_EF(a->x)->poly;
+    auto Px1 = to_ZZ(to_EF(a->x)->x)->x;
+    auto Py1 = to_ZZ(to_EF(a->y)->x)->x;
+    auto Pz1 = to_ZZ(to_EF(a->z)->x)->x;
+    auto Px2 = to_ZZ(to_EF(a->x)->y)->x;
+    auto Py2 = to_ZZ(to_EF(a->y)->y)->x;
+    auto Pz2 = to_ZZ(to_EF(a->z)->y)->x;
+    auto Qx1 = to_ZZ(to_EF(b->x)->x)->x;
+    auto Qy1 = to_ZZ(to_EF(b->y)->x)->x;
+    auto Qz1 = to_ZZ(to_EF(b->z)->x)->x;
+    auto Qx2 = to_ZZ(to_EF(b->x)->y)->x;
+    auto Qy2 = to_ZZ(to_EF(b->y)->y)->x;
+    auto Qz2 = to_ZZ(to_EF(b->z)->y)->x;
+    auto p = to_ZZ(a->u.EF.modulo)->x;
+    auto A = to_ZZ(a->curve->a)->x;
+    if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) { // Point doubling
+      auto u1 = modulo(3 * (Px1 * Px1 - Px2 * Px2) + A * (Pz1 * Pz1 - Pz2 * Pz2), p);
+      auto u2 = modulo(2*(3*Px1*Px2 + A*Pz1*Pz2), p);
+      auto v1 = modulo(Py1 * Pz1 - Py2 * Pz2, p);
+      auto v2 = modulo(Py2 * Pz1 + Py1 * Pz2, p);
+      auto alpha1 = modulo(Py1 * v1 - Py2 * v2, p);
+      auto alpha2 = modulo(Py2 * v1 + Py1 * v2, p);
+      auto w1 = modulo(u1*u1 - u2*u2 - 8 * (Px1 * alpha1 - Px2 * alpha2), p);
+      auto w2 = modulo(2*u1*u2 + alpha2*Px1 + alpha1*Px2, p);
+      auto Rx = EF_create_from_mpz_class(
+          modulo(2 * (v1*w1 - v2 * w2), p),
+          modulo(2 * (v2 * w1 + v1 * w2), p), p, poly);
+      auto ax1 = modulo(alpha1 * Px1 - alpha2 * Px2, p);
+      auto ax2 = modulo(alpha2 * Px1 - alpha1 * Px2, p);
+      auto gamma1 = modulo(4*ax1 - w1, p);
+      auto gamma2 = modulo(4*ax2 - w2, p);
+      auto Ry = EF_create_from_mpz_class(
+          modulo(u1 * gamma1 + u2 * gamma2 - 8 * (alpha1*alpha1 - alpha2*alpha2), p),
+          modulo(u2 * gamma1 + u1 * gamma2 - 16 * alpha1 * alpha2, p), p, poly);
+      auto Rz = EF_create_from_mpz_class(
+          modulo(v1*v1*v1 - 3*v1*v2*v2, p),
+          modulo(3*v1*v1*v2-v2*v2*v2, p), p, poly);
+      auto ret = EP_EF_create_with_EF(b->curve, Rx, Ry, Rz);
+      destroy(AS_OBJECT(Rx));
+      destroy(AS_OBJECT(Ry));
+      destroy(AS_OBJECT(Rz));
+      return ret;
+    } else {
+      /*auto u = static_cast<mpz_class>((Qy * Pz - Py * Qz) % p);
+      auto v = static_cast<mpz_class>((Qx * Pz - Px * Qz) % p);
+      auto v2 = static_cast<mpz_class>((v * v) % p);
+      auto v3 = static_cast<mpz_class>((v2 * v) % p);
+      auto w = static_cast<mpz_class>((u * u * Pz * Qz - v3 - 2 * v2 * Px * Qz) % p);
+      auto Rx = FF_create_from_mpz_class(v * w, p);
+      auto Ry = FF_create_from_mpz_class(u * (v2 * Px * Qz - w) - v3 * Py * Qz, p);
+      auto Rz = FF_create_from_mpz_class(v3 * Pz * Qz, p);
+      auto ret = EP_FF_create_with_FF(b->curve, Rx, Ry, Rz);
+      destroy(AS_OBJECT(Rx));
+      destroy(AS_OBJECT(Ry));
+      destroy(AS_OBJECT(Rz));
+      return ret;*/
+    }
+  }
+  return nullptr;
 }
