@@ -87,9 +87,9 @@ TEST(ec_ef_1) {
     auto E = AS_OBJECT(EC_create("0", "1", "EF"));
     ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Extended Finite Field: y^2 = x^3 + 1", "str(E)");
 
-    auto P = AS_OBJECT(EP_EF_create(to_EC_EF(E), "2", "0", "4", "0", "1", "0", "7", "x^2+1"));
-    auto x = AS_OBJECT(EF_create_from_mpz_class(0, 0, 7, IrreduciblePolynomialType::X2_1));
-    auto y = AS_OBJECT(EF_create_from_mpz_class(1, 0, 7, IrreduciblePolynomialType::X2_1));
+    auto P = AS_OBJECT(EP_EF_create(to_EC_EF(E), "4", "2", "2", "1", "1", "0", "7", "x^2+1"));
+    auto x = AS_OBJECT(EF_create_from_mpz_class(0, 3, 7, IrreduciblePolynomialType::X2_1));
+    auto y = AS_OBJECT(EF_create_from_mpz_class(3, 6, 7, IrreduciblePolynomialType::X2_1));
     auto z = AS_OBJECT(EF_create_from_mpz_class(1, 0, 7, IrreduciblePolynomialType::X2_1));
     auto Q = AS_OBJECT(EP_EF_create_with_EF(to_EC_EF(E), to_EF(x), to_EF(y), to_EF(z)));
     ES_ASSERT_NEQ_FM(equals(P, Q), true, "P != Q");
@@ -97,8 +97,8 @@ TEST(ec_ef_1) {
     ES_ASSERT_EQ_FM(equals(Q, Q), true, "Q == Q");
     {
       auto R = add(P, Q);
-      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "5", "0", "4", "0", "6", "0", "7", "x^2+1"));
-      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+Q=(5:4:6)");
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "0", "2", "4", "6", "1", "0", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+Q=(2i:4+6i:1)");
       destroy(R);
       destroy(Z);
     }
@@ -111,15 +111,16 @@ TEST(ec_ef_1) {
     }
     {
       auto R = add(P, P);
-      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "0", "0", "6", "0", "1", "0", "7", "x^2+1"));
-      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+P=(0:6:1)");
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "4", "1", "6", "5", "2", "4", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+P=(4+i:6+5i:2+4i)");
       destroy(R);
       destroy(Z);
     }
     {
       auto R = add(Q, Q);
-      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "0", "0", "6", "0", "1", "0", "7", "x^2+1"));
-      ES_ASSERT_EQ_FM(equals(R, Z), true, "Q+Q=(0:6:1)");
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "4", "2", "5", "6", "4", "2", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "Q+Q=(4+2i:5+6i:4+2i)");
+      cout << to_std_string(R) << endl;
       destroy(R);
       destroy(Z);
     }
