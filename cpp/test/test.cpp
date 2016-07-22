@@ -50,8 +50,7 @@ static int wa_count = 0;
 } \
 void _ ## name ## _test()
 
-TEST(ec) {
-  {
+TEST(ec_ff) {
     auto E = AS_OBJECT(EC_create("0", "1", "FF"));
     ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Finite Field: y^2 = x^3 + 1", "str(E)");
     auto P = AS_OBJECT(EP_FF_create(to_EC_FF(E), "0", "1", "1", "7"));
@@ -82,8 +81,9 @@ TEST(ec) {
     destroy(P);
     destroy(Q);
     destroy(E);
-  }
-  {
+}
+
+TEST(ec_ef_1) {
     auto E = AS_OBJECT(EC_create("0", "1", "EF"));
     ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Extended Finite Field: y^2 = x^3 + 1", "str(E)");
 
@@ -95,20 +95,33 @@ TEST(ec) {
     ES_ASSERT_NEQ_FM(equals(P, Q), true, "P != Q");
     ES_ASSERT_EQ_FM(equals(P, P), true, "P == P");
     ES_ASSERT_EQ_FM(equals(Q, Q), true, "Q == Q");
-    /*{
+    {
       auto R = add(P, Q);
-      cout << to_std_string(R) << endl;
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "5", "0", "4", "0", "6", "0", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+Q=(5:4:6)");
       destroy(R);
-    }*/
+      destroy(Z);
+    }
+    {
+      auto R = add(P, Q);
+      auto Z = add(Q, P);
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+Q=Q+P");
+      destroy(R);
+      destroy(Z);
+    }
     {
       auto R = add(P, P);
-      cout << to_std_string(R) << endl;
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "0", "0", "6", "0", "1", "0", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P+P=(0:6:1)");
       destroy(R);
+      destroy(Z);
     }
     {
       auto R = add(Q, Q);
-      cout << to_std_string(R) << endl;
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "0", "0", "6", "0", "1", "0", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "Q+Q=(0:6:1)");
       destroy(R);
+      destroy(Z);
     }
     destroy(x);
     destroy(y);
@@ -116,8 +129,9 @@ TEST(ec) {
     destroy(P);
     destroy(Q);
     destroy(E);
-  }
-  {
+}
+
+TEST(ec_ef_2) {
     auto E = AS_OBJECT(EC_create("0", "1", "EF"));
     ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Extended Finite Field: y^2 = x^3 + 1", "str(E)");
 
@@ -146,7 +160,6 @@ TEST(ec) {
     destroy(P);
     destroy(Q);
     destroy(E);
-  }
 }
 
 TEST(ef) {
@@ -336,7 +349,8 @@ void exec_test() {
   zz_test();
   ff_test();
   ef_test();
-  ec_test();
+  ec_ff_test();
+  ec_ef_1_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count

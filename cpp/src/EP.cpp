@@ -253,19 +253,60 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
       destroy(AS_OBJECT(Rz));
       return ret;
     } else {
-      /*auto u = static_cast<mpz_class>((Qy * Pz - Py * Qz) % p);
-      auto v = static_cast<mpz_class>((Qx * Pz - Px * Qz) % p);
-      auto v2 = static_cast<mpz_class>((v * v) % p);
-      auto v3 = static_cast<mpz_class>((v2 * v) % p);
-      auto w = static_cast<mpz_class>((u * u * Pz * Qz - v3 - 2 * v2 * Px * Qz) % p);
-      auto Rx = FF_create_from_mpz_class(v * w, p);
-      auto Ry = FF_create_from_mpz_class(u * (v2 * Px * Qz - w) - v3 * Py * Qz, p);
-      auto Rz = FF_create_from_mpz_class(v3 * Pz * Qz, p);
-      auto ret = EP_FF_create_with_FF(b->curve, Rx, Ry, Rz);
+#define MUL_RE(x1, x2, y1, y2) (x1 * y1 - x2 * y2)
+#define MUL_IM(x1, x2, y1, y2) (x2 * y1 + x1 * y2)
+#define SUB_RE(x1, x2, y1, y2) (x1 - y1)
+#define SUB_IM(x1, x2, y1, y2) (x2 - y2)
+      auto u1 = modulo(MUL_RE(Qy1, Qy2, Pz1, Pz2) - MUL_RE(Py1, Py2, Qz1, Qz2), p);
+      auto u2 = modulo(MUL_IM(Qy1, Qy2, Pz1, Pz2) - MUL_IM(Py1, Py2, Qz1, Qz2), p);
+      auto v1 = modulo(MUL_RE(Qx1, Qx2, Pz1, Pz2) - MUL_RE(Px1, Px2, Qz1, Qz2), p);
+      auto v2 = modulo(MUL_IM(Qx1, Qx2, Pz1, Pz2) - MUL_IM(Px1, Px2, Qz1, Qz2), p);
+      auto v_2_1 = modulo(MUL_RE(v1, v2, v1, v2), p);
+      auto v_2_2 = modulo(MUL_IM(v1, v2, v1, v2), p);
+      auto v_3_1 = modulo(MUL_RE(v1, v2, v_2_1, v_2_2), p);
+      auto v_3_2 = modulo(MUL_IM(v1, v2, v_2_1, v_2_2), p);
+
+      auto g1 = modulo(MUL_RE(Qz1, Qz2, Pz1, Pz2), p);
+      auto g2 = modulo(MUL_IM(Qz1, Qz2, Pz1, Pz2), p);
+      auto ru1 = modulo(MUL_RE(u1, u2, u1, u2), p);
+      auto ru2 = modulo(MUL_IM(u1, u2, u1, u2), p);
+      auto r1 = modulo(MUL_RE(ru1, ru2, g1, g2), p);
+      auto r2 = modulo(MUL_IM(ru1, ru2, g1, g2), p);
+      auto w_1_1 = modulo(SUB_RE(r1, r2, v_3_1, v_3_2), p);
+      auto w_1_2 = modulo(SUB_IM(r1, r2, v_3_1, v_3_2), p);
+      auto s_1 = modulo(MUL_RE(Px1, Px2, Qz1, Qz2), p);
+      auto s_2 = modulo(MUL_IM(Px1, Px2, Qz1, Qz2), p);
+      auto w_2_1 = modulo(2*(s_1 * v_2_1 - s_2 * v_2_2), p);
+      auto w_2_2 = modulo(2*(s_2 * v_2_1 + s_1 * v_2_2), p);
+      auto w1 = modulo(w_1_1 - w_2_1, p);
+      auto w2 = modulo(w_1_2 - w_2_2, p);
+
+      auto Rx = EF_create_from_mpz_class(
+          modulo(v1 * w1 - v2 * w2, p),
+          modulo(v2 * w1 + v1 * w2, p), p, poly);
+
+      auto Ry_1_1 = modulo(MUL_RE(s_1, s_2, v_2_1, v_2_2) - w1, p);
+      auto Ry_1_2 = modulo(MUL_IM(s_1, s_2, v_2_1, v_2_2) - w2, p);
+      auto t_1    = modulo(MUL_RE(Py1, Py2, Qz1, Qz2), p);
+      auto t_2    = modulo(MUL_IM(Py1, Py2, Qz1, Qz2), p);
+      auto Ry_2_1 = modulo(MUL_RE(t_1, t_2, v_3_1, v_3_2), p);
+      auto Ry_2_2 = modulo(MUL_IM(t_1, t_2, v_3_1, v_3_2), p);
+      auto Ry_3_1 = modulo(MUL_RE(Ry_1_1, Ry_1_2, u1, u2), p);
+      auto Ry_3_2 = modulo(MUL_IM(Ry_1_1, Ry_1_2, u1, u2), p);
+
+      auto Ry = EF_create_from_mpz_class(
+          modulo(SUB_RE(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p),
+          modulo(SUB_IM(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p), p, poly);
+
+      auto Rz = EF_create_from_mpz_class(
+          modulo(MUL_RE(v_3_1, v_3_2, g1, g2), p),
+          modulo(MUL_IM(v_3_1, v_3_2, g1, g2), p), p, poly);
+
+      auto ret = EP_EF_create_with_EF(b->curve, Rx, Ry, Rz);
       destroy(AS_OBJECT(Rx));
       destroy(AS_OBJECT(Ry));
       destroy(AS_OBJECT(Rz));
-      return ret;*/
+      return ret;
     }
   }
   return nullptr;
