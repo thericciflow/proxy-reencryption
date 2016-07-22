@@ -75,6 +75,13 @@ TEST(ec_ff) {
       destroy(R);
       destroy(Z);
     }
+    {
+      auto d = AS_OBJECT(ZZ_create_from_mpz_class(3));
+      auto R = mul(P, d);
+      cout << to_std_string(R) << endl;
+      destroy(d);
+      destroy(R);
+    }
     destroy(x);
     destroy(y);
     destroy(z);

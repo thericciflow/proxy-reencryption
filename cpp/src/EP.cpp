@@ -8,10 +8,9 @@
 
 using namespace std;
 using namespace g_object;
-__EXPORT__ EP *EP_EF_add(const EP*, const EP*);
 
-MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, EP_FF_add, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
-MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, EP_EF_add, nullptr, nullptr, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
+MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, EP_FF_add, nullptr, EP_mul, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
+MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, EP_EF_add, nullptr, EP_mul, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
 
 __EXPORT__ EP *EP_FF_create_with_FF(const EC *ec, const FF *x, const FF *y, const FF *z) {
   assert(is_same_type(AS_OBJECT_CONST(x), AS_OBJECT_CONST(y)) && is_same_type(AS_OBJECT_CONST(y), AS_OBJECT_CONST(z)));
@@ -115,7 +114,9 @@ bool EP_is_same_type(const g_object_t *a, const g_object_t *b) {
     if (a->type == ObjectType::EP_FF) {
       auto a_ = to_EP_FF(const_cast<g_object_t*>(a));
       auto b_ = to_EP_FF(const_cast<g_object_t*>(b));
-      return is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && equals(a_->u.FF.p, b_->u.FF.p);
+      cerr << to_std_string(a) << endl;
+      cerr << to_std_string(b) << endl;
+      return is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && (equals(a_->u.FF.p, b_->u.FF.p) || EP_FF_is_infinity(a_) || EP_FF_is_infinity(b_));
     } else if (b->type == ObjectType::EP_EF) {
       auto a_ = to_EP_EF(const_cast<g_object_t*>(a));
       auto b_ = to_EP_EF(const_cast<g_object_t*>(b));
@@ -189,6 +190,7 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
     destroy(AS_OBJECT(Rx));
     destroy(AS_OBJECT(Ry));
     destroy(AS_OBJECT(Rz));
+    cerr << to_std_string(AS_OBJECT_CONST(ret)) << endl;
     return ret;
   }
 }
@@ -224,7 +226,7 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
   auto Qz2 = to_ZZ(to_EF(b->z)->y)->x;
   auto p = to_ZZ(a->u.EF.modulo)->x;
   auto A = to_ZZ(a->curve->a)->x;
-  switch (a->u.EF.type) {
+  switch (poly) {
   case IrreduciblePolynomialType::X2_1:
     {
 #define MUL_RE(x1, x2, y1, y2) (x1 * y1 - x2 * y2)
@@ -441,4 +443,42 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
     break;
   }
   return nullptr;
+}
+
+EP *EP_get_Infinity(ObjectType type, const EC *curve) {
+  switch (type) {
+  case ObjectType::EP_FF:
+    return EP_FF_create(curve, "0", "1", "0", "-1");
+  case ObjectType::EP_EF:
+    return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", "-1", "x^2+1");
+  default:
+    return nullptr;
+  }
+}
+
+__EXPORT__ EP *EP_mul(const EP *point, const ZZ *rhs) {
+  auto m = rhs->x;
+  auto P = AS_OBJECT_CONST(point);
+  if (m == 0) {
+    return EP_get_Infinity(point->objtype, point->curve);
+  } else if (m == 1) {
+    return to_EP_force(copy(AS_OBJECT_CONST(P)));
+  } else if (m == 2) {
+    return to_EP_force(add(AS_OBJECT_CONST(P), AS_OBJECT_CONST(P)));
+  }
+  auto Q = AS_OBJECT(EP_get_Infinity(point->objtype, point->curve));
+  while (m != 0) {
+    if ((m & 1) == 1) {
+      auto t = Q;
+      Q = add(Q, P);
+      destroy(t);
+    }
+    {
+      auto t = P;
+      P = add(P, P);
+      destroy(t);
+    }
+    m >>= 1;
+  }
+  return to_EP_force(Q);
 }

@@ -91,6 +91,9 @@ namespace g_object {
   OP(to_std_string, std::string)
   OP(copy, g_object_t *)
 
+#define MAKE_TO_TYPE_FORCE(totype) constexpr totype *to_##totype##_force (const g_object_t *ptr) { \
+  return reinterpret_cast<totype *>(const_cast<g_object_t*>(ptr));\
+}
 #define MAKE_TO_TYPE2(totype, objtype) constexpr totype *to_##objtype (const g_object_t *ptr) { \
   return (ptr->type == ObjectType::objtype) ? reinterpret_cast<totype *>(const_cast<g_object_t*>(ptr)) : throw std::logic_error("Invalid Pointer: ptr->type != ObjectType::" #objtype);\
 }
@@ -103,4 +106,6 @@ namespace g_object {
   MAKE_TO_TYPE2(EC, EC_EF)
   MAKE_TO_TYPE2(EP, EP_FF)
   MAKE_TO_TYPE2(EP, EP_EF)
+  MAKE_TO_TYPE_FORCE(EC)
+  MAKE_TO_TYPE_FORCE(EP)
 };

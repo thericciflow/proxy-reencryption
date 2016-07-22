@@ -46,4 +46,6 @@ __EXPORT__ {
   EP *EP_FF_create_with_FF(const EC*, const FF*, const FF*, const FF*);
   EP *EP_EF_create_with_EF(const EC*, const EF*, const EF*, const EF*);
   EP *EP_FF_add(const EP*, const EP*);
+  EP *EP_EF_add(const EP*, const EP*);
+  EP *EP_mul(const EP*, const ZZ*);
 }
