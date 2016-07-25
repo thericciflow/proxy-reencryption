@@ -133,9 +133,26 @@ bool EP_is_same_type(const g_object_t *a, const g_object_t *b) {
 string EP_to_std_string(const EP *ep) {
   stringstream ss;
   ss << "ECPoint (" << to_std_string(ep->x)
-     << ", " << to_std_string(ep->y)
-     << ", " << to_std_string(ep->z)
+     << ":" << to_std_string(ep->y)
+     << ":" << to_std_string(ep->z)
      << ") over " << to_std_string(AS_OBJECT_CONST(ep->curve));
+  switch (ep->curve->type) {
+  case EC_Type::FF:
+    ss << " on F_" << to_std_string(ep->u.FF.p);
+    break;
+  case EC_Type::EF:
+    ss << " on F_" << to_std_string(ep->u.EF.modulo) << "/(";
+    switch (ep->u.EF.type) {
+    case IrreduciblePolynomialType::X2_1:
+      ss << "x^2+1";
+      break;
+    case IrreduciblePolynomialType::X2_X_1:
+      ss << "x^2+x+1";
+      break;
+    }
+    ss << ")";
+    break;
+  }
   return ss.str();
 }
 
@@ -456,30 +473,50 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
   return nullptr;
 }
 
-EP *EP_get_Infinity(ObjectType type, const EC *curve) {
-  switch (type) {
-  case ObjectType::EP_FF:
-    return EP_FF_create(curve, "0", "1", "0", "2");
-  case ObjectType::EP_EF:
-    return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", "2", "x^2+1");
-  default:
-    return nullptr;
+EP *EP_get_Infinity(ObjectType type, const EC *curve, const EP *orig = nullptr) {
+  if (orig != nullptr) {
+    switch (type) {
+    case ObjectType::EP_FF:
+      return EP_FF_create(curve, "0", "1", "0", to_std_string(orig->u.FF.p).c_str());
+    case ObjectType::EP_EF:
+      const char *pol;
+      switch (orig->u.EF.type) {
+      case IrreduciblePolynomialType::X2_1:
+        pol = "x^2+1";
+        break;
+      case IrreduciblePolynomialType::X2_X_1:
+        pol = "x^2+x+1";
+        break;
+      }
+      return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", to_std_string(orig->u.EF.modulo).c_str(), pol);
+    default:
+      return nullptr;
+    }
+  } else {
+    switch (type) {
+    case ObjectType::EP_FF:
+      return EP_FF_create(curve, "0", "1", "0", "2");
+    case ObjectType::EP_EF:
+      return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", "2", "x^2+1");
+    default:
+      return nullptr;
+    }
   }
 }
 
 __EXPORT__ EP *EP_mul(const EP *point, const ZZ *rhs) {
   auto m = rhs->x;
-  auto P = copy(AS_OBJECT_CONST(point));
   if (m == 0) {
-    return EP_get_Infinity(point->objtype, point->curve);
+    return EP_get_Infinity(point->objtype, point->curve, point);
   } else if (m == 1) {
-    return to_EP_force(P);
+    return to_EP_force(copy(AS_OBJECT_CONST(point)));
   } else if (m == 2) {
-    return to_EP_force(add(P, P));
+    return to_EP_force(add(AS_OBJECT_CONST(point), AS_OBJECT_CONST(point)));
   }
-  auto Q = AS_OBJECT(EP_get_Infinity(point->objtype, point->curve));
+  auto P = copy(AS_OBJECT_CONST(point));
+  auto Q = AS_OBJECT(EP_get_Infinity(point->objtype, point->curve, point));
   while (m != 0) {
-    if ((m & 0) == 1) {
+    if ((m & 1) == 1) {
       auto t = Q;
       Q = add(Q, P);
       destroy(t);

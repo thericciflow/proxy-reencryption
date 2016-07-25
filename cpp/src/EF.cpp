@@ -1,5 +1,6 @@
 #include "ecpy_native.h"
 #include "EF_impl.h"
+#include "ZZ_impl.h"
 
 using namespace std;
 using namespace g_object;
@@ -83,10 +84,7 @@ __EXPORT__ EF *EF_add(const EF *a, const EF *b) {
     ret->modulo = copy(a->modulo);
     ret->poly = a->poly;
   } else {
-    ret->x = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->y = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->modulo = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->poly = IrreduciblePolynomialType::X2_1;
+    throw invalid_argument("Invalid Operation: different modulus/irreducible polynomial arithmetic");
   }
   return ret;
 }
@@ -178,10 +176,7 @@ __EXPORT__ EF *EF_mul(const EF *a, const EF *b) {
     ret->modulo = copy(a->modulo);
     ret->poly = a->poly;
   } else {
-    ret->x = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->y = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->modulo = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->poly = IrreduciblePolynomialType::X2_1;
+    throw invalid_argument("Invalid Operation: different modulus/irreducible polynomial arithmetic");
   }
   return ret;
 }
@@ -272,7 +267,7 @@ __EXPORT__ bool EF_to_string(const EF *ef, char *p, int maxlen) {
   return false;
 }
 
-string EF_to_string_as_std_string(const EF *ef) {
+string EF_to_raw_string_as_std_string(const EF *ef) {
   stringstream ss;
   ss << "(" << to_std_string(ef->x)
      << ", " << to_std_string(ef->y)
@@ -286,6 +281,32 @@ string EF_to_string_as_std_string(const EF *ef) {
   case IrreduciblePolynomialType::X2_X_1:
     ss << "x^2 + x + 1";
     break;
+  }
+  return ss.str();
+}
+
+string EF_to_string_as_std_string(const EF *ef) {
+  stringstream ss;
+  if (to_ZZ(ef->x)->x != 0) {
+    ss << to_std_string(ef->x);
+  } else if (to_ZZ(ef->y)->x == 0) {
+    ss << "0";
+  }
+  if (to_ZZ(ef->y)->x != 0) {
+    if (to_ZZ(ef->x)->x != 0) {
+      ss << "+";
+    }
+    if (to_ZZ(ef->y)->x != 1) {
+      ss << to_std_string(ef->y);
+    }
+    switch (ef->poly) {
+    case IrreduciblePolynomialType::X2_1:
+      ss << "i";
+      break;
+    case IrreduciblePolynomialType::X2_X_1:
+      ss << "w";
+      break;
+    }
   }
   return ss.str();
 }

@@ -46,7 +46,7 @@ __EXPORT__ FF *FF_add(const FF *a, const FF *b) {
     ret->p = copy(a->p);
     destroy(t);
   } else {
-    throw logic_error("Invalid Operation: different modulus arithmetic");
+    throw invalid_argument("Invalid Operation: different modulus arithmetic");
   }
   return ret;
 }
@@ -72,7 +72,7 @@ __EXPORT__ FF *FF_mul(const FF *a, const FF *b) {
     ret->p = copy(a->p);
     destroy(t);
   } else {
-    throw logic_error("Invalid Operation: different modulus arithmetic");
+    throw invalid_argument("Invalid Operation: different modulus arithmetic");
   }
   return ret;
 }
@@ -89,7 +89,7 @@ __EXPORT__ FF *FF_div(const FF *a, const FF *b) {
     destroy(t);
     destroy(u);
   } else {
-    throw logic_error("Invalid Operation: different modulus arithmetic");
+    throw invalid_argument("Invalid Operation: different modulus arithmetic");
   }
   return ret;
 }

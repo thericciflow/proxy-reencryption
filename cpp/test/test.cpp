@@ -132,6 +132,15 @@ TEST(ec_ef_1) {
       destroy(R);
       destroy(Z);
     }
+    {
+      auto d = AS_OBJECT(ZZ_create_from_mpz_class(9));
+      auto R = mul(P, d);
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "1", "1", "0", "1", "5", "3", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "9P=(1+i:i:5+3i)");
+      destroy(d);
+      destroy(R);
+      destroy(Z);
+    }
     destroy(x);
     destroy(y);
     destroy(z);
@@ -180,6 +189,17 @@ TEST(ec_ef_2) {
       destroy(R);
       destroy(Z);
     }
+    {
+      auto T = add(P, Q);
+      auto d = AS_OBJECT(ZZ_create_from_mpz_class(27));
+      auto R = mul(T, d);
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "24", "24", "29", "0", "2", "0", "41", "x^2+x+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "27(P+Q)=(24+24w:29:2)");
+      destroy(Z);
+      destroy(d);
+      destroy(R);
+      destroy(T);
+    }
     destroy(x);
     destroy(y);
     destroy(z);
@@ -192,10 +212,6 @@ TEST(ef) {
   {
     auto x = AS_OBJECT(EF_create("3", "0", "7", "x^2+1"));
     auto y = AS_OBJECT(EF_create_from_mpz_class(0, 5, 7, IrreduciblePolynomialType::X2_1));
-
-    ES_ASSERT_EQ_FM(to_std_string(x),
-        "(3, 0) over Extended Field GF(7^2), Irreducible Polynomial: x^2 + 1",
-        "str(x)");
 
     {
       auto z = add(x, y);
@@ -283,7 +299,6 @@ TEST(ff) {
   cout << to_ZZ(to_FF(y)->x)->x << endl;
   ES_ASSERT_EQ_M(to_ZZ(to_FF(y)->x)->x, 6, "y");
   ES_ASSERT_NEQ_M(to_ZZ(to_FF(y)->x)->x, 13, "y");
-  ES_ASSERT_EQ_FM(to_std_string(x), "3 modulo 7", "str(x)");
   {
     auto z = add(x, y);
     ES_ASSERT_EQ_M(to_ZZ(to_FF(z)->x)->x, 2, "x+y");
@@ -313,7 +328,6 @@ TEST(zz) {
   auto y = AS_OBJECT(ZZ_create_from_mpz_class(9));
   ES_ASSERT_EQ(to_ZZ(x)->x, 3);
   ES_ASSERT_EQ(to_ZZ(y)->x, 9);
-  ES_ASSERT_EQ_FM(to_std_string(x), "3", "str(x)==3");
   {
     auto z = add(x, y);
     ES_ASSERT_EQ_M(to_ZZ(z)->x, 12, "x+y");
