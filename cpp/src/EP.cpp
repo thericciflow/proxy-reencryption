@@ -185,6 +185,15 @@ EP *EP_copy(const EP *ep) {
   return ret;
 }
 
+template <class T>
+inline mpz_class modulo(T a, mpz_class b) {
+  auto c = a % b;
+  if (c < 0) {
+    return c + b;
+  }
+  return c;
+}
+
 __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
   assert(is_same_type(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b)));
   if (EP_FF_is_infinity(a)) {
@@ -203,11 +212,11 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
     auto X = Px;
     auto Y = Py;
     auto Z = Pz;
-    auto u = static_cast<mpz_class>((3 * X * X + to_ZZ(a->curve->a)->x * Z * Z) % p);
-    auto v = static_cast<mpz_class>((Y * Z) % p);
-    auto a = static_cast<mpz_class>((Y * v) % p);
-    auto w = static_cast<mpz_class>((u * u - 8 * X * a) % p);
-    auto Rx = FF_create_from_mpz_class(2 * v * w,  p);
+    auto u = modulo((3 * X * X)%p + (to_ZZ(a->curve->a)->x * Z * Z)%p, p);
+    auto v = modulo(Y * Z, p);
+    auto a = modulo(Y * v, p);
+    auto w = modulo(u * u - 8 * X * a, p);
+    auto Rx = FF_create_from_mpz_class(2 * v * w, p);
     auto Ry = FF_create_from_mpz_class(u * (4 * X * a - w) - 8 * a * a, p);
     auto Rz = FF_create_from_mpz_class(8 * v * v * v,  p);
     auto ret = EP_FF_create_with_FF(b->curve, Rx, Ry, Rz);
@@ -216,11 +225,11 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
     destroy(AS_OBJECT(Rz));
     return ret;
   } else {
-    auto u = static_cast<mpz_class>((Qy * Pz - Py * Qz) % p);
-    auto v = static_cast<mpz_class>((Qx * Pz - Px * Qz) % p);
-    auto v2 = static_cast<mpz_class>((v * v) % p);
-    auto v3 = static_cast<mpz_class>((v2 * v) % p);
-    auto w = static_cast<mpz_class>((u * u * Pz * Qz - v3 - 2 * v2 * Px * Qz) % p);
+    auto u = modulo((Qy * Pz)%p - (Py * Qz)%p, p);
+    auto v = modulo((Qx * Pz)%p - (Px * Qz)%p, p);
+    auto v2 = modulo(v * v, p);
+    auto v3 = modulo(v2 * v, p);
+    auto w = modulo((((u * u)%p * Pz * Qz)%p - v3 - (2 * v2 * Px * Qz)%p), p);
     auto Rx = FF_create_from_mpz_class(v * w, p);
     auto Ry = FF_create_from_mpz_class(u * (v2 * Px * Qz - w) - v3 * Py * Qz, p);
     auto Rz = FF_create_from_mpz_class(v3 * Pz * Qz, p);
@@ -230,15 +239,6 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
     destroy(AS_OBJECT(Rz));
     return ret;
   }
-}
-
-template <class T>
-inline mpz_class modulo(T a, mpz_class b) {
-  auto c = a % b;
-  if (c < 0) {
-    return c + b;
-  }
-  return c;
 }
 
 __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
@@ -530,11 +530,9 @@ __EXPORT__ EP *EP_mul(const EP *point, const ZZ *rhs) {
       Q = add(Q, P);
       destroy(t);
     }
-    {
-      auto t = P;
-      P = add(P, P);
-      destroy(t);
-    }
+    auto t = P;
+    P = add(P, P);
+    destroy(t);
     m >>= 1;
   }
   destroy(P);
