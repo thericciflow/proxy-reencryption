@@ -29,6 +29,7 @@ __EXPORT__ {
   EF *EF_create(const char*, const char*, const char*, const char*);
   void EF_destroy(EF*);
   bool EF_to_string(const EF*, char*, int);
+  bool EF_to_tuple(const EF*, char*, int);
   bool EF_is_equals(const EF*, const EF*);
   EF *EF_add(const EF*, const EF*);
   EF *EF_neg(const EF*);
@@ -50,4 +51,5 @@ __EXPORT__ {
   EP *EP_EF_add(const EP*, const EP*);
   EP *EP_mul(const EP*, const ZZ*);
   bool EP_to_string(const EP*, char*, int);
+  bool EP_to_tuple(const EP*, char*, int);
 }

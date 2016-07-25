@@ -258,6 +258,15 @@ bool EF_is_same_type(const g_object_t *a, const g_object_t *b) {
       to_EF(a)->poly == to_EF(b)->poly && equals(to_EF(a)->modulo, to_EF(b)->modulo));
 }
 
+__EXPORT__ bool EF_to_tuple(const EF *ef, char *p, int maxlen) {
+  auto c = EF_to_tuple_std_string(ef);
+  if (c.size() < maxlen) {
+    strcpy(p, c.c_str());
+    return true;
+  }
+  return false;
+}
+
 __EXPORT__ bool EF_to_string(const EF *ef, char *p, int maxlen) {
   auto c = EF_to_string_as_std_string(ef);
   if (c.size() < maxlen) {
@@ -282,6 +291,13 @@ string EF_to_raw_string_as_std_string(const EF *ef) {
     ss << "x^2 + x + 1";
     break;
   }
+  return ss.str();
+}
+
+string EF_to_tuple_std_string(const EF *ef) {
+  stringstream ss;
+  ss << "("  << to_ZZ(ef->x)->x
+     << ", " << to_ZZ(ef->y)->x << ")";
   return ss.str();
 }
 

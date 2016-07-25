@@ -80,7 +80,7 @@ def main():
   print E
   P = EP_EF_create(E, Px1, Px2, Py1, Py2, 1, 0, p, "x^2+x+1")
   EF = lambda x1,x2,y1,y2,z1,z2: EP_EF_create(E, x1, x2, y1, y2, z1, z2, p, "x^2+x+1")
-  print P
+  print P.tuple()
   assert_eq(P * 123456789, EF(Qx1, Qx2, Qy1, Qy2, Qz1, Qz2), "123456789P")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)

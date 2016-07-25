@@ -47,10 +47,12 @@ IrreduciblePolynomialType EF_Detect_Polynomial(const ZZ*);
 IrreduciblePolynomialType EF_Get_Polynomial(const char*);
 EF *EF_create_from_mpz_class(mpz_class, mpz_class, mpz_class, IrreduciblePolynomialType);
 std::string EF_to_string_as_std_string(const EF*);
+std::string EF_to_tuple_std_string(const EF*);
 EF *EF_copy(const EF*);
 
 std::string EC_to_std_string(const EC*);
 
+std::string EP_to_tuple_std_string(const EP*);
 std::string EP_to_std_string(const EP*);
 EP *EP_copy(const EP*);
 

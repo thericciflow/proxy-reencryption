@@ -35,6 +35,11 @@ class EP_Native(Structure):
     import sys
     lib.EP_destroy(LPEP(s))
 
+  def tuple(s):
+    d = create_string_buffer(1024)
+    lib.EP_to_tuple(LPEP(s), d, 1024)
+    return d.value
+
 LPEP = POINTER(EP_Native)
 
 def EP_FF_create(curve, x, y, z, p):

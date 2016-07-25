@@ -40,6 +40,11 @@ class EF_Native(Structure):
   def __del__(s):
     lib.EF_destroy(LPEF(s))
 
+  def tuple(s):
+    d = create_string_buffer(1024)
+    lib.EF_to_tuple(LPEF(s), d, 1024)
+    return d.value
+
 LPEF = POINTER(EF_Native)
 
 def EF_create(x, y, modulo, poly):

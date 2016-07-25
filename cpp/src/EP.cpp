@@ -130,6 +130,34 @@ bool EP_is_same_type(const g_object_t *a, const g_object_t *b) {
   return false;
 }
 
+string EP_to_tuple_std_string(const EP*);
+__EXPORT__ bool EP_to_tuple(const EP*, char*, int);
+__EXPORT__ bool EP_to_tuple(const EP *ep, char *p, int maxlen) {
+  auto c = EP_to_tuple_std_string(ep);
+  if (c.size() < maxlen) {
+    strcpy(p, c.c_str());
+    return true;
+  }
+  return false;
+}
+
+string EP_to_tuple_std_string(const EP *ep) {
+  stringstream ss;
+  ss << "(";
+  switch (ep->curve->type) {
+  case EC_Type::FF:
+    ss << to_std_string(ep->x) << ", ";
+    ss << to_std_string(ep->y) << ", ";
+    ss << to_std_string(ep->z) << ")";
+    break;
+  case EC_Type::EF:
+    ss << EF_to_tuple_std_string(to_EF(ep->x)) << ", ";
+    ss << EF_to_tuple_std_string(to_EF(ep->y)) << ", ";
+    ss << EF_to_tuple_std_string(to_EF(ep->z)) << ")";
+    break;
+  }
+  return ss.str();
+}
 __EXPORT__ bool EP_to_string(const EP *ep, char *p, int maxlen) {
   auto c = EP_to_std_string(ep);
   if (c.size() < maxlen) {
