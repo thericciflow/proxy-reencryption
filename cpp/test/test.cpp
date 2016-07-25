@@ -78,9 +78,11 @@ TEST(ec_ff) {
     {
       auto d = AS_OBJECT(ZZ_create_from_mpz_class(3));
       auto R = mul(P, d);
-      cout << to_std_string(R) << endl;
+      auto Z = AS_OBJECT(EP_FF_create(to_EC_FF(E), "0", "1", "0", "7"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "3P=(0:1:0)");
       destroy(d);
       destroy(R);
+      destroy(Z);
     }
     destroy(x);
     destroy(y);
@@ -278,6 +280,7 @@ TEST(ff) {
 
   ES_ASSERT_EQ_M(to_ZZ(to_FF(x)->x)->x, 3, "x");
   // check modulo
+  cout << to_ZZ(to_FF(y)->x)->x << endl;
   ES_ASSERT_EQ_M(to_ZZ(to_FF(y)->x)->x, 6, "y");
   ES_ASSERT_NEQ_M(to_ZZ(to_FF(y)->x)->x, 13, "y");
   ES_ASSERT_EQ_FM(to_std_string(x), "3 modulo 7", "str(x)");

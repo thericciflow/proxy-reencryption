@@ -9,8 +9,7 @@ MAKE_FUNC_TABLE(_ff_func, FF_destroy, FF_add, FF_neg, FF_mul, FF_div, nullptr, F
 FF *FF_create_from_mpz_class(mpz_class x, mpz_class p) {
   FF *ff = new FF;
   ff->p = AS_OBJECT(ZZ_create_from_mpz_class(p));
-  x %= p;
-  if (x < p) {
+  while (x < p) {
     x += p;
   }
   ff->x = AS_OBJECT(ZZ_create_from_mpz_class(x % p));
@@ -41,14 +40,13 @@ __EXPORT__ FF *FF_add(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  ret->p = copy(a->p);
   if (is_same_type(AS_OBJECT(const_cast<FF*>(a)), AS_OBJECT(const_cast<FF*>(b)))) {
     auto t = add(a->x, b->x);
     ret->x = mod(t, a->p);
+    ret->p = copy(a->p);
     destroy(t);
   } else {
-    ret->x = AS_OBJECT(ZZ_create("-1"));
-    ret->p = AS_OBJECT(ZZ_create("-1"));
+    throw logic_error("Invalid Operation: different modulus arithmetic");
   }
   return ret;
 }
@@ -68,14 +66,13 @@ __EXPORT__ FF *FF_mul(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  ret->p = copy(a->p);
   if (equals(a->p, b->p)) {
     auto t = mul(a->x, b->x);
     ret->x = mod(t, a->p);
+    ret->p = copy(a->p);
     destroy(t);
   } else {
-    ret->x = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->p = AS_OBJECT(ZZ_create_from_mpz_class(-1));
+    throw logic_error("Invalid Operation: different modulus arithmetic");
   }
   return ret;
 }
@@ -84,16 +81,15 @@ __EXPORT__ FF *FF_div(const FF *a, const FF *b) {
   FF *ret = new FF;
   ret->type = ObjectType::FF;
   ret->functions = _ff_func;
-  ret->p = copy(a->p);
   if (is_same_type(a->p, b->p)) {
     auto t = AS_OBJECT(ZZ_modinv(to_ZZ(b->x), to_ZZ(a->p)));
     auto u = mul(a->x, t);
     ret->x = mod(u, a->p);
+    ret->p = copy(a->p);
     destroy(t);
     destroy(u);
   } else {
-    ret->x = AS_OBJECT(ZZ_create_from_mpz_class(-1));
-    ret->p = AS_OBJECT(ZZ_create_from_mpz_class(-1));
+    throw logic_error("Invalid Operation: different modulus arithmetic");
   }
   return ret;
 }
@@ -133,7 +129,7 @@ string FF_to_raw_string_as_std_string(const FF *ff) {
 
 string FF_to_string_as_std_string(const FF *ff) {
   stringstream ss;
-  ss << to_std_string(ff->x) << " modulo " << to_std_string(ff->p);
+  ss << to_std_string(ff->x);
   return ss.str();
 }
 

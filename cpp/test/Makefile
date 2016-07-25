@@ -10,7 +10,7 @@ vpath %.o ../bin/
 
 .PHONY: all
 all: bin/test
-	valgrind -v ./bin/test
+	valgrind --leak-check=full -v ./bin/test
 	sudo ldconfig
 	$(PYTHON) test.py
 

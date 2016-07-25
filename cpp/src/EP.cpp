@@ -41,7 +41,7 @@ __EXPORT__ EP *EP_EF_create_with_EF(const EC *ec, const EF *x, const EF *y, cons
   assert(is_same_type(AS_OBJECT_CONST(x), AS_OBJECT_CONST(y)) && is_same_type(AS_OBJECT_CONST(y), AS_OBJECT_CONST(z)));
   EP *P = new EP;
   P->functions = _ep_ef_func;
-  P->objtype = ObjectType::EP_FF;
+  P->objtype = ObjectType::EP_EF;
   P->curve = ec;
   P->x = copy(AS_OBJECT_CONST(x));
   P->y = copy(AS_OBJECT_CONST(y));
@@ -54,7 +54,7 @@ __EXPORT__ EP *EP_EF_create_with_EF(const EC *ec, const EF *x, const EF *y, cons
 __EXPORT__ EP *EP_EF_create(const EC *ec, const char *x1, const char *x2, const char *y1, const char *y2, const char *z1, const char *z2, const char *modulo, const char *poly) {
   EP *P = new EP;
   P->functions = _ep_ef_func;
-  P->objtype = ObjectType::EP_FF;
+  P->objtype = ObjectType::EP_EF;
   P->curve = ec;
   P->x = AS_OBJECT(EF_create(x1, x2, modulo, poly));
   P->y = AS_OBJECT(EF_create(y1, y2, modulo, poly));
@@ -112,15 +112,19 @@ bool EP_equals(const EP *ep, const EP *fp) {
 bool EP_is_same_type(const g_object_t *a, const g_object_t *b) {
   if (a->type == b->type) {
     if (a->type == ObjectType::EP_FF) {
+      if (EP_FF_is_infinity(to_EP_force(a)) || EP_FF_is_infinity(to_EP_force(b))) {
+        return true;
+      }
       auto a_ = to_EP_FF(const_cast<g_object_t*>(a));
       auto b_ = to_EP_FF(const_cast<g_object_t*>(b));
-      cerr << to_std_string(a) << endl;
-      cerr << to_std_string(b) << endl;
-      return is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && (equals(a_->u.FF.p, b_->u.FF.p) || EP_FF_is_infinity(a_) || EP_FF_is_infinity(b_));
+      return (is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && equals(a_->u.FF.p, b_->u.FF.p));
     } else if (b->type == ObjectType::EP_EF) {
+      if (EP_EF_is_infinity(to_EP_force(a)) || EP_EF_is_infinity(to_EP_force(b))) {
+        return true;
+      }
       auto a_ = to_EP_EF(const_cast<g_object_t*>(a));
       auto b_ = to_EP_EF(const_cast<g_object_t*>(b));
-      return is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && equals(a_->u.EF.modulo, b_->u.EF.modulo) && a_->u.EF.type == b_->u.EF.type;
+      return is_same_type(AS_OBJECT_CONST(a_->curve), AS_OBJECT_CONST(b_->curve)) && (equals(a_->u.EF.modulo, b_->u.EF.modulo) || (EP_EF_is_infinity(a_) || EP_EF_is_infinity(b_)) && a_->u.EF.type == b_->u.EF.type);
     }
   }
   return false;
@@ -143,12 +147,25 @@ EP *EP_copy(const EP *ep) {
   ret->x = copy(ep->x);
   ret->y = copy(ep->y);
   ret->z = copy(ep->z);
-  ret->u = ep->u;
+  switch(ep->curve->type) {
+  case EC_Type::FF:
+    ret->u.FF.p = copy(ep->u.FF.p);
+    break;
+  case EC_Type::EF:
+    ret->u.EF.modulo = copy(ep->u.EF.modulo);
+    ret->u.EF.type = ep->u.EF.type;
+    break;
+  }
   return ret;
 }
 
 __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
   assert(is_same_type(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b)));
+  if (EP_FF_is_infinity(a)) {
+    return to_EP_FF(copy(AS_OBJECT_CONST(b)));
+  } else if (EP_FF_is_infinity(b)) {
+    return to_EP_FF(copy(AS_OBJECT_CONST(a)));
+  }
   auto Px = static_cast<mpz_class>(to_ZZ(to_FF(a->x)->x)->x);
   auto Py = static_cast<mpz_class>(to_ZZ(to_FF(a->y)->x)->x);
   auto Pz = static_cast<mpz_class>(to_ZZ(to_FF(a->z)->x)->x);
@@ -156,11 +173,6 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
   auto Qy = to_ZZ(to_FF(b->y)->x)->x;
   auto Qz = to_ZZ(to_FF(b->z)->x)->x;
   auto p = to_ZZ(a->u.FF.p)->x;
-  if (EP_FF_is_infinity(a)) {
-    return to_EP_FF(copy(AS_OBJECT_CONST(b)));
-  } else if (EP_FF_is_infinity(b)) {
-    return to_EP_FF(copy(AS_OBJECT_CONST(a)));
-  }
   if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) { // Point doubling
     auto X = Px;
     auto Y = Py;
@@ -190,7 +202,6 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
     destroy(AS_OBJECT(Rx));
     destroy(AS_OBJECT(Ry));
     destroy(AS_OBJECT(Rz));
-    cerr << to_std_string(AS_OBJECT_CONST(ret)) << endl;
     return ret;
   }
 }
@@ -448,9 +459,9 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
 EP *EP_get_Infinity(ObjectType type, const EC *curve) {
   switch (type) {
   case ObjectType::EP_FF:
-    return EP_FF_create(curve, "0", "1", "0", "-1");
+    return EP_FF_create(curve, "0", "1", "0", "2");
   case ObjectType::EP_EF:
-    return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", "-1", "x^2+1");
+    return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", "2", "x^2+1");
   default:
     return nullptr;
   }
@@ -458,17 +469,17 @@ EP *EP_get_Infinity(ObjectType type, const EC *curve) {
 
 __EXPORT__ EP *EP_mul(const EP *point, const ZZ *rhs) {
   auto m = rhs->x;
-  auto P = AS_OBJECT_CONST(point);
+  auto P = copy(AS_OBJECT_CONST(point));
   if (m == 0) {
     return EP_get_Infinity(point->objtype, point->curve);
   } else if (m == 1) {
-    return to_EP_force(copy(AS_OBJECT_CONST(P)));
+    return to_EP_force(P);
   } else if (m == 2) {
-    return to_EP_force(add(AS_OBJECT_CONST(P), AS_OBJECT_CONST(P)));
+    return to_EP_force(add(P, P));
   }
   auto Q = AS_OBJECT(EP_get_Infinity(point->objtype, point->curve));
   while (m != 0) {
-    if ((m & 1) == 1) {
+    if ((m & 0) == 1) {
       auto t = Q;
       Q = add(Q, P);
       destroy(t);
@@ -480,5 +491,6 @@ __EXPORT__ EP *EP_mul(const EP *point, const ZZ *rhs) {
     }
     m >>= 1;
   }
+  destroy(P);
   return to_EP_force(Q);
 }
