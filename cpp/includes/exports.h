@@ -38,6 +38,7 @@ __EXPORT__ {
   EC *EC_create(const char*, const char*, const char*);
   void EC_destroy(EC*);
   bool EC_is_equals(const EC*, const EC*);
+  bool EC_to_string(const EC*, char*, int);
 
   void EP_destroy(EP*);
   bool EP_equals(const EP*, const EP*);
@@ -48,4 +49,5 @@ __EXPORT__ {
   EP *EP_FF_add(const EP*, const EP*);
   EP *EP_EF_add(const EP*, const EP*);
   EP *EP_mul(const EP*, const ZZ*);
+  bool EP_to_string(const EP*, char*, int);
 }

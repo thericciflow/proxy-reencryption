@@ -3,8 +3,6 @@ from ZZ_Native import *
 from weakref import ref as weakref
 
 class EF_Native(Structure):
-  _fields_ = [("x", LPZZ), ("y", LPZZ), ("modulo", LPZZ)]
-
   def __add__(s, a):
     if not isinstance(a, EF_Native):
       raise TypeError("%r must be EF_Native instance." % a)
@@ -22,7 +20,6 @@ class EF_Native(Structure):
     if not isinstance(a, EF_Native):
       raise TypeError("%r must be EF_Native instance." % a)
     return a.inv() * s
-
 
   def __neg__(s):
     return cast(lib.EF_neg(LPEF(s)), LPEF).contents

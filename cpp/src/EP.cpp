@@ -130,6 +130,15 @@ bool EP_is_same_type(const g_object_t *a, const g_object_t *b) {
   return false;
 }
 
+__EXPORT__ bool EP_to_string(const EP *ep, char *p, int maxlen) {
+  auto c = EP_to_std_string(ep);
+  if (c.size() < maxlen) {
+    strcpy(p, c.c_str());
+    return true;
+  }
+  return false;
+}
+
 string EP_to_std_string(const EP *ep) {
   stringstream ss;
   ss << "ECPoint (" << to_std_string(ep->x)

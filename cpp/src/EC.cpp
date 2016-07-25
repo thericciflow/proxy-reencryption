@@ -35,6 +35,16 @@ __EXPORT__ void EC_destroy(EC *ec) {
   delete ec;
 }
 
+__EXPORT__ bool EC_to_string(const EC *ec, char *p, int maxlen) {
+  auto c = EC_to_std_string(ec);
+  if (c.size() < maxlen) {
+    strcpy(p, c.c_str());
+    return true;
+  }
+  return false;
+}
+
+
 string EC_to_std_string(const EC *ec) {
   stringstream ss;
   ss << "Elliptic Curve on ";
