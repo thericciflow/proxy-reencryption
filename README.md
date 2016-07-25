@@ -8,17 +8,18 @@ Elliptic-Curve Cryptography Library (implemented by Python)
 * Calculation between elliptic curve points
   - Elliptic curve\: `y^2 = x^3 + ax + b` over K, `char(K)` is not 2, 3 where K is field.
   - You can choose K from below:
-    + Complex Field, Rational Field, FiniteField and Extended Finite Field(irreducible polynomial: `x^2 + 1` or `x^2 + x + 1`)
+    + Complex Field, Rational Field, FiniteField and Extended Finite Field(Irreducible polynomial: `x^2 + 1` or `x^2 + x + 1`)
 * Weil/Tate Pairing
   - Distortion Map, symmetric-pairing functions
-* SSSA-Attack Implementation
+* SSSA-Attack Implementation [Sample](https://gist.github.com/elliptic-shiho/40d42dbab87065e06d6c473ef93e244e) (CTF Challenge Writeup)
 * Example Applications
-  - `example/id_based_encryption.py`: Implementation of Boneh-Franklin's Identity-based Encryption
-  - `example/boneh_lynn_shacham_short_signature.py`: Implementation of Boneh-Lynn-Shacham's Short Signature
+  - `example/id_based_encryption.py`: Implementation of Boneh-Franklin's Identity-based Encryption Scheme
+  - `example/boneh_lynn_shacham_short_signature.py`: Implementation of Boneh-Lynn-Shacham's Short Signature Scheme
 
 # Setup
 
 ```
+> git clone https://github.com/elliptic-shiho/ecpy && cd ecpy
 > pip install --upgrade .
 ```
 
