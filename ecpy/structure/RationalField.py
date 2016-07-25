@@ -28,7 +28,7 @@ class RationalField(Field):
     return a[0] == b[0] and a[1] == b[1]
 
   def _mod(s, a, b):
-    return s.element_class(s, a[0] % b[0], a[1] % b[0])
+    return s.element_class(s, a[0] % b[0], a[1])
 
 
 class RationalFieldElement(FieldElement):

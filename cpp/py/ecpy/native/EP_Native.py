@@ -38,7 +38,7 @@ class EP_Native(Structure):
   def tuple(s):
     d = create_string_buffer(1024)
     lib.EP_to_tuple(LPEP(s), d, 1024)
-    return d.value
+    return eval(d.value)
 
 LPEP = POINTER(EP_Native)
 

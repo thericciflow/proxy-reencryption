@@ -43,7 +43,7 @@ class EF_Native(Structure):
   def tuple(s):
     d = create_string_buffer(1024)
     lib.EF_to_tuple(LPEF(s), d, 1024)
-    return d.value
+    return eval(d.value)
 
 LPEF = POINTER(EF_Native)
 
