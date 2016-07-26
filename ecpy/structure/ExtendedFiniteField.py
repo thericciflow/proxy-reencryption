@@ -11,7 +11,7 @@ class ExtendedFiniteField(FiniteField):
       assert p % 4 == 3
       s.t = 1
     elif poly == "x^2+x+1":
-      assert p % 3 == 2 and (p + 1) % 6 == 0 and is_prime((p + 1) / 6)
+      assert p % 3 == 2# and (p + 1) % 6 == 0 and is_prime((p + 1) / 6)
       s.t = 2
     else:
       raise ValueError("Invalid Polynomial: %s" % poly)

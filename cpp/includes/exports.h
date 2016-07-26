@@ -52,4 +52,6 @@ __EXPORT__ {
   EP *EP_mul(const EP*, const ZZ*);
   bool EP_to_string(const EP*, char*, int);
   bool EP_to_tuple(const EP*, char*, int);
+  g_object_t *EP_line_coeff(const EP*, const EP*);
+  EP *EP_neg(const EP*);
 }

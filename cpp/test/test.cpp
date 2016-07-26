@@ -84,6 +84,22 @@ TEST(ec_ff) {
       destroy(R);
       destroy(Z);
     }
+    {
+      auto T = neg(P);
+      auto R = add(P, T);
+      auto Z = AS_OBJECT(EP_FF_create(to_EC_FF(E), "0", "1", "0", "7"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P-P=(0:1:0))");
+      destroy(T);
+      destroy(R);
+      destroy(Z);
+    }
+    {
+      auto l = EP_line_coeff(to_EP_FF(P), to_EP_FF(Q));
+      auto m = AS_OBJECT(ZZ_create_from_mpz_class(2));
+      ES_ASSERT_EQ_FM(equals(l, m), true, "line_coeffs(P,Q)");
+      destroy(l);
+      destroy(m);
+    }
     destroy(x);
     destroy(y);
     destroy(z);
@@ -140,6 +156,22 @@ TEST(ec_ef_1) {
       destroy(d);
       destroy(R);
       destroy(Z);
+    }
+    {
+      auto T = neg(P);
+      auto R = add(P, T);
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "0", "0", "1", "0", "0", "0", "7", "x^2+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P-P=(0:1:0))");
+      destroy(T);
+      destroy(R);
+      destroy(Z);
+    }
+    {
+      auto l = EP_line_coeff(to_EP_EF(P), to_EP_EF(Q));
+      auto m = AS_OBJECT(EF_create_from_mpz_class(5, 0, 7, IrreduciblePolynomialType::X2_1));
+      ES_ASSERT_EQ_FM(equals(l, m), true, "line_coeffs(P,Q)");
+      destroy(l);
+      destroy(m);
     }
     destroy(x);
     destroy(y);
@@ -199,6 +231,22 @@ TEST(ec_ef_2) {
       destroy(d);
       destroy(R);
       destroy(T);
+    }
+    {
+      auto T = neg(P);
+      auto R = add(P, T);
+      auto Z = AS_OBJECT(EP_EF_create(to_EC_EF(E), "0", "0", "1", "0", "0", "0", "41", "x^2+x+1"));
+      ES_ASSERT_EQ_FM(equals(R, Z), true, "P-P=(0:1:0))");
+      destroy(T);
+      destroy(R);
+      destroy(Z);
+    }
+    {
+      auto l = EP_line_coeff(to_EP_EF(P), to_EP_EF(Q));
+      auto m = AS_OBJECT(EF_create_from_mpz_class(0, 5, 41, IrreduciblePolynomialType::X2_X_1));
+      ES_ASSERT_EQ_FM(equals(l, m), true, "line_coeffs(P,Q)");
+      destroy(l);
+      destroy(m);
     }
     destroy(x);
     destroy(y);
@@ -296,7 +344,6 @@ TEST(ff) {
 
   ES_ASSERT_EQ_M(to_ZZ(to_FF(x)->x)->x, 3, "x");
   // check modulo
-  cout << to_ZZ(to_FF(y)->x)->x << endl;
   ES_ASSERT_EQ_M(to_ZZ(to_FF(y)->x)->x, 6, "y");
   ES_ASSERT_NEQ_M(to_ZZ(to_FF(y)->x)->x, 13, "y");
   {

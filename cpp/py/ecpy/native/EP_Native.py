@@ -1,5 +1,6 @@
 from library import *
 from EC_Native import *
+from EF_Native import LPEF
 from ZZ_Native import ZZ_create, LPZZ
 class EP_Native(Structure):
   def __add__(s, a):
@@ -7,14 +8,17 @@ class EP_Native(Structure):
       raise TypeError("%r must be EP_Native instance." % a)
     return cast(lib.EP_add(LPEP(s), LPEP(a)), LPEP).contents
 
-  def __sub__(s, a):
+  def __neg__(s):
+    return cast(lib.EP_neg(LPEP(s)), LPEP).contents
+
+  def line_coeff(s, a):
     if not isinstance(a, EP_Native):
       raise TypeError("%r must be EP_Native instance." % a)
-    return cast(lib.EP_add(LPEP(s), LPEP(-a)), LPEP).contents
-
-  def __neg__(s):
-    raise NotImplementedError()
-    #return cast(lib.EP_neg(LPEP(s)), LPEP).contents
+    d = lib.EP_line_coeff(LPEP(s), LPEP(a))
+    if s.type == 0:
+      return cast(d, LPZZ).contents
+    elif s.type == 1:
+      return cast(d, LPEF).contents
 
   def __mul__(s, a):
     d = ZZ_create(a)
@@ -43,8 +47,12 @@ class EP_Native(Structure):
 LPEP = POINTER(EP_Native)
 
 def EP_FF_create(curve, x, y, z, p):
-  return cast(lib.EP_FF_create(LPEC(curve), str(x), str(y), str(z), str(p)), LPEP).contents
+  d = cast(lib.EP_FF_create(LPEC(curve), str(x), str(y), str(z), str(p)), LPEP).contents
+  d.type = 0
+  return d
 
 def EP_EF_create(curve, x1, x2, y1, y2, z1, z2, modulo, poly):
-  return cast(lib.EP_EF_create(LPEC(curve), str(x1), str(x2), str(y1), str(y2), str(z1), str(z2), str(modulo), poly), LPEP).contents
+  d = cast(lib.EP_EF_create(LPEC(curve), str(x1), str(x2), str(y1), str(y2), str(z1), str(z2), str(modulo), poly), LPEP).contents
+  d.type = 1
+  return d
 

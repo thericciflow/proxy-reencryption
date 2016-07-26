@@ -100,15 +100,7 @@ ZZ *ZZ_copy(ZZ *zz) {
 __EXPORT__ ZZ *ZZ_modinv(const ZZ *a, const ZZ *m) {
   auto _a = a->x;
   auto _m = m->x;
-  if (_a < 0) {
-    _a = _a + _m;
-  }
-  mpz_class t;
-  mpz_invert(t.get_mpz_t(), _a.get_mpz_t(), _m.get_mpz_t());
-  if (t < 0) {
-    t += m->x;
-  }
-  return ZZ_create_from_mpz_class(t);
+  return ZZ_create_from_mpz_class(modinv(_a, _m));
 }
 
 __EXPORT__ int ZZ_jacobi(const ZZ *a, const ZZ *b) {

@@ -9,8 +9,8 @@
 using namespace std;
 using namespace g_object;
 
-MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, EP_FF_add, nullptr, EP_mul, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
-MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, EP_EF_add, nullptr, EP_mul, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
+MAKE_FUNC_TABLE(_ep_ff_func, EP_destroy, EP_FF_add, EP_neg, EP_mul, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
+MAKE_FUNC_TABLE(_ep_ef_func, EP_destroy, EP_EF_add, EP_neg, EP_mul, nullptr, nullptr, nullptr, EP_equals, EP_is_same_type, EP_to_std_string, EP_copy);
 
 __EXPORT__ EP *EP_FF_create_with_FF(const EC *ec, const FF *x, const FF *y, const FF *z) {
   assert(is_same_type(AS_OBJECT_CONST(x), AS_OBJECT_CONST(y)) && is_same_type(AS_OBJECT_CONST(y), AS_OBJECT_CONST(z)));
@@ -222,6 +222,45 @@ inline mpz_class modulo(T a, mpz_class b) {
   return c;
 }
 
+EP *EP_get_Infinity(ObjectType type, const EC *curve, const EP *orig = nullptr) {
+  if (orig != nullptr) {
+    switch (type) {
+    case ObjectType::EP_FF:
+      return EP_FF_create(curve, "0", "1", "0", to_std_string(orig->u.FF.p).c_str());
+    case ObjectType::EP_EF:
+      const char *pol;
+      switch (orig->u.EF.type) {
+      case IrreduciblePolynomialType::X2_1:
+        pol = "x^2+1";
+        break;
+      case IrreduciblePolynomialType::X2_X_1:
+        pol = "x^2+x+1";
+        break;
+      }
+      return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", to_std_string(orig->u.EF.modulo).c_str(), pol);
+    default:
+      return nullptr;
+    }
+  } else {
+    switch (type) {
+    case ObjectType::EP_FF:
+      return EP_FF_create(curve, "0", "1", "0", "2");
+    case ObjectType::EP_EF:
+      return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", "2", "x^2+1");
+    default:
+      return nullptr;
+    }
+  }
+}
+
+__EXPORT__ EP *EP_neg(const EP *a) {
+  EP *ret = EP_copy(a);
+  auto t = ret->y;
+  ret->y = neg(t);
+  destroy(t);
+  return ret;
+}
+
 __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
   assert(is_same_type(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b)));
   if (EP_FF_is_infinity(a)) {
@@ -236,6 +275,9 @@ __EXPORT__ EP *EP_FF_add(const EP *a, const EP *b) {
   auto Qy = to_ZZ(to_FF(b->y)->x)->x;
   auto Qz = to_ZZ(to_FF(b->z)->x)->x;
   auto p = to_ZZ(a->u.FF.p)->x;
+  if ((Py + Qy) % p == 0) { // P + -P == O
+    return EP_get_Infinity(a->objtype, a->curve, a);
+  }
   if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) { // Point doubling
     auto X = Px;
     auto Y = Py;
@@ -291,99 +333,96 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
   auto Qz2 = to_ZZ(to_EF(b->z)->y)->x;
   auto p = to_ZZ(a->u.EF.modulo)->x;
   auto A = to_ZZ(a->curve->a)->x;
+  if ((Py1 + Qy1) % p == 0 && (Py2 + Qy2) % p == 0) { // P + -P == O
+    return EP_get_Infinity(a->objtype, a->curve, a);
+  }
   switch (poly) {
   case IrreduciblePolynomialType::X2_1:
     {
-#define MUL_RE(x1, x2, y1, y2) (x1 * y1 - x2 * y2)
-#define MUL_IM(x1, x2, y1, y2) (x2 * y1 + x1 * y2)
-#define POW2_RE(x, y) (x * x - y * y)
-#define POW2_IM(x, y) (2 * x * y)
-#define SUB_RE(x1, x2, y1, y2) (x1 - y1)
-#define SUB_IM(x1, x2, y1, y2) (x2 - y2)
       if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) { // Point doubling
         // u = 3x^2+Az^2
-        auto u1 = modulo(3 * POW2_RE(Px1, Px2) + A * POW2_RE(Pz1, Pz2), p);
-        auto u2 = modulo(3 * POW2_IM(Px1, Px2) + A * POW2_IM(Pz1, Pz2), p);
+        auto u1 = modulo(3 * POW2_P1_RE(Px1, Px2) + A * POW2_P1_RE(Pz1, Pz2), p);
+        auto u2 = modulo(3 * POW2_P1_IM(Px1, Px2) + A * POW2_P1_IM(Pz1, Pz2), p);
         // v = yz
-        auto v1 = modulo(MUL_RE(Py1, Py2, Pz1, Pz2), p);
-        auto v2 = modulo(MUL_IM(Py1, Py2, Pz1, Pz2), p);
+        auto v1 = modulo(MUL_P1_RE(Py1, Py2, Pz1, Pz2), p);
+        auto v2 = modulo(MUL_P1_IM(Py1, Py2, Pz1, Pz2), p);
         // a = yv
-        auto alpha1 = modulo(MUL_RE(v1, v2, Py1, Py2), p);
-        auto alpha2 = modulo(MUL_IM(v1, v2, Py1, Py2), p);
+        auto alpha1 = modulo(MUL_P1_RE(v1, v2, Py1, Py2), p);
+        auto alpha2 = modulo(MUL_P1_IM(v1, v2, Py1, Py2), p);
         // w = u^2 - 8xa
-        auto w1 = modulo(POW2_RE(u1, u2) - 8 * MUL_RE(Px1, Px2, alpha1, alpha2), p);
-        auto w2 = modulo(POW2_IM(u1, u2) - 8 * MUL_IM(Px1, Px2, alpha1, alpha2), p);
+        auto w1 = modulo(POW2_P1_RE(u1, u2) - 8 * MUL_P1_RE(Px1, Px2, alpha1, alpha2), p);
+        auto w2 = modulo(POW2_P1_IM(u1, u2) - 8 * MUL_P1_IM(Px1, Px2, alpha1, alpha2), p);
         // Rx = 2vw
         auto Rx = EF_create_from_mpz_class(
-            modulo(2 * MUL_RE(v1, v2, w1, w2), p),
-            modulo(2 * MUL_IM(v1, v2, w1, w2), p), p, poly);
+            modulo(2 * MUL_P1_RE(v1, v2, w1, w2), p),
+            modulo(2 * MUL_P1_IM(v1, v2, w1, w2), p), p, poly);
         // ax = ax
-        auto ax1 = modulo(MUL_RE(alpha1, alpha2, Px1, Px2), p);
-        auto ax2 = modulo(MUL_IM(alpha1, alpha2, Px1, Px2), p);
+        auto ax1 = modulo(MUL_P1_RE(alpha1, alpha2, Px1, Px2), p);
+        auto ax2 = modulo(MUL_P1_IM(alpha1, alpha2, Px1, Px2), p);
         // gamma = 4ax - w
         auto gamma1 = modulo(4*ax1 - w1, p);
         auto gamma2 = modulo(4*ax2 - w2, p);
         // Ry = u*gamma - 8a^2
         auto Ry = EF_create_from_mpz_class(
-            modulo(MUL_RE(u1, u2, gamma1, gamma2) - 8 * POW2_RE(alpha1, alpha2), p),
-            modulo(MUL_IM(u1, u2, gamma1, gamma2) - 8 * POW2_IM(alpha1, alpha2), p), p, poly);
+            modulo(MUL_P1_RE(u1, u2, gamma1, gamma2) - 8 * POW2_P1_RE(alpha1, alpha2), p),
+            modulo(MUL_P1_IM(u1, u2, gamma1, gamma2) - 8 * POW2_P1_IM(alpha1, alpha2), p), p, poly);
         // v_2 = v^2
-        auto v_2_1 = modulo(POW2_RE(v1, v2), p);
-        auto v_2_2 = modulo(POW2_IM(v1, v2), p);
+        auto v_2_1 = modulo(POW2_P1_RE(v1, v2), p);
+        auto v_2_2 = modulo(POW2_P1_IM(v1, v2), p);
         // Rz = 8v^3
         auto Rz = EF_create_from_mpz_class(
-            modulo(8*MUL_RE(v1, v2, v_2_1, v_2_2), p),
-            modulo(8*MUL_IM(v1, v2, v_2_1, v_2_2), p), p, poly);
+            modulo(8*MUL_P1_RE(v1, v2, v_2_1, v_2_2), p),
+            modulo(8*MUL_P1_IM(v1, v2, v_2_1, v_2_2), p), p, poly);
         auto ret = EP_EF_create_with_EF(b->curve, Rx, Ry, Rz);
         destroy(AS_OBJECT(Rx));
         destroy(AS_OBJECT(Ry));
         destroy(AS_OBJECT(Rz));
         return ret;
       } else { // Point addition
-        auto u1 = modulo(MUL_RE(Qy1, Qy2, Pz1, Pz2) - MUL_RE(Py1, Py2, Qz1, Qz2), p);
-        auto u2 = modulo(MUL_IM(Qy1, Qy2, Pz1, Pz2) - MUL_IM(Py1, Py2, Qz1, Qz2), p);
-        auto v1 = modulo(MUL_RE(Qx1, Qx2, Pz1, Pz2) - MUL_RE(Px1, Px2, Qz1, Qz2), p);
-        auto v2 = modulo(MUL_IM(Qx1, Qx2, Pz1, Pz2) - MUL_IM(Px1, Px2, Qz1, Qz2), p);
-        auto v_2_1 = modulo(MUL_RE(v1, v2, v1, v2), p);
-        auto v_2_2 = modulo(MUL_IM(v1, v2, v1, v2), p);
-        auto v_3_1 = modulo(MUL_RE(v1, v2, v_2_1, v_2_2), p);
-        auto v_3_2 = modulo(MUL_IM(v1, v2, v_2_1, v_2_2), p);
+        auto u1 = modulo(MUL_P1_RE(Qy1, Qy2, Pz1, Pz2) - MUL_P1_RE(Py1, Py2, Qz1, Qz2), p);
+        auto u2 = modulo(MUL_P1_IM(Qy1, Qy2, Pz1, Pz2) - MUL_P1_IM(Py1, Py2, Qz1, Qz2), p);
+        auto v1 = modulo(MUL_P1_RE(Qx1, Qx2, Pz1, Pz2) - MUL_P1_RE(Px1, Px2, Qz1, Qz2), p);
+        auto v2 = modulo(MUL_P1_IM(Qx1, Qx2, Pz1, Pz2) - MUL_P1_IM(Px1, Px2, Qz1, Qz2), p);
+        auto v_2_1 = modulo(MUL_P1_RE(v1, v2, v1, v2), p);
+        auto v_2_2 = modulo(MUL_P1_IM(v1, v2, v1, v2), p);
+        auto v_3_1 = modulo(MUL_P1_RE(v1, v2, v_2_1, v_2_2), p);
+        auto v_3_2 = modulo(MUL_P1_IM(v1, v2, v_2_1, v_2_2), p);
 
-        auto g1 = modulo(MUL_RE(Qz1, Qz2, Pz1, Pz2), p);
-        auto g2 = modulo(MUL_IM(Qz1, Qz2, Pz1, Pz2), p);
-        auto ru1 = modulo(MUL_RE(u1, u2, u1, u2), p);
-        auto ru2 = modulo(MUL_IM(u1, u2, u1, u2), p);
-        auto r1 = modulo(MUL_RE(ru1, ru2, g1, g2), p);
-        auto r2 = modulo(MUL_IM(ru1, ru2, g1, g2), p);
-        auto w_1_1 = modulo(SUB_RE(r1, r2, v_3_1, v_3_2), p);
-        auto w_1_2 = modulo(SUB_IM(r1, r2, v_3_1, v_3_2), p);
-        auto s_1 = modulo(MUL_RE(Px1, Px2, Qz1, Qz2), p);
-        auto s_2 = modulo(MUL_IM(Px1, Px2, Qz1, Qz2), p);
-        auto w_2_1 = modulo(2*MUL_RE(s_1, s_2, v_2_1, v_2_2), p);
-        auto w_2_2 = modulo(2*MUL_IM(s_1, s_2, v_2_1, v_2_2), p);
+        auto g1 = modulo(MUL_P1_RE(Qz1, Qz2, Pz1, Pz2), p);
+        auto g2 = modulo(MUL_P1_IM(Qz1, Qz2, Pz1, Pz2), p);
+        auto ru1 = modulo(MUL_P1_RE(u1, u2, u1, u2), p);
+        auto ru2 = modulo(MUL_P1_IM(u1, u2, u1, u2), p);
+        auto r1 = modulo(MUL_P1_RE(ru1, ru2, g1, g2), p);
+        auto r2 = modulo(MUL_P1_IM(ru1, ru2, g1, g2), p);
+        auto w_1_1 = modulo(SUB_P1_RE(r1, r2, v_3_1, v_3_2), p);
+        auto w_1_2 = modulo(SUB_P1_IM(r1, r2, v_3_1, v_3_2), p);
+        auto s_1 = modulo(MUL_P1_RE(Px1, Px2, Qz1, Qz2), p);
+        auto s_2 = modulo(MUL_P1_IM(Px1, Px2, Qz1, Qz2), p);
+        auto w_2_1 = modulo(2*MUL_P1_RE(s_1, s_2, v_2_1, v_2_2), p);
+        auto w_2_2 = modulo(2*MUL_P1_IM(s_1, s_2, v_2_1, v_2_2), p);
         auto w1 = modulo(w_1_1 - w_2_1, p);
         auto w2 = modulo(w_1_2 - w_2_2, p);
 
         auto Rx = EF_create_from_mpz_class(
-            modulo(MUL_RE(v1, v2, w1, w2), p),
-            modulo(MUL_IM(v1, v2, w1, w2), p), p, poly);
+            modulo(MUL_P1_RE(v1, v2, w1, w2), p),
+            modulo(MUL_P1_IM(v1, v2, w1, w2), p), p, poly);
 
-        auto Ry_1_1 = modulo(MUL_RE(s_1, s_2, v_2_1, v_2_2) - w1, p);
-        auto Ry_1_2 = modulo(MUL_IM(s_1, s_2, v_2_1, v_2_2) - w2, p);
-        auto t_1    = modulo(MUL_RE(Py1, Py2, Qz1, Qz2), p);
-        auto t_2    = modulo(MUL_IM(Py1, Py2, Qz1, Qz2), p);
-        auto Ry_2_1 = modulo(MUL_RE(t_1, t_2, v_3_1, v_3_2), p);
-        auto Ry_2_2 = modulo(MUL_IM(t_1, t_2, v_3_1, v_3_2), p);
-        auto Ry_3_1 = modulo(MUL_RE(Ry_1_1, Ry_1_2, u1, u2), p);
-        auto Ry_3_2 = modulo(MUL_IM(Ry_1_1, Ry_1_2, u1, u2), p);
+        auto Ry_1_1 = modulo(MUL_P1_RE(s_1, s_2, v_2_1, v_2_2) - w1, p);
+        auto Ry_1_2 = modulo(MUL_P1_IM(s_1, s_2, v_2_1, v_2_2) - w2, p);
+        auto t_1    = modulo(MUL_P1_RE(Py1, Py2, Qz1, Qz2), p);
+        auto t_2    = modulo(MUL_P1_IM(Py1, Py2, Qz1, Qz2), p);
+        auto Ry_2_1 = modulo(MUL_P1_RE(t_1, t_2, v_3_1, v_3_2), p);
+        auto Ry_2_2 = modulo(MUL_P1_IM(t_1, t_2, v_3_1, v_3_2), p);
+        auto Ry_3_1 = modulo(MUL_P1_RE(Ry_1_1, Ry_1_2, u1, u2), p);
+        auto Ry_3_2 = modulo(MUL_P1_IM(Ry_1_1, Ry_1_2, u1, u2), p);
 
         auto Ry = EF_create_from_mpz_class(
-            modulo(SUB_RE(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p),
-            modulo(SUB_IM(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p), p, poly);
+            modulo(SUB_P1_RE(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p),
+            modulo(SUB_P1_IM(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p), p, poly);
 
         auto Rz = EF_create_from_mpz_class(
-            modulo(MUL_RE(v_3_1, v_3_2, g1, g2), p),
-            modulo(MUL_IM(v_3_1, v_3_2, g1, g2), p), p, poly);
+            modulo(MUL_P1_RE(v_3_1, v_3_2, g1, g2), p),
+            modulo(MUL_P1_IM(v_3_1, v_3_2, g1, g2), p), p, poly);
 
         auto ret = EP_EF_create_with_EF(b->curve, Rx, Ry, Rz);
         destroy(AS_OBJECT(Rx));
@@ -391,106 +430,94 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
         destroy(AS_OBJECT(Rz));
         return ret;
     }
-#undef MUL_RE
-#undef MUL_IM
-#undef POW2_RE
-#undef POW2_IM
-#undef SUB_RE
-#undef SUB_IM
   }
     break;
   case IrreduciblePolynomialType::X2_X_1:
     {
-#define MUL_RE(x1, x2, y1, y2) (x1 * y1 - x2 * y2)
-#define MUL_IM(x1, x2, y1, y2) (x2 * y1 + x1 * y2 - x2 * y2)
-#define POW2_RE(x, y) (x * x - y * y)
-#define POW2_IM(x, y) (2 * x * y - y * y)
-#define SUB_RE(x1, x2, y1, y2) (x1 - y1)
-#define SUB_IM(x1, x2, y1, y2) (x2 - y2)
       if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) { // Point doubling
         // u = 3x^2+Az^2
-        auto u1 = modulo(3 * POW2_RE(Px1, Px2) + A * POW2_RE(Pz1, Pz2), p);
-        auto u2 = modulo(3 * POW2_IM(Px1, Px2) + A * POW2_IM(Pz1, Pz2), p);
+        auto u1 = modulo(3 * POW2_P2_RE(Px1, Px2) + A * POW2_P2_RE(Pz1, Pz2), p);
+        auto u2 = modulo(3 * POW2_P2_IM(Px1, Px2) + A * POW2_P2_IM(Pz1, Pz2), p);
         // v = yz
-        auto v1 = modulo(MUL_RE(Py1, Py2, Pz1, Pz2), p);
-        auto v2 = modulo(MUL_IM(Py1, Py2, Pz1, Pz2), p);
+        auto v1 = modulo(MUL_P2_RE(Py1, Py2, Pz1, Pz2), p);
+        auto v2 = modulo(MUL_P2_IM(Py1, Py2, Pz1, Pz2), p);
         // a = yv
-        auto alpha1 = modulo(MUL_RE(v1, v2, Py1, Py2), p);
-        auto alpha2 = modulo(MUL_IM(v1, v2, Py1, Py2), p);
+        auto alpha1 = modulo(MUL_P2_RE(v1, v2, Py1, Py2), p);
+        auto alpha2 = modulo(MUL_P2_IM(v1, v2, Py1, Py2), p);
         // w = u^2 - 8xa
-        auto w1 = modulo(POW2_RE(u1, u2) - 8 * MUL_RE(Px1, Px2, alpha1, alpha2), p);
-        auto w2 = modulo(POW2_IM(u1, u2) - 8 * MUL_IM(Px1, Px2, alpha1, alpha2), p);
+        auto w1 = modulo(POW2_P2_RE(u1, u2) - 8 * MUL_P2_RE(Px1, Px2, alpha1, alpha2), p);
+        auto w2 = modulo(POW2_P2_IM(u1, u2) - 8 * MUL_P2_IM(Px1, Px2, alpha1, alpha2), p);
         // Rx = 2vw
         auto Rx = EF_create_from_mpz_class(
-            modulo(2 * MUL_RE(v1, v2, w1, w2), p),
-            modulo(2 * MUL_IM(v1, v2, w1, w2), p), p, poly);
+            modulo(2 * MUL_P2_RE(v1, v2, w1, w2), p),
+            modulo(2 * MUL_P2_IM(v1, v2, w1, w2), p), p, poly);
         // ax = ax
-        auto ax1 = modulo(MUL_RE(alpha1, alpha2, Px1, Px2), p);
-        auto ax2 = modulo(MUL_IM(alpha1, alpha2, Px1, Px2), p);
+        auto ax1 = modulo(MUL_P2_RE(alpha1, alpha2, Px1, Px2), p);
+        auto ax2 = modulo(MUL_P2_IM(alpha1, alpha2, Px1, Px2), p);
         // gamma = 4ax - w
         auto gamma1 = modulo(4*ax1 - w1, p);
         auto gamma2 = modulo(4*ax2 - w2, p);
         // Ry = u*gamma - 8a^2
         auto Ry = EF_create_from_mpz_class(
-            modulo(MUL_RE(u1, u2, gamma1, gamma2) - 8 * POW2_RE(alpha1, alpha2), p),
-            modulo(MUL_IM(u1, u2, gamma1, gamma2) - 8 * POW2_IM(alpha1, alpha2), p), p, poly);
+            modulo(MUL_P2_RE(u1, u2, gamma1, gamma2) - 8 * POW2_P2_RE(alpha1, alpha2), p),
+            modulo(MUL_P2_IM(u1, u2, gamma1, gamma2) - 8 * POW2_P2_IM(alpha1, alpha2), p), p, poly);
         // v_2 = v^2
-        auto v_2_1 = modulo(POW2_RE(v1, v2), p);
-        auto v_2_2 = modulo(POW2_IM(v1, v2), p);
+        auto v_2_1 = modulo(POW2_P2_RE(v1, v2), p);
+        auto v_2_2 = modulo(POW2_P2_IM(v1, v2), p);
         // Rz = 8v^3
         auto Rz = EF_create_from_mpz_class(
-            modulo(8*MUL_RE(v1, v2, v_2_1, v_2_2), p),
-            modulo(8*MUL_IM(v1, v2, v_2_1, v_2_2), p), p, poly);
+            modulo(8*MUL_P2_RE(v1, v2, v_2_1, v_2_2), p),
+            modulo(8*MUL_P2_IM(v1, v2, v_2_1, v_2_2), p), p, poly);
         auto ret = EP_EF_create_with_EF(b->curve, Rx, Ry, Rz);
         destroy(AS_OBJECT(Rx));
         destroy(AS_OBJECT(Ry));
         destroy(AS_OBJECT(Rz));
         return ret;
       } else { // Point addition
-        auto u1 = modulo(MUL_RE(Qy1, Qy2, Pz1, Pz2) - MUL_RE(Py1, Py2, Qz1, Qz2), p);
-        auto u2 = modulo(MUL_IM(Qy1, Qy2, Pz1, Pz2) - MUL_IM(Py1, Py2, Qz1, Qz2), p);
-        auto v1 = modulo(MUL_RE(Qx1, Qx2, Pz1, Pz2) - MUL_RE(Px1, Px2, Qz1, Qz2), p);
-        auto v2 = modulo(MUL_IM(Qx1, Qx2, Pz1, Pz2) - MUL_IM(Px1, Px2, Qz1, Qz2), p);
-        auto v_2_1 = modulo(MUL_RE(v1, v2, v1, v2), p);
-        auto v_2_2 = modulo(MUL_IM(v1, v2, v1, v2), p);
-        auto v_3_1 = modulo(MUL_RE(v1, v2, v_2_1, v_2_2), p);
-        auto v_3_2 = modulo(MUL_IM(v1, v2, v_2_1, v_2_2), p);
+        auto u1 = modulo(MUL_P2_RE(Qy1, Qy2, Pz1, Pz2) - MUL_P2_RE(Py1, Py2, Qz1, Qz2), p);
+        auto u2 = modulo(MUL_P2_IM(Qy1, Qy2, Pz1, Pz2) - MUL_P2_IM(Py1, Py2, Qz1, Qz2), p);
+        auto v1 = modulo(MUL_P2_RE(Qx1, Qx2, Pz1, Pz2) - MUL_P2_RE(Px1, Px2, Qz1, Qz2), p);
+        auto v2 = modulo(MUL_P2_IM(Qx1, Qx2, Pz1, Pz2) - MUL_P2_IM(Px1, Px2, Qz1, Qz2), p);
+        auto v_2_1 = modulo(MUL_P2_RE(v1, v2, v1, v2), p);
+        auto v_2_2 = modulo(MUL_P2_IM(v1, v2, v1, v2), p);
+        auto v_3_1 = modulo(MUL_P2_RE(v1, v2, v_2_1, v_2_2), p);
+        auto v_3_2 = modulo(MUL_P2_IM(v1, v2, v_2_1, v_2_2), p);
 
-        auto g1 = modulo(MUL_RE(Qz1, Qz2, Pz1, Pz2), p);
-        auto g2 = modulo(MUL_IM(Qz1, Qz2, Pz1, Pz2), p);
-        auto ru1 = modulo(MUL_RE(u1, u2, u1, u2), p);
-        auto ru2 = modulo(MUL_IM(u1, u2, u1, u2), p);
-        auto r1 = modulo(MUL_RE(ru1, ru2, g1, g2), p);
-        auto r2 = modulo(MUL_IM(ru1, ru2, g1, g2), p);
-        auto w_1_1 = modulo(SUB_RE(r1, r2, v_3_1, v_3_2), p);
-        auto w_1_2 = modulo(SUB_IM(r1, r2, v_3_1, v_3_2), p);
-        auto s_1 = modulo(MUL_RE(Px1, Px2, Qz1, Qz2), p);
-        auto s_2 = modulo(MUL_IM(Px1, Px2, Qz1, Qz2), p);
-        auto w_2_1 = modulo(2*MUL_RE(s_1, s_2, v_2_1, v_2_2), p);
-        auto w_2_2 = modulo(2*MUL_IM(s_1, s_2, v_2_1, v_2_2), p);
+        auto g1 = modulo(MUL_P2_RE(Qz1, Qz2, Pz1, Pz2), p);
+        auto g2 = modulo(MUL_P2_IM(Qz1, Qz2, Pz1, Pz2), p);
+        auto ru1 = modulo(MUL_P2_RE(u1, u2, u1, u2), p);
+        auto ru2 = modulo(MUL_P2_IM(u1, u2, u1, u2), p);
+        auto r1 = modulo(MUL_P2_RE(ru1, ru2, g1, g2), p);
+        auto r2 = modulo(MUL_P2_IM(ru1, ru2, g1, g2), p);
+        auto w_1_1 = modulo(SUB_P2_RE(r1, r2, v_3_1, v_3_2), p);
+        auto w_1_2 = modulo(SUB_P2_IM(r1, r2, v_3_1, v_3_2), p);
+        auto s_1 = modulo(MUL_P2_RE(Px1, Px2, Qz1, Qz2), p);
+        auto s_2 = modulo(MUL_P2_IM(Px1, Px2, Qz1, Qz2), p);
+        auto w_2_1 = modulo(2*MUL_P2_RE(s_1, s_2, v_2_1, v_2_2), p);
+        auto w_2_2 = modulo(2*MUL_P2_IM(s_1, s_2, v_2_1, v_2_2), p);
         auto w1 = modulo(w_1_1 - w_2_1, p);
         auto w2 = modulo(w_1_2 - w_2_2, p);
 
         auto Rx = EF_create_from_mpz_class(
-            modulo(MUL_RE(v1, v2, w1, w2), p),
-            modulo(MUL_IM(v1, v2, w1, w2), p), p, poly);
+            modulo(MUL_P2_RE(v1, v2, w1, w2), p),
+            modulo(MUL_P2_IM(v1, v2, w1, w2), p), p, poly);
 
-        auto Ry_1_1 = modulo(MUL_RE(s_1, s_2, v_2_1, v_2_2) - w1, p);
-        auto Ry_1_2 = modulo(MUL_IM(s_1, s_2, v_2_1, v_2_2) - w2, p);
-        auto t_1    = modulo(MUL_RE(Py1, Py2, Qz1, Qz2), p);
-        auto t_2    = modulo(MUL_IM(Py1, Py2, Qz1, Qz2), p);
-        auto Ry_2_1 = modulo(MUL_RE(t_1, t_2, v_3_1, v_3_2), p);
-        auto Ry_2_2 = modulo(MUL_IM(t_1, t_2, v_3_1, v_3_2), p);
-        auto Ry_3_1 = modulo(MUL_RE(Ry_1_1, Ry_1_2, u1, u2), p);
-        auto Ry_3_2 = modulo(MUL_IM(Ry_1_1, Ry_1_2, u1, u2), p);
+        auto Ry_1_1 = modulo(MUL_P2_RE(s_1, s_2, v_2_1, v_2_2) - w1, p);
+        auto Ry_1_2 = modulo(MUL_P2_IM(s_1, s_2, v_2_1, v_2_2) - w2, p);
+        auto t_1    = modulo(MUL_P2_RE(Py1, Py2, Qz1, Qz2), p);
+        auto t_2    = modulo(MUL_P2_IM(Py1, Py2, Qz1, Qz2), p);
+        auto Ry_2_1 = modulo(MUL_P2_RE(t_1, t_2, v_3_1, v_3_2), p);
+        auto Ry_2_2 = modulo(MUL_P2_IM(t_1, t_2, v_3_1, v_3_2), p);
+        auto Ry_3_1 = modulo(MUL_P2_RE(Ry_1_1, Ry_1_2, u1, u2), p);
+        auto Ry_3_2 = modulo(MUL_P2_IM(Ry_1_1, Ry_1_2, u1, u2), p);
 
         auto Ry = EF_create_from_mpz_class(
-            modulo(SUB_RE(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p),
-            modulo(SUB_IM(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p), p, poly);
+            modulo(SUB_P2_RE(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p),
+            modulo(SUB_P2_IM(Ry_3_1, Ry_3_2, Ry_2_1, Ry_2_2), p), p, poly);
 
         auto Rz = EF_create_from_mpz_class(
-            modulo(MUL_RE(v_3_1, v_3_2, g1, g2), p),
-            modulo(MUL_IM(v_3_1, v_3_2, g1, g2), p), p, poly);
+            modulo(MUL_P2_RE(v_3_1, v_3_2, g1, g2), p),
+            modulo(MUL_P2_IM(v_3_1, v_3_2, g1, g2), p), p, poly);
 
         auto ret = EP_EF_create_with_EF(b->curve, Rx, Ry, Rz);
         destroy(AS_OBJECT(Rx));
@@ -498,47 +525,10 @@ __EXPORT__ EP *EP_EF_add(const EP *a, const EP *b) {
         destroy(AS_OBJECT(Rz));
         return ret;
     }
-#undef MUL_RE
-#undef MUL_IM
-#undef POW2_RE
-#undef POW2_IM
-#undef SUB_RE
-#undef SUB_IM
     }
     break;
   }
   return nullptr;
-}
-
-EP *EP_get_Infinity(ObjectType type, const EC *curve, const EP *orig = nullptr) {
-  if (orig != nullptr) {
-    switch (type) {
-    case ObjectType::EP_FF:
-      return EP_FF_create(curve, "0", "1", "0", to_std_string(orig->u.FF.p).c_str());
-    case ObjectType::EP_EF:
-      const char *pol;
-      switch (orig->u.EF.type) {
-      case IrreduciblePolynomialType::X2_1:
-        pol = "x^2+1";
-        break;
-      case IrreduciblePolynomialType::X2_X_1:
-        pol = "x^2+x+1";
-        break;
-      }
-      return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", to_std_string(orig->u.EF.modulo).c_str(), pol);
-    default:
-      return nullptr;
-    }
-  } else {
-    switch (type) {
-    case ObjectType::EP_FF:
-      return EP_FF_create(curve, "0", "1", "0", "2");
-    case ObjectType::EP_EF:
-      return EP_EF_create(curve, "0", "0", "1", "0", "0", "0", "2", "x^2+1");
-    default:
-      return nullptr;
-    }
-  }
 }
 
 __EXPORT__ EP *EP_mul(const EP *point, const ZZ *rhs) {

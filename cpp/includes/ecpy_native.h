@@ -42,6 +42,7 @@ std::string FF_to_raw_string_as_std_string(const FF*);
 FF *FF_copy(const FF*);
 
 bool is_prime(mpz_class);
+mpz_class modinv(mpz_class, mpz_class);
 
 IrreduciblePolynomialType EF_Detect_Polynomial(const ZZ*);
 IrreduciblePolynomialType EF_Get_Polynomial(const char*);
