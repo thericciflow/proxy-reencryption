@@ -49,7 +49,7 @@ def __modinv(a, m):
   if gcd(a, m) != 1:
     return 0
   if a < 0:
-    a += m
+    a %= m
   return egcd(a, m)[1] % m
 
 
