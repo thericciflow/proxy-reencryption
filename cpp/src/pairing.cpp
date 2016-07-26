@@ -16,6 +16,13 @@ mpz_class modulo(T a, mpz_class modulus) {
   return a;
 }
 
+bool equals_mpz_class(g_object_t *object, mpz_class x) {
+  auto z = AS_OBJECT(ZZ_create_from_mpz_class(x));
+  auto ret = equals(object, z);
+  destroy(z);
+  return ret;
+}
+
 __EXPORT__ g_object_t *EP_line_coeff(const EP *a, const EP *b) {
   auto A = to_ZZ(a->curve->a)->x;
   switch (a->objtype) {
@@ -130,3 +137,139 @@ __EXPORT__ g_object_t *EP_line_coeff(const EP *a, const EP *b) {
     }
   }
 }
+
+namespace {
+  inline g_object_t *sub(g_object_t *a, g_object_t *b) {
+    auto c = neg(b);
+    auto ret = add(a, c);
+    destroy(c);
+    return ret;
+  }
+
+  inline g_object_t *vertical(const EP *P, const EP *Q, const EP *R) {
+    auto t = mul(R->x, P->z);
+    auto u = mul(R->z, P->x);
+    auto w = sub(t, u);
+    auto x = mul(P->z, R->z);
+    auto y = div(w, x);
+    destroy(t);
+    destroy(u);
+    destroy(w);
+    destroy(x);
+    return y;
+  }
+
+  inline g_object_t *EP_h_function(const EP *P, const EP *Q, const EP *R) {
+    if (equals(AS_OBJECT_CONST(P), AS_OBJECT_CONST(Q)) && equals_mpz_class(P->y, 0)) {
+      return vertical(P, Q, R);
+    } else {
+      auto p = mul(P->x, Q->z);
+      auto q = mul(P->z, Q->x);
+      auto ret_b = equals(p, q);
+      destroy(p);
+      destroy(q);
+      if (ret_b) {
+        return vertical(P, Q, R);
+      }
+    }
+    auto L = AS_OBJECT(EP_line_coeff(P, Q));
+    g_object_t *p, *q;
+    {
+      auto a1 = mul(R->x, P->z);
+      auto a2 = mul(P->x, R->z);
+      auto a = sub(a1, a2);
+      auto b1 = mul(L, a);
+      auto b2 = mul(P->y, R->z);
+      auto b = sub(b2, b1);
+      auto c1 = mul(R->y, P->z);
+      auto c = sub(c1, b);
+      p = mul(Q->z, c);
+      destroy(a1);
+      destroy(a2);
+      destroy(a);
+      destroy(b1);
+      destroy(b2);
+      destroy(b);
+      destroy(c1);
+      destroy(c);
+    }
+    {
+      auto L2 = mul(L, L);
+      auto a1 = mul(L2, P->z);
+      auto a2 = mul(Q->z, R->z);
+      auto a = mul(a1, a2);
+      auto b1 = mul(P->z, Q->z);
+      auto b = mul(b1, R->x);
+      auto c = sub(b, a);
+      auto d1 = mul(P->z, Q->x);
+      auto d = mul(d1, R->z);
+      auto e1 = mul(P->x, Q->z);
+      auto e = mul(e1, R->z);
+      auto f = add(d, e);
+      q = add (f, c);
+      destroy(L2);
+      destroy(a1);
+      destroy(a2);
+      destroy(a);
+      destroy(b1);
+      destroy(b);
+      destroy(c);
+      destroy(d1);
+      destroy(d);
+      destroy(e1);
+      destroy(e);
+      destroy(f);
+    }
+    auto ret = div(p, q);
+    destroy(p);
+    destroy(q);
+    return ret;
+  }
+
+  __EXPORT__ g_object_t *EP_miller(const EP *_P, const EP *_Q, const ZZ *_m) {
+    auto m = _m->x;
+    if (equals(AS_OBJECT_CONST(_P), AS_OBJECT_CONST(_Q))) {
+      return AS_OBJECT(ZZ_create_from_mpz_class(1));
+    }
+    auto T = copy(AS_OBJECT_CONST(_P));
+    auto n = mpz_sizeinbase(m.get_mpz_t(), 2);
+    g_object_t *f;
+    if (_P->objtype == ObjectType::EP_FF) {
+      f = AS_OBJECT(FF_create_from_mpz_class(1, to_ZZ(_P->u.FF.p)->x));
+    } else if (_P->objtype == ObjectType::EP_EF) {
+      f = AS_OBJECT(EF_create_from_mpz_class(1, 0, to_ZZ(_P->u.EF.modulo)->x, _P->u.EF.type));
+    }
+    for (auto i = 0; i < n; i++) {
+      { // update f 1
+        auto t = mul(f, f);
+        auto h = EP_h_function(to_EP_force(T), _P, _Q);
+        auto b = f;
+        f = mul(t, h);
+        destroy(t);
+        destroy(h);
+        destroy(b);
+      }
+      { // T <- T + T
+        auto b = T;
+        T = add(T, T);
+        destroy(b);
+      }
+      if (mpz_tstbit(m.get_mpz_t(), i)) {
+        { // update f 2
+          auto t = f;
+          auto h = EP_h_function(to_EP_force(T), _P, _Q);
+          f = mul(f, h);
+          destroy(t);
+          destroy(h);
+        }
+        { // T <- T + P
+          auto b = T;
+          T = add(T, AS_OBJECT_CONST(_P));
+          destroy(T);
+        }
+      }
+    }
+    destroy(T);
+    return f;
+  }
+}; // anonymous namespace

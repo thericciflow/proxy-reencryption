@@ -12,3 +12,5 @@ def jacobi(a, n):
 def legendre(a, p):
   res = lib.ZZ_legendre(LPZZ(ZZ_create(a)), LPZZ(ZZ_create(p)))
   return int(res)
+
+def miller(E, P, Q, m):
