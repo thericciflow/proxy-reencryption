@@ -257,7 +257,6 @@ namespace {
       throw logic_error("Invalid EP Type");
     }
     for (int i = n - 2; i >= 0; i--) {
-      cout << "<< " << to_std_string(T) << endl;
       { // update f 1
         auto b = f;
         auto t = mul(f, f);
@@ -272,8 +271,7 @@ namespace {
         T = add(T, T);
         destroy(b);
       }
-      cout << ">> " << to_std_string(T) << endl;
-      if (((m >> i) & 1) == 1) {
+      if (mpz_tstbit(m.get_mpz_t(), i)) {
         { // update f 2
           auto t = f;
           auto h = EP_h_function(to_EP_force(T), _P, _Q);
@@ -287,7 +285,6 @@ namespace {
           destroy(b);
         }
       }
-      cout << "<> " << to_std_string(T) << endl;
     }
     destroy(T);
     return f;
