@@ -50,6 +50,23 @@ static int wa_count = 0;
 } \
 void _ ## name ## _test()
 
+TEST(pairing) {
+  char p[] = "631";
+  auto E = AS_OBJECT(EC_create("30", "34", "FF"));
+  auto P = AS_OBJECT(EP_FF_create(to_EC_FF(E), "36", "60", "1", p));
+  auto Q = AS_OBJECT(EP_FF_create(to_EC_FF(E), "121", "387", "1", p));
+  auto S = AS_OBJECT(EP_FF_create(to_EC_FF(E), "0", "36", "1", p));
+  auto d = AS_OBJECT(ZZ_create_from_mpz_class(5));
+  auto R = EP_miller(to_EP_FF(P), to_EP_FF(S), to_ZZ(d));
+  cout << to_std_string(R) << endl;
+  destroy(R);
+  destroy(d);
+  destroy(S);
+  destroy(Q);
+  destroy(P);
+  destroy(E);
+}
+
 TEST(ec_ff) {
     auto E = AS_OBJECT(EC_create("0", "1", "FF"));
     ES_ASSERT_EQ_FM(to_std_string(E), "Elliptic Curve on Finite Field: y^2 = x^3 + 1", "str(E)");
@@ -95,7 +112,7 @@ TEST(ec_ff) {
     }
     {
       auto l = EP_line_coeff(to_EP_FF(P), to_EP_FF(Q));
-      auto m = AS_OBJECT(ZZ_create_from_mpz_class(2));
+      auto m = AS_OBJECT(FF_create_from_mpz_class(2, 7));
       ES_ASSERT_EQ_FM(equals(l, m), true, "line_coeffs(P,Q)");
       destroy(l);
       destroy(m);
@@ -440,6 +457,7 @@ void exec_test() {
   ec_ff_test();
   ec_ef_1_test();
   ec_ef_2_test();
+  pairing_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count

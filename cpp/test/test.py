@@ -1,4 +1,5 @@
 from ecpy.native import *
+import ecpy.native.method as native_method
 from ecpy import *
 import time
 import sys
@@ -90,6 +91,13 @@ def main():
   assert_eq(P.line_coeff(Q).tuple(), line_coeff_val, "line_coeffs")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
+  p = 631
+  E = EC_create(30, 34, "FF")
+  P = EP_FF_create(E, 36, 60, 1, p)
+  Q = EP_FF_create(E, 121, 387, 1, p)
+  S = EP_FF_create(E, 0, 36, 1, p)
+  print P
+  print native_method.miller(P, S, 5)
   sys.exit(wa_count)
 
 if __name__ == "__main__":

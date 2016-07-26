@@ -6,7 +6,10 @@ class EP_Native(Structure):
   def __add__(s, a):
     if not isinstance(a, EP_Native):
       raise TypeError("%r must be EP_Native instance." % a)
-    return cast(lib.EP_add(LPEP(s), LPEP(a)), LPEP).contents
+    if s.type == 0:
+      return cast(lib.EP_FF_add(LPEP(s), LPEP(a)), LPEP).contents
+    elif s.type == 1:
+      return cast(lib.EP_EF_add(LPEP(s), LPEP(a)), LPEP).contents
 
   def __neg__(s):
     return cast(lib.EP_neg(LPEP(s)), LPEP).contents

@@ -16,13 +16,6 @@ mpz_class modulo(T a, mpz_class modulus) {
   return a;
 }
 
-bool equals_mpz_class(g_object_t *object, mpz_class x) {
-  auto z = AS_OBJECT(ZZ_create_from_mpz_class(x));
-  auto ret = equals(object, z);
-  destroy(z);
-  return ret;
-}
-
 __EXPORT__ g_object_t *EP_line_coeff(const EP *a, const EP *b) {
   auto A = to_ZZ(a->curve->a)->x;
   switch (a->objtype) {
@@ -35,14 +28,14 @@ __EXPORT__ g_object_t *EP_line_coeff(const EP *a, const EP *b) {
       if (equals(AS_OBJECT_CONST(a), AS_OBJECT_CONST(b))) {
         auto p = modulo(3 * Px * Px + A * Pz * Pz, modulus);
         auto q = modulo(2 * Py * Pz, modulus);
-        return AS_OBJECT(ZZ_create_from_mpz_class((modinv(q, modulus) * p) % modulus));
+        return AS_OBJECT(FF_create_from_mpz_class(modinv(q, modulus) * p, modulus));
       } else {
         auto Qx = to_ZZ(to_FF(b->x)->x)->x;
         auto Qy = to_ZZ(to_FF(b->y)->x)->x;
         auto Qz = to_ZZ(to_FF(b->z)->x)->x;
         auto p = modulo(Qy*Pz - Py*Qz, modulus);
         auto q = modulo(Qx*Pz - Px*Qz, modulus);
-        return AS_OBJECT(ZZ_create_from_mpz_class((modinv(q, modulus) * p) % modulus));
+        return AS_OBJECT(FF_create_from_mpz_class(modinv(q, modulus) * p, modulus));
       }
     }
   case ObjectType::EP_EF:
@@ -139,6 +132,27 @@ __EXPORT__ g_object_t *EP_line_coeff(const EP *a, const EP *b) {
 }
 
 namespace {
+  bool equals_mpz_class(g_object_t *object, mpz_class x) {
+    g_object_t *z;
+    bool ret;
+    switch (object->type) {
+    case ObjectType::ZZ:
+      z = AS_OBJECT(ZZ_create_from_mpz_class(x));
+      ret = equals(object, z);
+      break;
+    case ObjectType::FF:
+      z = AS_OBJECT(FF_create_from_mpz_class(x, to_ZZ(to_FF(object)->p)->x));
+      ret = equals(object, z);
+      break;
+    case ObjectType::EF:
+      z = AS_OBJECT(EF_create_from_mpz_class(x, 0, to_ZZ(to_EF(object)->modulo)->x, to_EF(object)->poly));
+      ret = equals(object, z);
+      break;
+    }
+    destroy(z);
+    return ret;
+  }
+
   inline g_object_t *sub(g_object_t *a, g_object_t *b) {
     auto c = neg(b);
     auto ret = add(a, c);
@@ -223,6 +237,7 @@ namespace {
     auto ret = div(p, q);
     destroy(p);
     destroy(q);
+    destroy(L);
     return ret;
   }
 
@@ -232,29 +247,33 @@ namespace {
       return AS_OBJECT(ZZ_create_from_mpz_class(1));
     }
     auto T = copy(AS_OBJECT_CONST(_P));
-    auto n = mpz_sizeinbase(m.get_mpz_t(), 2);
+    int n = mpz_sizeinbase(m.get_mpz_t(), 2);
     g_object_t *f;
     if (_P->objtype == ObjectType::EP_FF) {
       f = AS_OBJECT(FF_create_from_mpz_class(1, to_ZZ(_P->u.FF.p)->x));
     } else if (_P->objtype == ObjectType::EP_EF) {
       f = AS_OBJECT(EF_create_from_mpz_class(1, 0, to_ZZ(_P->u.EF.modulo)->x, _P->u.EF.type));
+    } else {
+      throw logic_error("Invalid EP Type");
     }
-    for (auto i = 0; i < n; i++) {
+    for (int i = n - 2; i >= 0; i--) {
+      cout << "<< " << to_std_string(T) << endl;
       { // update f 1
-        auto t = mul(f, f);
-        auto h = EP_h_function(to_EP_force(T), _P, _Q);
         auto b = f;
+        auto t = mul(f, f);
+        auto h = EP_h_function(to_EP_force(T), to_EP_force(T), _Q);
         f = mul(t, h);
+        destroy(b);
         destroy(t);
         destroy(h);
-        destroy(b);
       }
       { // T <- T + T
         auto b = T;
         T = add(T, T);
         destroy(b);
       }
-      if (mpz_tstbit(m.get_mpz_t(), i)) {
+      cout << ">> " << to_std_string(T) << endl;
+      if (((m >> i) & 1) == 1) {
         { // update f 2
           auto t = f;
           auto h = EP_h_function(to_EP_force(T), _P, _Q);
@@ -265,9 +284,10 @@ namespace {
         { // T <- T + P
           auto b = T;
           T = add(T, AS_OBJECT_CONST(_P));
-          destroy(T);
+          destroy(b);
         }
       }
+      cout << "<> " << to_std_string(T) << endl;
     }
     destroy(T);
     return f;
