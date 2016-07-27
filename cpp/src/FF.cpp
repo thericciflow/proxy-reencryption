@@ -6,39 +6,40 @@ FF_elem *FF_create_elem(const mpz_class& v) {
   return t.clone();
 }
 
-FF_elem *FF_elem::clone() {
+FF_elem *FF_elem::clone() const {
   return new FF_elem(v);
 }
 
-FF_elem *FF::add(const FF_elem *x, const FF_elem *y) {
+FF_elem *FF::add(const FF_elem *x, const FF_elem *y) const {
   FF_elem z(mod(x->v + y->v));
   return z.clone();
 }
 
-FF_elem *FF::sub(const FF_elem *x, const FF_elem *y) {
+FF_elem *FF::sub(const FF_elem *x, const FF_elem *y) const {
   FF_elem z(mod(x->v - y->v));
   return z.clone();
 }
 
-FF_elem *FF::mul(const FF_elem *x, const FF_elem *y) {
+FF_elem *FF::mul(const FF_elem *x, const FF_elem *y) const {
   FF_elem z(mod(x->v * y->v));
   return z.clone();
 }
 
-FF_elem *FF::div(const FF_elem *x, const FF_elem *y) {
+FF_elem *FF::div(const FF_elem *x, const FF_elem *y) const {
   mpz_class t;
   mpz_invert(t.get_mpz_t(), y->v.get_mpz_t(), p.get_mpz_t());
   FF_elem z(mod(x->v * t));
   return z.clone();
 }
-FF_elem *FF::pow(const FF_elem *x, const FF_elem *y) {
+
+FF_elem *FF::pow(const FF_elem *x, const FF_elem *y) const {
   mpz_class t;
   mpz_powm(t.get_mpz_t(), x->v.get_mpz_t(), y->v.get_mpz_t(), p.get_mpz_t());
   FF_elem z(t);
   return z.clone();
 }
 
-FF *FF::clone() {
+FF *FF::clone() const {
   return new FF(p);
 }
 
@@ -79,19 +80,9 @@ __EXPORT__ void FF_elem_delete(const FF_elem* fe) {
 }
 
 __EXPORT__ void FF_to_string(const FF *ff, char *ptr, int len) {
-  stringstream ss;
-  ss << "F_" << ff->p.get_str(10);
-  string r = ss.str();
-  if (r.size() < len) {
-    strcpy(ptr, r.c_str());
-  }
+  write_to_python_string(ff, ptr, len);
 }
 
 __EXPORT__ void FF_elem_to_string(const FF_elem *fe, char *ptr, int len) {
-  stringstream ss;
-  ss << fe->v.get_str(10);
-  string r = ss.str();
-  if (r.size() < len) {
-    strcpy(ptr, r.c_str());
-  }
+  write_to_python_string(fe, ptr, len);
 }

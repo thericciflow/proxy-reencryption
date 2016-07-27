@@ -18,12 +18,13 @@ struct FF_elem {
   mpz_class v;
   FF_elem(const mpz_class& v) : v(v) {}
   FF_elem(const FF_elem& ffe) : v(ffe.v) {}
-  FF_elem *clone();
+  std::string to_string() const;
+  FF_elem *clone() const;
 };
 
-struct FF {
+class FF {
   mpz_class p;
-  inline mpz_class mod(const mpz_class& v) {
+  inline mpz_class mod(const mpz_class& v) const {
     mpz_class t = v % p;
     if (t < 0) {
       t += p;
@@ -33,12 +34,13 @@ struct FF {
   public:
   FF(const mpz_class& p) : p(p) {}
   FF(const FF& ff) : p(ff.p) {}
-  FF_elem *add(const FF_elem *x, const FF_elem *y);
-  FF_elem *sub(const FF_elem *x, const FF_elem *y);
-  FF_elem *mul(const FF_elem *x, const FF_elem *y);
-  FF_elem *div(const FF_elem *x, const FF_elem *y);
-  FF_elem *pow(const FF_elem *x, const FF_elem *y);
-  FF *clone();
+  FF_elem *add(const FF_elem *x, const FF_elem *y) const;
+  FF_elem *sub(const FF_elem *x, const FF_elem *y) const;
+  FF_elem *mul(const FF_elem *x, const FF_elem *y) const;
+  FF_elem *div(const FF_elem *x, const FF_elem *y) const;
+  FF_elem *pow(const FF_elem *x, const FF_elem *y) const;
+  std::string to_string() const;
+  FF *clone() const;
 };
 
 FF_elem *FF_create_elem(const mpz_class& v);
@@ -56,3 +58,13 @@ __EXPORT__ {
   void FF_to_string(const FF*, char*, int);
   void FF_elem_to_string(const FF_elem*, char *, int);
 };
+
+template <class T>
+void write_to_python_string(const T *x, char *ptr, int len) {
+  stringstream ss;
+  ss << x->to_string();
+  string r = ss.str();
+  if (r.size() < len) {
+    strcpy(ptr, r.c_str());
+  }
+}
