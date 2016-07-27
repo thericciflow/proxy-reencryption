@@ -46,7 +46,7 @@ __EXPORT__ FF *FF_create(const char *p) {
   return FF(mpz_class(p)).clone();
 }
 
-__EXPORT__ FF_elem *FF_create_elem(const char *v) {
+__EXPORT__ FF_elem *FF_elem_create(const char *v) {
   return FF_create_elem(mpz_class(v));
 }
 
@@ -68,4 +68,30 @@ __EXPORT__ FF_elem *FF_div(FF *ff, const FF_elem *x, const FF_elem *y) {
 
 __EXPORT__ FF_elem *FF_pow(FF *ff, const FF_elem *x, const FF_elem *y) {
   return ff->pow(x, y);
+}
+
+__EXPORT__ void FF_delete(const FF* ff) {
+  delete ff;
+}
+
+__EXPORT__ void FF_elem_delete(const FF_elem* fe) {
+  delete fe;
+}
+
+__EXPORT__ void FF_to_string(const FF *ff, char *ptr, int len) {
+  stringstream ss;
+  ss << "F_" << ff->p.get_str(10);
+  string r = ss.str();
+  if (r.size() < len) {
+    strcpy(ptr, r.c_str());
+  }
+}
+
+__EXPORT__ void FF_elem_to_string(const FF_elem *fe, char *ptr, int len) {
+  stringstream ss;
+  ss << fe->v.get_str(10);
+  string r = ss.str();
+  if (r.size() < len) {
+    strcpy(ptr, r.c_str());
+  }
 }

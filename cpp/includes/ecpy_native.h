@@ -21,7 +21,7 @@ struct FF_elem {
   FF_elem *clone();
 };
 
-class FF {
+struct FF {
   mpz_class p;
   inline mpz_class mod(const mpz_class& v) {
     mpz_class t = v % p;
@@ -45,10 +45,14 @@ FF_elem *FF_create_elem(const mpz_class& v);
 
 __EXPORT__ {
   FF *FF_create(const char*);
-  FF_elem *FF_create_elem(const char*);
+  FF_elem *FF_elem_create(const char*);
   FF_elem *FF_add(FF*, const FF_elem*, const FF_elem*);
   FF_elem *FF_sub(FF*, const FF_elem*, const FF_elem*);
   FF_elem *FF_mul(FF*, const FF_elem*, const FF_elem*);
   FF_elem *FF_div(FF*, const FF_elem*, const FF_elem*);
   FF_elem *FF_pow(FF*, const FF_elem*, const FF_elem*);
+  void FF_delete(const FF*);
+  void FF_elem_delete(const FF_elem*);
+  void FF_to_string(const FF*, char*, int);
+  void FF_elem_to_string(const FF_elem*, char *, int);
 };
