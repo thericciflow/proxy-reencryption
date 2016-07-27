@@ -14,53 +14,27 @@
 
 #define __EXPORT__ extern "C"
 
-enum struct IrreduciblePolynomialType : unsigned int {
-  X2_1,   /* x^2+1 */
-  X2_X_1, /* x^2+x+1 */
+struct FF_elem {
+  mpz_class v;
+  FF_elem(const mpz_class& v) : v(v) {}
+  FF_elem(const FF_elem& ffe) : v(ffe.v) {}
+  FF_elem *clone();
 };
 
-enum struct EC_Type {
-  FF, /* on Finite field */
-  EF, /* on Extended Finite Field */
+class FF {
+  mpz_class p;
+  inline mpz_class mod(mpz_class v) {
+    mpz_class t = v % p;
+    if (t < 0) {
+      t += p;
+    }
+    return t;
+  }
+  public:
+  FF(const mpz_class& p) : p(p) {}
+  FF_elem *add(const FF_elem *x, const FF_elem *y);
+  FF_elem *sub(const FF_elem *x, const FF_elem *y);
+  FF_elem *mul(const FF_elem *x, const FF_elem *y);
+  FF_elem *div(const FF_elem *x, const FF_elem *y);
+  FF_elem *pow(const FF_elem *x, const FF_elem *y);
 };
-
-struct ZZ;
-struct FF;
-struct EF;
-struct EC;
-struct EP;
-
-#include "objects.h"
-
-ZZ *ZZ_create_from_mpz_class(mpz_class);
-std::string ZZ_to_string_as_std_string(const ZZ *zz);
-ZZ *ZZ_copy(ZZ*);
-
-FF *FF_create_from_mpz_class(mpz_class, mpz_class);
-std::string FF_to_string_as_std_string(const FF*);
-std::string FF_to_raw_string_as_std_string(const FF*);
-FF *FF_copy(const FF*);
-
-bool is_prime(mpz_class);
-mpz_class modinv(mpz_class, mpz_class);
-
-IrreduciblePolynomialType EF_Detect_Polynomial(const ZZ*);
-IrreduciblePolynomialType EF_Get_Polynomial(const char*);
-EF *EF_create_from_mpz_class(mpz_class, mpz_class, mpz_class, IrreduciblePolynomialType);
-std::string EF_to_string_as_std_string(const EF*);
-std::string EF_to_tuple_std_string(const EF*);
-EF *EF_copy(const EF*);
-
-std::string EC_to_std_string(const EC*);
-
-std::string EP_to_tuple_std_string(const EP*);
-std::string EP_to_std_string(const EP*);
-EP *EP_copy(const EP*);
-
-bool ZZ_is_same_type(const g_object_t*, const g_object_t*);
-bool FF_is_same_type(const g_object_t*, const g_object_t*);
-bool EF_is_same_type(const g_object_t*, const g_object_t*);
-bool EC_is_same_type(const g_object_t*, const g_object_t*);
-bool EP_is_same_type(const g_object_t*, const g_object_t*);
-
-#include "exports.h"
