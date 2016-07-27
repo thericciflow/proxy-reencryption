@@ -188,52 +188,51 @@ namespace {
     }
     auto L = AS_OBJECT(EP_line_coeff(P, Q));
     g_object_t *p, *q;
-    {
-      auto a1 = mul(R->x, P->z);
-      auto a2 = mul(P->x, R->z);
-      auto a = sub(a1, a2);
-      auto b1 = mul(L, a);
-      auto b2 = mul(P->y, R->z);
-      auto b = sub(b2, b1);
-      auto c1 = mul(R->y, P->z);
-      auto c = sub(c1, b);
-      p = mul(Q->z, c);
-      destroy(a1);
-      destroy(a2);
+    { // calculate p
+      auto a = mul(R->y, P->z);
+      auto b = mul(R->z, R->y);
+      auto c = mul(R->x, P->z);
+      auto d = mul(R->z, P->x);
+      auto x = sub(a, b);
+      auto y = sub(c, d);
+      auto z = mul(L, y);
+      auto pbar = sub(x, z);
+      p = mul(Q->z, pbar);
       destroy(a);
-      destroy(b1);
-      destroy(b2);
-      destroy(b);
-      destroy(c1);
-      destroy(c);
-    }
-    {
-      auto L2 = mul(L, L);
-      auto a1 = mul(L2, P->z);
-      auto a2 = mul(Q->z, R->z);
-      auto a = mul(a1, a2);
-      auto b1 = mul(P->z, Q->z);
-      auto b = mul(b1, R->x);
-      auto c = sub(b, a);
-      auto d1 = mul(P->z, Q->x);
-      auto d = mul(d1, R->z);
-      auto e1 = mul(P->x, Q->z);
-      auto e = mul(e1, R->z);
-      auto f = add(d, e);
-      q = add (f, c);
-      destroy(L2);
-      destroy(a1);
-      destroy(a2);
-      destroy(a);
-      destroy(b1);
       destroy(b);
       destroy(c);
-      destroy(d1);
       destroy(d);
-      destroy(e1);
-      destroy(e);
-      destroy(f);
+      destroy(x);
+      destroy(y);
+      destroy(z);
+      destroy(pbar);
     }
+    { // calculate q
+      auto abar = mul(Q->z, R->z);
+      auto a = mul(abar, P->x);
+      auto bbar = mul(P->z, Q->x);
+      auto b = mul(bbar, R->z);
+      auto cbar = mul(P->z, Q->z);
+      auto c = mul(cbar, R->x);
+      auto dbar2 = mul(L, L);
+      auto dbar = mul(dbar2, P->z);
+      auto d = mul(dbar, abar);
+      auto x = add(a, b);
+      auto y = sub(c, d);
+      q = add(x, y);
+      destroy(abar);
+      destroy(a);
+      destroy(bbar);
+      destroy(b);
+      destroy(cbar);
+      destroy(c);
+      destroy(dbar2);
+      destroy(dbar);
+      destroy(d);
+      destroy(x);
+      destroy(y);
+    }
+    cout << to_std_string(p) << " : " << to_std_string(q) << endl;
     auto ret = div(p, q);
     destroy(p);
     destroy(q);
