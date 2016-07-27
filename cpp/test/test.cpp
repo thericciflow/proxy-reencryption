@@ -47,10 +47,37 @@ void _ ## name ## _test()
 
 TEST(ff) {
   auto ff = FF(7);
-  auto x = FF_elem(3);
-  auto y = FF_elem(6);
-  ES_ASSERT_EQ(x.v, 3);
-  ES_ASSERT_EQ(y.v, 6);
+  auto x = FF_create_elem(3);
+  auto y = FF_create_elem(6);
+  ES_ASSERT_EQ(x->v, 3);
+  ES_ASSERT_EQ(y->v, 6);
+  {
+    auto t = ff.add(x, y);
+    ES_ASSERT_EQ_FM(t->v, 2, "x+y");
+    delete t;
+  }
+  {
+    auto t = ff.sub(x, y);
+    ES_ASSERT_EQ_FM(t->v, 4, "x-y");
+    delete t;
+  }
+  {
+    auto t = ff.mul(x, y);
+    ES_ASSERT_EQ_FM(t->v, 4, "x*y");
+    delete t;
+  }
+  {
+    auto t = ff.div(x, y);
+    ES_ASSERT_EQ_FM(t->v, 4, "x/y");
+    delete t;
+  }
+  {
+    auto t = ff.pow(x, y);
+    ES_ASSERT_EQ_FM(t->v, 1, "x^y");
+    delete t;
+  }
+  delete x;
+  delete y;
 }
 
 void exec_test() {
