@@ -1,5 +1,8 @@
 ecpy notes
 ========
+
+hackmd\: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
+
 # クラス設計
 ここでは「構造クラス」「値クラス」の2種類を設計する。
 
@@ -89,9 +92,48 @@ FF_elem_delete(y)
 FF_delete(F)
 ```
 
-実際にはクラスを作って__del__内にdelete系を実装するのでこの扱いは更に簡単には出来る。
+実際にはクラスを作って `__del__` 内にdelete系を実装するのでこの扱いは更に簡単には出来る。
 
-# FF/FF_elem
+## 構造クラスのインターフェース関数
+構造クラスを `T` とし、値クラスを `E` とする
+
+```clike=
+__EXPORT__ {
+  // create T instance
+  T *T_create(〜);
+  // delete T instance
+  void T_delete(const T*);
+  // ret = a + b
+  void T_add(T *obj, E *ret, const E *a, const E *b);
+  // ret = a - b
+  void T_sub(T *obj, E *ret, const E *a, const E *b);
+  // ret = a * b
+  void T_mul(T *obj, E *ret, const E *a, const E *b);
+  // ret = a / b
+  void T_div(T *obj, E *ret, const E *a, const E *b);
+  // ret = a ^ b
+  void T_pow(T *obj, E *ret, const E *a, const E *b);
+  // to python __str__ function
+  void T_to_string(T *obj, char *ptr, int len);
+};
+```
+
+## 値クラスのインターフェース関数
+構造クラスを `T` とし、値クラスを `E` とする
+
+```cpp=
+__EXPORT__ {
+  // create E instance
+  E *E_create(〜);
+  // delete E instance
+  void E_delete(const E*);
+  // to python __str__ function
+  void E_to_string(E *obj, char *ptr, int len);
+};
+```
+
+
+# FF/FF\_elem
 ## FF
 ```clike=
 struct FF {
@@ -119,7 +161,7 @@ struct FF {
 };
 ```
 
-## FF_elem
+## FF\_elem
 ```clike=
 struct FF_elem {
   mpz_class v;
@@ -136,4 +178,40 @@ struct FF_elem {
   FF_elem *clone(void) const;
   std::string to_string(void) const;
 };
+```
+
+## FF/FF\_elem のPythonインターフェース
+```clike=
+struct FF;
+struct FF_elem;
+// FF
+__EXPORT__ {
+  // create FF instance
+  FF *FF_create(const char *p);
+  // delete FF instance
+  void FF_delete(const FF*);
+  // ret = a + b
+  void FF_add(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a - b
+  void FF_sub(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a * b
+  void FF_mul(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a / b
+  void FF_div(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a ^ b
+  void FF_pow(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // to python __str__ function
+  void FF_to_string(FF *obj, char *ptr, int len);
+};
+
+// FF_elem
+__EXPORT__ {
+  // create FF_elem instance
+  FF_elem *FF_elem_create(const char *v);
+  // delete FF_elem instance
+  void FF_elem_delete(const FF_elem*);
+  // to python __str__ function
+  void FF_elem_to_string(FF_elem *obj, char *ptr, int len);
+};
+
 ```

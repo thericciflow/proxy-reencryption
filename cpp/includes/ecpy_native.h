@@ -58,7 +58,36 @@ struct FF_elem {
   std::string to_string(void) const;
 };
 
-FF_elem *FF_create_elem(const mpz_class& v);
+// FF
+__EXPORT__ {
+  // create FF instance
+  FF *FF_create(const char *p);
+  // delete FF instance
+  void FF_delete(const FF*);
+  // ret = a + b
+  void FF_add(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a - b
+  void FF_sub(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a * b
+  void FF_mul(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a / b
+  void FF_div(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // ret = a ^ b
+  void FF_pow(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  // to python __str__ function
+  void FF_to_string(FF *obj, char *ptr, int len);
+};
+
+// FF_elem
+__EXPORT__ {
+  // create FF_elem instance
+  FF_elem *FF_elem_create(const char *v);
+  // delete FF_elem instance
+  void FF_elem_delete(const FF_elem*);
+  // to python __str__ function
+  void FF_elem_to_string(FF_elem *obj, char *ptr, int len);
+};
+
 
 template <class T>
 void write_to_python_string(const T *x, char *ptr, int len) {
