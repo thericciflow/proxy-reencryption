@@ -1,88 +1,61 @@
 #include "ecpy_native.h"
 
 using namespace std;
-FF_elem *FF_create_elem(const mpz_class& v) {
-  FF_elem t(v);
-  return t.clone();
+
+std::string FF::to_string(void) const {
+  std::stringstream ss;
+  ss << "F_"
+     << p.get_str(10);
+  return ss.str();
 }
 
-FF_elem *FF_elem::clone() const {
-  return new FF_elem(v);
+template <class T>
+inline mpz_class modulo(T a, const mpz_class& modulo) {
+  mpz_class t = a % modulo;
+  if (t < 0) {
+    t += modulo;
+  }
+  return t;
 }
 
-FF_elem *FF::add(const FF_elem *x, const FF_elem *y) const {
-  FF_elem z(mod(x->v + y->v));
-  return z.clone();
+void FF::add(FF_elem& ret, const FF_elem& a, const FF_elem& b) const {
+  ret.v = modulo(a.v + b.v, p);
 }
 
-FF_elem *FF::sub(const FF_elem *x, const FF_elem *y) const {
-  FF_elem z(mod(x->v - y->v));
-  return z.clone();
+void FF::sub(FF_elem& ret, const FF_elem& a, const FF_elem& b) const {
+  ret.v = modulo(a.v - b.v, p);
 }
 
-FF_elem *FF::mul(const FF_elem *x, const FF_elem *y) const {
-  FF_elem z(mod(x->v * y->v));
-  return z.clone();
+void FF::mul(FF_elem& ret, const FF_elem& a, const FF_elem& b) const {
+  ret.v = modulo(a.v * b.v, p);
 }
 
-FF_elem *FF::div(const FF_elem *x, const FF_elem *y) const {
+void FF::div(FF_elem& ret, const FF_elem& a, const FF_elem& b) const {
   mpz_class t;
-  mpz_invert(t.get_mpz_t(), y->v.get_mpz_t(), p.get_mpz_t());
-  FF_elem z(mod(x->v * t));
-  return z.clone();
+  mpz_invert(t.get_mpz_t(), b.v.get_mpz_t(), p.get_mpz_t());
+  ret.v = modulo(a.v * t, p);
 }
 
-FF_elem *FF::pow(const FF_elem *x, const FF_elem *y) const {
+void FF::pow(FF_elem& ret, const FF_elem& a, const FF_elem& b) const {
   mpz_class t;
-  mpz_powm(t.get_mpz_t(), x->v.get_mpz_t(), y->v.get_mpz_t(), p.get_mpz_t());
-  FF_elem z(t);
-  return z.clone();
+  mpz_powm(t.get_mpz_t(), a.v.get_mpz_t(), b.v.get_mpz_t(), p.get_mpz_t());
+  ret.v = modulo(t, p);
 }
 
-FF *FF::clone() const {
-  return new FF(p);
+FF_elem& FF_elem::operator=(const FF_elem& f) {
+  v = f.v;
+  return (*this);
 }
 
-__EXPORT__ FF *FF_create(const char *p) {
-  return FF(mpz_class(p)).clone();
+FF_elem& FF_elem::operator=(FF_elem&& f) {
+  v = std::move(f.v);
+  return (*this);
 }
 
-__EXPORT__ FF_elem *FF_elem_create(const char *v) {
-  return FF_create_elem(mpz_class(v));
+FF_elem *FF_elem::clone(void) const {
+  return new FF_elem((*this));
 }
 
-__EXPORT__ FF_elem *FF_add(FF *ff, const FF_elem *x, const FF_elem *y) {
-  return ff->add(x, y);
-}
-
-__EXPORT__ FF_elem *FF_sub(FF *ff, const FF_elem *x, const FF_elem *y) {
-  return ff->sub(x, y);
-}
-
-__EXPORT__ FF_elem *FF_mul(FF *ff, const FF_elem *x, const FF_elem *y) {
-  return ff->mul(x, y);
-}
-
-__EXPORT__ FF_elem *FF_div(FF *ff, const FF_elem *x, const FF_elem *y) {
-  return ff->div(x, y);
-}
-
-__EXPORT__ FF_elem *FF_pow(FF *ff, const FF_elem *x, const FF_elem *y) {
-  return ff->pow(x, y);
-}
-
-__EXPORT__ void FF_delete(const FF* ff) {
-  delete ff;
-}
-
-__EXPORT__ void FF_elem_delete(const FF_elem* fe) {
-  delete fe;
-}
-
-__EXPORT__ void FF_to_string(const FF *ff, char *ptr, int len) {
-  write_to_python_string(ff, ptr, len);
-}
-
-__EXPORT__ void FF_elem_to_string(const FF_elem *fe, char *ptr, int len) {
-  write_to_python_string(fe, ptr, len);
+std::string FF_elem::to_string(void) const {
+  return v.get_str(10);
 }

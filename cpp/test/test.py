@@ -28,16 +28,6 @@ def assert_eq(a, b, m):
   _assert(a, b, m, "==")
 
 def main():
-  ff = FF(31)
-  FE = lambda x: FF_elem(ff, x)
-  x = FF_elem(ff, 25)
-  y = FF_elem(ff, 41)
-  assert_eq(int(x+y), 4, "x+y")
-  assert_eq(int(x-y), 15, "x+y")
-  assert_eq(int(x*y), 2, "x+y")
-  assert_eq(int(x/y), 18, "x/y")
-  assert_eq(int(x**y), 5, "x^y")
-  assert_eq(int(x**FE(10)), 25, "x^(y % p)")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)
