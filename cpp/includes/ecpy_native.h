@@ -65,17 +65,17 @@ __EXPORT__ {
   // delete FF instance
   void FF_delete(const FF*);
   // ret = a + b
-  void FF_add(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_add(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a - b
-  void FF_sub(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_sub(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a * b
-  void FF_mul(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_mul(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a / b
-  void FF_div(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_div(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a ^ b
-  void FF_pow(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // to python __str__ function
-  void FF_to_string(FF *obj, char *ptr, int len);
+  void FF_to_string(const FF *obj, char *ptr, int len);
 };
 
 // FF_elem
@@ -85,7 +85,7 @@ __EXPORT__ {
   // delete FF_elem instance
   void FF_elem_delete(const FF_elem*);
   // to python __str__ function
-  void FF_elem_to_string(FF_elem *obj, char *ptr, int len);
+  void FF_elem_to_string(const FF_elem *obj, char *ptr, int len);
 };
 
 

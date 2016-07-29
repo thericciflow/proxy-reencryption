@@ -1,7 +1,7 @@
 ecpy notes
 ========
 
-hackmd\: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
+hackmd: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 
 # クラス設計
 ここでは「構造クラス」「値クラス」の2種類を設計する。
@@ -25,7 +25,7 @@ hackmd\: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 ## 共通に持つメンバ関数
 ここでは構造/値クラス `T` が必ず持つべきメンバ関数を定義する。
 
-```clike=
+```cpp=
 struct T {
   T *clone(void) const;
   std::string to_string(void) const;
@@ -35,7 +35,7 @@ struct T {
 ## 構造クラスの持つメンバ関数
 ここでは構造クラス `T` と対応する値クラス `E` が必ず持つべきメンバ関数を定義する。
 
-```clike=
+```cpp=
 template <class E>
 struct T {
   void add(E& ret, const E& a, const E& b) const;
@@ -97,24 +97,24 @@ FF_delete(F)
 ## 構造クラスのインターフェース関数
 構造クラスを `T` とし、値クラスを `E` とする
 
-```clike=
+```cpp=
 __EXPORT__ {
   // create T instance
   T *T_create(〜);
   // delete T instance
   void T_delete(const T*);
   // ret = a + b
-  void T_add(T *obj, E *ret, const E *a, const E *b);
+  void T_add(const T *obj, E *ret, const E *a, const E *b);
   // ret = a - b
-  void T_sub(T *obj, E *ret, const E *a, const E *b);
+  void T_sub(const T *obj, E *ret, const E *a, const E *b);
   // ret = a * b
-  void T_mul(T *obj, E *ret, const E *a, const E *b);
+  void T_mul(const T *obj, E *ret, const E *a, const E *b);
   // ret = a / b
-  void T_div(T *obj, E *ret, const E *a, const E *b);
+  void T_div(const T *obj, E *ret, const E *a, const E *b);
   // ret = a ^ b
-  void T_pow(T *obj, E *ret, const E *a, const E *b);
+  void T_pow(const T *obj, E *ret, const E *a, const E *b);
   // to python __str__ function
-  void T_to_string(T *obj, char *ptr, int len);
+  void T_to_string(const T *obj, char *ptr, int len);
 };
 ```
 
@@ -128,30 +128,30 @@ __EXPORT__ {
   // delete E instance
   void E_delete(const E*);
   // to python __str__ function
-  void E_to_string(E *obj, char *ptr, int len);
+  void E_to_string(const E *obj, char *ptr, int len);
 };
 ```
 
 
 # FF/FF\_elem
 ## FF
-```clike=
+```cpp=
 struct FF {
   mpz_class p;
-  
+
   FF() = default;
   ~FF() = default;
   FF(const mpz_class& p) : p(p) {}
   FF(const FF& t) : p(t.p) {}
   FF(FF&& t) : p(std::move(t.p)) {};
-  
+
   FF& operator=(const FF&);
   FF& operator=(FF&&);
-  
+
   // common functions
   FF *clone(void) const;
   std::string to_string(void) const;
-  
+
   // structure class member functions
   void add(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
   void sub(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
@@ -162,18 +162,20 @@ struct FF {
 ```
 
 ## FF\_elem
-```clike=
+```cpp=
 struct FF_elem {
   mpz_class v;
-  
+
+  FF_elem(const mpz_class& v) : v(v) {};
+
   FF_elem() = default;
   ~FF_elem() = default;
   FF_elem(const FF_elem& t) : v(t.v) {};
   FF_elem(FF_elem&& t) : v(std::move(t.v)) {};
-  
+
   FF_elem& operator=(const FF_elem&);
   FF_elem& operator=(FF_elem&&);
-  
+
   // common functions
   FF_elem *clone(void) const;
   std::string to_string(void) const;
@@ -181,7 +183,7 @@ struct FF_elem {
 ```
 
 ## FF/FF\_elem のPythonインターフェース
-```clike=
+```cpp=
 struct FF;
 struct FF_elem;
 // FF
@@ -191,17 +193,17 @@ __EXPORT__ {
   // delete FF instance
   void FF_delete(const FF*);
   // ret = a + b
-  void FF_add(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_add(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a - b
-  void FF_sub(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_sub(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a * b
-  void FF_mul(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_mul(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a / b
-  void FF_div(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_div(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a ^ b
-  void FF_pow(FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // to python __str__ function
-  void FF_to_string(FF *obj, char *ptr, int len);
+  void FF_to_string(const FF *obj, char *ptr, int len);
 };
 
 // FF_elem
@@ -211,7 +213,93 @@ __EXPORT__ {
   // delete FF_elem instance
   void FF_elem_delete(const FF_elem*);
   // to python __str__ function
-  void FF_elem_to_string(FF_elem *obj, char *ptr, int len);
+  void FF_elem_to_string(const FF_elem *obj, char *ptr, int len);
 };
 
+```
+
+# EF/EF\_elem
+既約多項式が2種類($x^2+1$, $x^2+x+1$)あるので、これはenumにしておく
+
+[enumeration declaration - cppreference.com](http://en.cppreference.com/w/cpp/language/enum)
+> the keywords `class` and `struct` are exactly equivalent
+
+```cpp=
+enum class IrreduciblePolynomialType : int {
+  X2_1, // x^2+1
+  X2_X_1, // x^2+x+1
+};
+```
+## EF
+```cpp=
+struct EF {
+  FF base;
+  IrreduciblePolynomialType poly;
+
+  EF(const FF& ff, IrreduciblePolynomialType pol) : 
+    base(ff),
+	poly(pol) {}
+
+  EF() = default;
+  ~EF() = default;
+  EF(const EF& ef) : base(ef.base), poly(ef.poly) {}
+  EF(EF&& ef) : base(std::move(ef.base)), poly(ef.poly) {}
+
+  EF& operator=(const EF& ef);
+  EF& operator=(EF&& ef);
+
+  // structure class member functions
+  void add(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
+  void sub(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
+  void mul(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
+  void div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
+  void pow(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
+
+  // common functions
+  EF *clone(void) const;
+  std::string to_string(void) const;
+};
+```
+
+## EF\_elem
+
+```cpp=
+struct EF_elem {
+  FF_elem u, v;
+
+  EF_elem(FF_elem u, FF_elem(v)) :
+    u(u),
+	v(v) {}
+
+  EF_elem() = default;
+  ~EF_elem() = default;
+  EF_elem(const EF_elem& ee) : u(ee.u), v(ee.v) {};
+  EF_elem(EF_elem&& ee) : u(std::move(ee.u)), v(std::move(ee.v)) {};
+
+  EE_elem& operator=(const EE_elem& ee);
+  EE_elem& operator=(EE_elem&& ee);
+
+  // common functions
+  EF_elem *clone(void) const;
+  std::string to_string(void) const;
+};
+```
+
+## EF/EF\_elemのPythonインターフェース
+
+```cpp=
+struct EF;
+struct EF_elem;
+
+// EF
+__EXPORT__ {
+  // create EF instance
+  // polynomial is string of irreducible polynomial. 
+  // e.g. x^2+x+1, x^2+1, X^2+1, x^2+ x +1 (ignore spaces and case insensitive)
+  EF *EF_create(const char *p, const char *polynomial);
+  // delete EF instance
+  void EF_delete(const EF *ef);
+  // r = a + b (a, b, r is EF_elem instance)
+  void EF_add(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+};
 ```
