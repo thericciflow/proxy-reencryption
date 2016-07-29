@@ -3,6 +3,11 @@
 
 struct EF_elem;
 
+enum class IrreduciblePolynomialType : int {
+  X2_1, // x^2+1
+  X2_X_1, // x^2+x+1
+};
+
 struct EF {
   FF base;
   IrreduciblePolynomialType poly;
@@ -39,8 +44,8 @@ struct EF_elem {
   EF_elem(const EF_elem& ee) : u(ee.u), v(ee.v) {};
   EF_elem(EF_elem&& ee) : u(std::move(ee.u)), v(std::move(ee.v)) {};
 
-  EE_elem& operator=(const EE_elem& ee);
-  EE_elem& operator=(EE_elem&& ee);
+  EF_elem& operator=(const EF_elem& ee);
+  EF_elem& operator=(EF_elem&& ee);
 
   // common functions
   EF_elem *clone(void) const;
