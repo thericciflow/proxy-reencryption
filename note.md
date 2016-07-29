@@ -224,7 +224,7 @@ __EXPORT__ {
 [enumeration declaration - cppreference.com](http://en.cppreference.com/w/cpp/language/enum)
 > the keywords `class` and `struct` are exactly equivalent
 
-```cpp=
+```cpp
 enum class IrreduciblePolynomialType : int {
   X2_1, // x^2+1
   X2_X_1, // x^2+x+1
@@ -236,9 +236,7 @@ struct EF {
   FF base;
   IrreduciblePolynomialType poly;
 
-  EF(const FF& ff, IrreduciblePolynomialType pol) : 
-    base(ff),
-	poly(pol) {}
+  EF(const FF& ff, IrreduciblePolynomialType pol) : base(ff), poly(pol) {}
 
   EF() = default;
   ~EF() = default;
@@ -267,9 +265,7 @@ struct EF {
 struct EF_elem {
   FF_elem u, v;
 
-  EF_elem(FF_elem u, FF_elem(v)) :
-    u(u),
-	v(v) {}
+  EF_elem(FF_elem u, FF_elem(v)) : u(u), v(v) {}
 
   EF_elem() = default;
   ~EF_elem() = default;
@@ -299,7 +295,25 @@ __EXPORT__ {
   EF *EF_create(const char *p, const char *polynomial);
   // delete EF instance
   void EF_delete(const EF *ef);
-  // r = a + b (a, b, r is EF_elem instance)
+
+  // r = a + b
   void EF_add(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+  // r = a - b
+  void EF_sub(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+  // r = a * b
+  void EF_mul(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+  // r = a / b
+  void EF_div(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+  // r = a ^ b
+  void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+
+  void EF_to_string(const EF *obj, char *ptr, int len);
+};
+
+// EF_elem
+__EXPORT__ {
+  EF_elem *EF_elem_create(const char *u, const char *v);
+  void EF_elem_delete(const EF_elem *obj);
+  void EF_elem_to_string(const EF_elem *obj, char *ptr, int len);
 };
 ```
