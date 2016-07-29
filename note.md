@@ -3,7 +3,7 @@ ecpy notes
 
 hackmd: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 
-# クラス設計
+# C++クラス設計
 
 ここでは「構造クラス」「値クラス」の2種類を設計する。
 
@@ -17,9 +17,9 @@ hackmd: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 
 ## 値クラス
 
-* FF_elem
-* EF_elem
-* EC_elem
+* FF\_elem
+* EF\_elem
+* EC\_elem
 
 → それぞれは値の保持を主目的とするクラスで、各種パラメータや演算処理は構造クラスによる。
 
@@ -75,29 +75,127 @@ struct T {
 };
 ```
 
+# Pythonクラス設計
+
+Python側でのラッパクラスの設計。
+
+## 構造クラスのラッパクラスの設計
+
+基本となるクラスは以下のようにする。 構造クラスを `T` 、値クラスを `E` とする。
+
+```python
+class T(object):
+  def __init__(s, params): # paramsは適宜パラメータを入れる。複数でも構わない。
+    s.ptr = lib.T_create(params)
+
+  def __to_string(s, bufsize): # to_stringのラッパ, バッファのサイズは可変
+    b = create_string_buffer(bufsize)
+    lib.T_to_string(s.ptr, b, bufsize)
+    b = b.value
+	if len(b) == 0: # not enough buffer size
+	  return s.__to_string(2*bufsize)
+	return b
+
+  def __str__(s):
+    return __to_string(1024)
+
+  def add(s, ret, a, b):
+    assert isinstance(ret, E) and isinstance(a, E) and isinstance(b, E)
+    lib.T_add(s.ptr, ret.ptr, a.ptr, b.ptr)
+
+  def sub(s, ret, a, b):
+    assert isinstance(ret, E) and isinstance(a, E) and isinstance(b, E)
+    lib.T_sub(s.ptr, ret.ptr, a.ptr, b.ptr)
+
+  def mul(s, ret, a, b):
+    assert isinstance(ret, E) and isinstance(a, E) and isinstance(b, E)
+    lib.T_mul(s.ptr, ret.ptr, a.ptr, b.ptr)
+
+  def div(s, ret, a, b):
+    assert isinstance(ret, E) and isinstance(a, E) and isinstance(b, E)
+    lib.T_div(s.ptr, ret.ptr, a.ptr, b.ptr)
+
+  def pow(s, ret, a, b):
+    assert isinstance(ret, E) and isinstance(a, E)
+    lib.T_pow(s.ptr, ret.ptr, a.ptr, b.ptr)
+
+  def __del__(s): # GC deleter
+    lib.T_delete(s.ptr)
+```
+
+## 値クラスのラッパクラスの設計
+
+基本となるクラスは以下のようにする。 構造クラスを `T` 、値クラスを `E` とする。
+
+```python
+class E(object):
+  def __init__(s, params): # paramsは適宜パラメータを入れる。複数でも構わない。
+    s.ptr = lib.E_create(params)
+
+  def __to_string(s, bufsize): # to_stringのラッパ, バッファのサイズは可変
+    b = create_string_buffer(bufsize)
+    lib.E_to_string(s.ptr, b, bufsize)
+    b = b.value
+	if len(b) == 0: # not enough buffer size
+	  return s.__to_string(2*bufsize)
+	return b
+
+  def __str__(s):
+    return __to_string(1024)
+
+  def __del__(s): # GC deleter
+    lib.E_delete(s.ptr)
+
+  def to_python(s): # Pythonのオブジェクトに変換する。FFなら数値、EFならタプル等で、これは明確に規程する必要がある。
+    return int(str(s))
+```
+
 # Python<=>C++インターフェース
 
 基本的には不透明ポインタをハンドルのように扱うことで実現する。
-数値については全て文字列処理で妥協。
-e.g.
 
+## 多倍長整数について
+
+Python側での多倍長整数(C APIでのPyLong型)はC++では原則mpz\_classへ変換する。やりとりは文字列変換の後行う。
+
+Python\:
 ```python
-F = FF_create("7")
-x = FF_elem_create(F, "1") # Fは不透明ポインタ FF *
-y = FF_elem_create(F, "6") # 同上
-print FF_elem_to_string(x) # => 1
-print FF_elem_to_string(F) # => F_7
-
-t = FF_elem_create(F)
-FF_add(t, x, y) # t = x + y
-print FF_elem_to_string(x) # => 1+6 mod 7 = 0
-FF_elem_delete(t)
-FF_elem_delete(x)
-FF_elem_delete(y)
-FF_delete(F)
+# lib.cpp_func(1<<256) # <= PyLong型になるので直接渡せない
+lib.cpp_func(str(1<<256)) # <= OK
 ```
 
-実際にはクラスを作って `__del__` 内にdelete系を実装するのでこの扱いは更に簡単には出来る。
+C++\:
+```cpp
+// __EXPORT__ void cpp_func(const mpz_class& x); <= 直接の変換は不可能
+__EXPORT__ void cpp_func(const char *x); // <= OK, 内部でmpz_classへ変換する
+```
+
+## 文字列を戻り値とする関数について
+
+文字列を戻り値に持つ関数(`to_string`)についてはPython ctypes APIの`create_string_buffer`メソッドを用いてバッファを先に生成し、コピーしてもらう形を取る。
+
+C++側は `ecpy_native.h` にある次の関数を用いることで、この文書のクラス設計に基づくクラスについては対応できる。
+
+```cpp
+template <class T>
+void write_to_python_string(const T *x, char *ptr, int len) {
+  std::stringstream ss;
+  ss << x->to_string();
+  std::string r = ss.str();
+  if (r.size() < len) {
+    strcpy(ptr, r.c_str());
+  }
+}
+```
+
+Python側は以下のようになる。この時、 `T_to_string` 関数はクラス`T`の `to_string` 関数のラッパ。
+
+```python
+  def __str__(s):
+    b = create_string_buffer(1024)
+    lib.T_to_string(s.ptr, b, 1024)
+    return b.value
+```
 
 ## 構造クラスのインターフェース関数
 
