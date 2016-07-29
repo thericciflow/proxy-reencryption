@@ -2,6 +2,16 @@
 
 using namespace std;
 
+FF& FF::operator=(const FF& f) {
+  p = f.p;
+  return (*this);
+}
+
+FF& FF::operator=(FF&& f) {
+  p = std::move(f.p);
+  return (*this);
+}
+
 std::string FF::to_string(void) const {
   std::stringstream ss;
   ss << "F_"
