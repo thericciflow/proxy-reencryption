@@ -42,6 +42,20 @@ def main():
   assert_eq(int(t), 18, "x/y")
   F.pow(t, x, y)
   assert_eq(int(t), 25, "x^y")
+
+  F = EF(41, "x^2+x+1")
+  x = EF_elem(15, 25)
+  y = EF_elem(39, 10)
+  t = EF_elem(0, 0)
+
+  F.add(t, x, y)
+  assert_eq(tuple(t), (13, 35), "x+y=13+35w")
+  F.sub(t, x, y)
+  assert_eq(tuple(t), (17, 15), "x-y=17+15w")
+  F.mul(t, x, y)
+  assert_eq(tuple(t), (7, 14), "x+y=7+14w")
+  F.div(t, x, y)
+  assert_eq(tuple(t), (29, 5), "x+y=29+5w")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)
