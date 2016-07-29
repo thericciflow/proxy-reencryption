@@ -25,7 +25,7 @@ hackmd: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 ## 共通に持つメンバ関数
 ここでは構造/値クラス `T` が必ず持つべきメンバ関数を定義する。
 
-```cpp=
+```cpp
 struct T {
   T *clone(void) const;
   std::string to_string(void) const;
@@ -35,7 +35,7 @@ struct T {
 ## 構造クラスの持つメンバ関数
 ここでは構造クラス `T` と対応する値クラス `E` が必ず持つべきメンバ関数を定義する。
 
-```cpp=
+```cpp
 template <class E>
 struct T {
   void add(E& ret, const E& a, const E& b) const;
@@ -60,7 +60,7 @@ struct T {
 辺りを参考に考える。
 これらの関数では例外は一切投げない。
 
-```cpp=
+```cpp
 struct T {
   T();
   ~T();
@@ -97,7 +97,7 @@ FF_delete(F)
 ## 構造クラスのインターフェース関数
 構造クラスを `T` とし、値クラスを `E` とする
 
-```cpp=
+```cpp
 __EXPORT__ {
   // create T instance
   T *T_create(〜);
@@ -121,7 +121,7 @@ __EXPORT__ {
 ## 値クラスのインターフェース関数
 構造クラスを `T` とし、値クラスを `E` とする
 
-```cpp=
+```cpp
 __EXPORT__ {
   // create E instance
   E *E_create(〜);
@@ -135,7 +135,7 @@ __EXPORT__ {
 
 # FF/FF\_elem
 ## FF
-```cpp=
+```cpp
 struct FF {
   mpz_class p;
 
@@ -162,7 +162,7 @@ struct FF {
 ```
 
 ## FF\_elem
-```cpp=
+```cpp
 struct FF_elem {
   mpz_class v;
 
@@ -183,7 +183,7 @@ struct FF_elem {
 ```
 
 ## FF/FF\_elem のPythonインターフェース
-```cpp=
+```cpp
 struct FF;
 struct FF_elem;
 // FF
@@ -231,7 +231,7 @@ enum class IrreduciblePolynomialType : int {
 };
 ```
 ## EF
-```cpp=
+```cpp
 struct EF {
   FF base;
   IrreduciblePolynomialType poly;
@@ -263,7 +263,7 @@ struct EF {
 
 ## EF\_elem
 
-```cpp=
+```cpp
 struct EF_elem {
   FF_elem u, v;
 
@@ -287,7 +287,7 @@ struct EF_elem {
 
 ## EF/EF\_elemのPythonインターフェース
 
-```cpp=
+```cpp
 struct EF;
 struct EF_elem;
 
