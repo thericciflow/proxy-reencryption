@@ -18,6 +18,7 @@ __EXPORT__ void FF_elem_to_string(const FF_elem *obj, char *ptr, int len) {
 }
 
 /* FF interface functions */
+
 // create FF instance
 __EXPORT__ FF *FF_create(const char *p) {
   return new FF(mpz_class(p));

@@ -4,6 +4,7 @@ ecpy notes
 hackmd: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 
 # クラス設計
+
 ここでは「構造クラス」「値クラス」の2種類を設計する。
 
 ## 構造クラス
@@ -23,6 +24,7 @@ hackmd: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 → それぞれは値の保持を主目的とするクラスで、各種パラメータや演算処理は構造クラスによる。
 
 ## 共通に持つメンバ関数
+
 ここでは構造/値クラス `T` が必ず持つべきメンバ関数を定義する。
 
 ```cpp
@@ -33,6 +35,7 @@ struct T {
 ```
 
 ## 構造クラスの持つメンバ関数
+
 ここでは構造クラス `T` と対応する値クラス `E` が必ず持つべきメンバ関数を定義する。
 
 ```cpp
@@ -47,6 +50,7 @@ struct T {
 ```
 
 ## 特殊メンバ関数について
+
 各クラスの特殊メンバ関数は
 
 * [C\+\+11 時代のクラス設計に関する提案 - 野良C\+\+erの雑記帳](http://d.hatena.ne.jp/gintenlabo/20130604/1370362451)
@@ -72,6 +76,7 @@ struct T {
 ```
 
 # Python<=>C++インターフェース
+
 基本的には不透明ポインタをハンドルのように扱うことで実現する。
 数値については全て文字列処理で妥協。
 e.g.
@@ -95,6 +100,7 @@ FF_delete(F)
 実際にはクラスを作って `__del__` 内にdelete系を実装するのでこの扱いは更に簡単には出来る。
 
 ## 構造クラスのインターフェース関数
+
 構造クラスを `T` とし、値クラスを `E` とする
 
 ```cpp
@@ -119,6 +125,7 @@ __EXPORT__ {
 ```
 
 ## 値クラスのインターフェース関数
+
 構造クラスを `T` とし、値クラスを `E` とする
 
 ```cpp
@@ -135,6 +142,7 @@ __EXPORT__ {
 
 # FF/FF\_elem
 ## FF
+
 ```cpp
 struct FF {
   mpz_class p;
@@ -162,6 +170,7 @@ struct FF {
 ```
 
 ## FF\_elem
+
 ```cpp
 struct FF_elem {
   mpz_class v;
@@ -183,6 +192,7 @@ struct FF_elem {
 ```
 
 ## FF/FF\_elem のPythonインターフェース
+
 ```cpp
 struct FF;
 struct FF_elem;
@@ -219,6 +229,7 @@ __EXPORT__ {
 ```
 
 # EF/EF\_elem
+
 既約多項式が2種類($x^2+1$, $x^2+x+1$)あるので、これはenumにしておく
 
 [enumeration declaration - cppreference.com](http://en.cppreference.com/w/cpp/language/enum)
@@ -231,12 +242,16 @@ enum class IrreduciblePolynomialType : int {
 };
 ```
 ## EF
+
 ```cpp
 struct EF {
   FF base;
   IrreduciblePolynomialType poly;
 
   EF(const FF& ff, IrreduciblePolynomialType pol) : base(ff), poly(pol) {}
+
+  EF(const mpz_class& p, IrreduciblePolynomialType pol) : base(p), poly(pol) {}
+
 
   EF() = default;
   ~EF() = default;
@@ -266,6 +281,9 @@ struct EF_elem {
   FF_elem u, v;
 
   EF_elem(const FF_elem& u, const FF_elem& v) : u(u), v(v) {}
+
+  EF_elem(const mpz_class& u, const mpz_class& v) : u(u), v(v) {}
+
 
   EF_elem() = default;
   ~EF_elem() = default;
@@ -317,3 +335,4 @@ __EXPORT__ {
   void EF_elem_to_string(const EF_elem *obj, char *ptr, int len);
 };
 ```
+

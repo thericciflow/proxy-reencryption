@@ -45,6 +45,40 @@ static int wa_count = 0;
 } \
 void _ ## name ## _test()
 
+TEST(ef_1) {
+  auto F = EF(7, IrreduciblePolynomialType::X2_1);
+  auto x = EF_elem(3, 0);
+  auto y = EF_elem(0, 5);
+  EF_elem t;
+
+  F.add(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 3 && t.v.v == 5), true, "x+y=3+5i");
+  F.sub(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 3 && t.v.v == 2), true, "x-y=3+2i");
+  F.mul(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 0 && t.v.v == 1), true, "x*y=i");
+  F.div(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 0 && t.v.v == 5), true, "x/y=5i");
+  F.pow(t, y, x);
+  ES_ASSERT_EQ_FM((t.u.v == 0 && t.v.v == 1), true, "y^x=i");
+}
+
+TEST(ef_2) {
+  auto F = EF(41, IrreduciblePolynomialType::X2_X_1);
+  auto x = EF_elem(15, 25);
+  auto y = EF_elem(39, 10);
+  EF_elem t;
+
+  F.add(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 13 && t.v.v == 35), true, "x+y=13+35w");
+  F.sub(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 17 && t.v.v == 15), true, "x-y=17+15w");
+  F.mul(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 7 && t.v.v == 14), true, "x*y=7+14w");
+  F.div(t, x, y);
+  ES_ASSERT_EQ_FM((t.u.v == 29 && t.v.v == 5), true, "x/y=29+5w");
+}
+
 TEST(ff) {
   auto ff = FF(7);
   FF_elem x(3), y(6);
@@ -70,6 +104,8 @@ TEST(ff) {
 
 void exec_test() {
   ff_test();
+  ef_1_test();
+  ef_2_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count

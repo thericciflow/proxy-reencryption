@@ -81,17 +81,17 @@ void EF::div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const {
     base.add(p, p, q);
     base.sub(t, p, r);
 
-    // Real: (ac+bd-bc)/t
+    // Real: (ac+bd-ad)/t
     base.mul(p, a.u, b.u);
     base.mul(q, a.v, b.v);
-    base.mul(r, a.v, b.u);
+    base.mul(r, a.u, b.v);
     base.add(p, p, q);
     base.sub(p, p, r);
     base.div(u, p, t);
 
-    // Image: (ad-bc)/t
-    base.mul(p, a.u, b.v);
-    base.mul(q, a.v, b.u);
+    // Image: -(ad-bc)/t = (bc-ad)/t
+    base.mul(p, a.v, b.u);
+    base.mul(q, a.u, b.v);
     base.sub(p, p, q);
     base.div(v, p, t);
     break;
@@ -111,7 +111,7 @@ void EF::pow(EF_elem& ret, const EF_elem& a, const EF_elem& b) const {
     ret.u = a.u;
     ret.v = a.v;
   } else {
-    EF_elem t = a, x = a;
+    EF_elem t(1, 0), x(a);
     while (m != 0) {
       if ((m & 1) == 1) {
         mul(t, t, x);

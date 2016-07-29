@@ -14,6 +14,8 @@ struct EF {
 
   EF(const FF& ff, IrreduciblePolynomialType pol) : base(ff), poly(pol) {}
 
+  EF(const mpz_class& p, IrreduciblePolynomialType pol) : base(p), poly(pol) {}
+
   EF() = default;
   ~EF() = default;
   EF(const EF& ef) : base(ef.base), poly(ef.poly) {}
@@ -38,6 +40,8 @@ struct EF_elem {
   FF_elem u, v;
 
   EF_elem(const FF_elem& u, const FF_elem& v) : u(u), v(v) {}
+
+  EF_elem(const mpz_class& u, const mpz_class& v) : u(u), v(v) {}
 
   EF_elem() = default;
   ~EF_elem() = default;
