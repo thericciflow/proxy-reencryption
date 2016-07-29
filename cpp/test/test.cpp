@@ -59,8 +59,8 @@ TEST(ef_1) {
   ES_ASSERT_EQ_FM((t.u.v == 0 && t.v.v == 1), true, "x*y=i");
   F.div(t, x, y);
   ES_ASSERT_EQ_FM((t.u.v == 0 && t.v.v == 5), true, "x/y=5i");
-  F.pow(t, y, x);
-  ES_ASSERT_EQ_FM((t.u.v == 0 && t.v.v == 1), true, "y^x=i");
+  F.pow(t, y, 31);
+  ES_ASSERT_EQ_FM((t.u.v == 0 && t.v.v == 2), true, "y^31=2i");
 }
 
 TEST(ef_2) {
@@ -77,6 +77,8 @@ TEST(ef_2) {
   ES_ASSERT_EQ_FM((t.u.v == 7 && t.v.v == 14), true, "x*y=7+14w");
   F.div(t, x, y);
   ES_ASSERT_EQ_FM((t.u.v == 29 && t.v.v == 5), true, "x/y=29+5w");
+  F.pow(t, x, 40);
+  ES_ASSERT_EQ_FM((t.u.v == 14 && t.v.v == 17), true, "x^40=14+17w");
 }
 
 TEST(ff) {
@@ -98,8 +100,8 @@ TEST(ff) {
   ff.div(t, x, y);
   ES_ASSERT_EQ_FM(t.v, 4, "x/y");
 
-  ff.pow(t, x, y);
-  ES_ASSERT_EQ_FM(t.v, 1, "x^y");
+  ff.pow(t, x, 30);
+  ES_ASSERT_EQ_FM(t.v, 1, "x^30");
 }
 
 void exec_test() {

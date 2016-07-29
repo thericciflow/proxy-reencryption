@@ -5,7 +5,7 @@ hackmd: https://hackmd.io/JwZgJsAMDswGYFoCsBDAHAYwQFhfBARtpJAtAGxJwBMVY1AjJEkA#
 
 # C++クラス設計
 
-ここでは「構造クラス」「値クラス」の2種類を設計する。
+C++側で書くクラスの設計について
 
 ## 構造クラス
 
@@ -45,7 +45,7 @@ struct T {
   void sub(E& ret, const E& a, const E& b) const;
   void mul(E& ret, const E& a, const E& b) const;
   void div(E& ret, const E& a, const E& b) const;
-  void pow(E& ret, const E& a, const E& b) const;
+  void pow(E& ret, const E& a, const mpz_class& b) const;
 };
 ```
 
@@ -62,7 +62,8 @@ struct T {
   * 項目25 右辺値参照にはstd::moveを、ユニヴァーサル参照にはstd::forwardを用いる
 
 辺りを参考に考える。
-これらの関数では例外は一切投げない。
+
+**これらの関数では例外は一切投げない**。
 
 ```cpp
 struct T {
@@ -97,7 +98,7 @@ class T(object):
 	return b
 
   def __str__(s):
-    return __to_string(1024)
+    return s.__to_string(1024)
 
   def add(s, ret, a, b):
     assert isinstance(ret, E) and isinstance(a, E) and isinstance(b, E)
@@ -117,7 +118,7 @@ class T(object):
 
   def pow(s, ret, a, b):
     assert isinstance(ret, E) and isinstance(a, E)
-    lib.T_pow(s.ptr, ret.ptr, a.ptr, b.ptr)
+    lib.T_pow(s.ptr, ret.ptr, a.ptr, str(b))
 
   def __del__(s): # GC deleter
     lib.T_delete(s.ptr)
@@ -141,13 +142,13 @@ class E(object):
 	return b
 
   def __str__(s):
-    return __to_string(1024)
+    return s.__to_string(1024)
 
   def __del__(s): # GC deleter
     lib.E_delete(s.ptr)
 
-  def to_python(s): # Pythonのオブジェクトに変換する。FFなら数値、EFならタプル等で、これは明確に規程する必要がある。
-    return int(str(s))
+  def to_python(s):
+    # Pythonのオブジェクトに変換する。FFなら数値、EFならタプル等で、これは明確に規定する必要がある。
 ```
 
 # Python<=>C++インターフェース
@@ -156,25 +157,25 @@ class E(object):
 
 ## 多倍長整数について
 
-Python側での多倍長整数(C APIでのPyLong型)はC++では原則mpz\_classへ変換する。やりとりは文字列変換の後行う。
+Python側での多倍長整数(C APIでのPyLong型)をC++へ渡す際は文字列として渡した後C++側でmpz\_classへ変換する。
 
 Python\:
 ```python
-# lib.cpp_func(1<<256) # <= PyLong型になるので直接渡せない
+# lib.cpp_func(1<<256) # <= long型なので直接渡せない
 lib.cpp_func(str(1<<256)) # <= OK
 ```
 
 C++\:
 ```cpp
 // __EXPORT__ void cpp_func(const mpz_class& x); <= 直接の変換は不可能
-__EXPORT__ void cpp_func(const char *x); // <= OK, 内部でmpz_classへ変換する
+__EXPORT__ void cpp_func(const char *x); // <= OK, 内部でmpz_classへ変換される
 ```
 
 ## 文字列を戻り値とする関数について
 
-文字列を戻り値に持つ関数(`to_string`)についてはPython ctypes APIの`create_string_buffer`メソッドを用いてバッファを先に生成し、コピーしてもらう形を取る。
+文字列を戻り値に持つ関数(現在の設計では`to_string`)についてはPython ctypes APIの`ctypes.create_string_buffer`を用いて文字列バッファを用意、そこにコピーするようにする
 
-C++側は `ecpy_native.h` にある次の関数を用いることで、この文書のクラス設計に基づくクラスについては対応できる。
+C++側では次の関数 (`ecpy_native.h` に用意されている)を用いてバッファに文字列をコピーする。
 
 ```cpp
 template <class T>
@@ -188,13 +189,19 @@ void write_to_python_string(const T *x, char *ptr, int len) {
 }
 ```
 
-Python側は以下のようになる。この時、 `T_to_string` 関数はクラス`T`の `to_string` 関数のラッパ。
+Python側は上のクラス設計の際のものと同じ。
 
 ```python
+  def __to_string(s, bufsize): # to_stringのラッパ, バッファのサイズは可変
+    b = create_string_buffer(bufsize)
+    lib.E_to_string(s.ptr, b, bufsize)
+    b = b.value
+	if len(b) == 0: # not enough buffer size
+	  return s.__to_string(2*bufsize)
+	return b
+
   def __str__(s):
-    b = create_string_buffer(1024)
-    lib.T_to_string(s.ptr, b, 1024)
-    return b.value
+    return s.__to_string(1024)
 ```
 
 ## 構造クラスのインターフェース関数
@@ -216,7 +223,7 @@ __EXPORT__ {
   // ret = a / b
   void T_div(const T *obj, E *ret, const E *a, const E *b);
   // ret = a ^ b
-  void T_pow(const T *obj, E *ret, const E *a, const E *b);
+  void T_pow(const T *obj, E *ret, const E *a, const char *b);
   // to python __str__ function
   void T_to_string(const T *obj, char *ptr, int len);
 };
@@ -263,7 +270,7 @@ struct FF {
   void sub(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
   void mul(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
   void div(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
-  void pow(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
+  void pow(FF_elem& ret, const FF_elem& a, const mpz_class& b) const;
 };
 ```
 
@@ -309,7 +316,7 @@ __EXPORT__ {
   // ret = a / b
   void FF_div(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a ^ b
-  void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const char *b);
   // to python __str__ function
   void FF_to_string(const FF *obj, char *ptr, int len);
 };
@@ -325,6 +332,11 @@ __EXPORT__ {
 };
 
 ```
+
+## to\_pythonの返り値: `FF_elem`
+`int(str(s))`
+
+つまり保持している数値をそのまま返す。
 
 # EF/EF\_elem
 
@@ -364,7 +376,7 @@ struct EF {
   void sub(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void mul(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
-  void pow(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
+  void pow(EF_elem& ret, const EF_elem& a, const mpz_class& b) const;
 
   // common functions
   EF *clone(void) const;
@@ -421,7 +433,7 @@ __EXPORT__ {
   // r = a / b
   void EF_div(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
   // r = a ^ b
-  void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+  void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const char *b);
 
   void EF_to_string(const EF *obj, char *ptr, int len);
 };
@@ -433,4 +445,9 @@ __EXPORT__ {
   void EF_elem_to_string(const EF_elem *obj, char *ptr, int len);
 };
 ```
+
+## to\_pythonの返り値: `EF_elem`
+`ast.literal_eval(str(s).lstrip("EF_elem")))`
+
+二次拡大体なので2つの要素が返らなければならない。そのため返り値はタプルで内容は要素を `a+b*v` (vは基底) とした時 `(a, b)`。
 

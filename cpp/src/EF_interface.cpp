@@ -48,8 +48,8 @@ __EXPORT__ void EF_div(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_e
   obj->div(*ret, *a, *b);
 }
 // r = a ^ b
-__EXPORT__ void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b)  {
-  obj->pow(*ret, *a, *b);
+__EXPORT__ void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const char *b)  {
+  obj->pow(*ret, *a, mpz_class(b));
 }
 
 __EXPORT__ void EF_to_string(const EF *obj, char *ptr, int len) {

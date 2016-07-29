@@ -29,7 +29,7 @@ struct EF {
   void sub(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void mul(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
-  void pow(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
+  void pow(EF_elem& ret, const EF_elem& a, const mpz_class& b) const;
 
   // common functions
   EF *clone(void) const;
@@ -74,7 +74,7 @@ __EXPORT__ {
   // r = a / b
   void EF_div(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
   // r = a ^ b
-  void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
+  void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const char *b);
 
   void EF_to_string(const EF *obj, char *ptr, int len);
 };

@@ -50,8 +50,8 @@ __EXPORT__ void FF_div(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_e
 }
 
 // ret = a ^ b
-__EXPORT__ void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b) {
-  obj->pow(*ret, *a, *b);
+__EXPORT__ void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const char *b) {
+  obj->pow(*ret, *a, mpz_class(b));
 }
 
 // to python __str__ function

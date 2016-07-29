@@ -100,9 +100,9 @@ void EF::div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const {
   ret.v = v;
 }
 
-void EF::pow(EF_elem& ret, const EF_elem& a, const EF_elem& b) const {
+void EF::pow(EF_elem& ret, const EF_elem& a, const mpz_class& b) const {
   auto P = a;
-  auto m = b.u.v;
+  auto m = b;
   FF_elem u, v;
   if (m == 0) {
     ret.u = FF_elem(1);

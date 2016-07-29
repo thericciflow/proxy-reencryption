@@ -24,7 +24,7 @@ struct FF {
   void sub(FF_elem&, const FF_elem&, const FF_elem&) const;
   void mul(FF_elem&, const FF_elem&, const FF_elem&) const;
   void div(FF_elem&, const FF_elem&, const FF_elem&) const;
-  void pow(FF_elem&, const FF_elem&, const FF_elem&) const;
+  void pow(FF_elem&, const FF_elem&, const mpz_class&) const;
 };
 
 struct FF_elem {
@@ -60,7 +60,7 @@ __EXPORT__ {
   // ret = a / b
   void FF_div(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a ^ b
-  void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
+  void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const char *b);
   // to python __str__ function
   void FF_to_string(const FF *obj, char *ptr, int len);
 };

@@ -46,9 +46,9 @@ void FF::div(FF_elem& ret, const FF_elem& a, const FF_elem& b) const {
   ret.v = modulo(a.v * t, p);
 }
 
-void FF::pow(FF_elem& ret, const FF_elem& a, const FF_elem& b) const {
+void FF::pow(FF_elem& ret, const FF_elem& a, const mpz_class& b) const {
   mpz_class t;
-  mpz_powm(t.get_mpz_t(), a.v.get_mpz_t(), b.v.get_mpz_t(), p.get_mpz_t());
+  mpz_powm(t.get_mpz_t(), a.v.get_mpz_t(), b.get_mpz_t(), p.get_mpz_t());
   ret.v = modulo(t, p);
 }
 
