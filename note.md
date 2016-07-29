@@ -265,7 +265,7 @@ struct EF {
 struct EF_elem {
   FF_elem u, v;
 
-  EF_elem(FF_elem u, FF_elem(v)) : u(u), v(v) {}
+  EF_elem(const FF_elem& u, const FF_elem& v) : u(u), v(v) {}
 
   EF_elem() = default;
   ~EF_elem() = default;
