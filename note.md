@@ -48,6 +48,7 @@ struct T {
   void mul(E& ret, const E& a, const E& b) const;
   void div(E& ret, const E& a, const E& b) const;
   void pow(E& ret, const E& a, const mpz_class& b) const;
+  bool equals(const E& a, const E& b) const;
 };
 ```
 
@@ -111,6 +112,10 @@ class T(object):
   def pow(s, ret, a, b):
     assert isinstance(ret, E) and isinstance(a, E)
     lib.T_pow(s.ptr, ret.ptr, a.ptr, str(b))
+
+  def equ(s, a, b):
+    assert isinstance(a, E) and isinstance(b, E)
+	return lib.T_equ(s.ptr, a.ptr, b.ptr) != 0
 
   def __del__(s): # GC deleter
     lib.T_delete(s.ptr)
@@ -216,6 +221,8 @@ __EXPORT__ {
   void T_div(const T *obj, E *ret, const E *a, const E *b);
   // ret = a ^ b
   void T_pow(const T *obj, E *ret, const E *a, const char *b);
+  // a == b
+  int T_equ(const T *obj, const E *a, const E *b);
   // to python __str__ function
   void T_to_string(const T *obj, char *ptr, int len);
 };
@@ -263,6 +270,7 @@ struct FF {
   void mul(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
   void div(FF_elem& ret, const FF_elem& a, const FF_elem& b) const;
   void pow(FF_elem& ret, const FF_elem& a, const mpz_class& b) const;
+  bool equ(const FF_elem& a, const FF_elem& b) const;
 };
 ```
 
@@ -309,6 +317,8 @@ __EXPORT__ {
   void FF_div(const FF *obj, FF_elem *ret, const FF_elem *a, const FF_elem *b);
   // ret = a ^ b
   void FF_pow(const FF *obj, FF_elem *ret, const FF_elem *a, const char *b);
+  // a == b
+  int FF_equ(const FF *obj, const FF_elem *a, const FF_elem *b);
   // to python __str__ function
   void FF_to_string(const FF *obj, char *ptr, int len);
 };
@@ -370,6 +380,7 @@ struct EF {
   void mul(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void pow(EF_elem& ret, const EF_elem& a, const mpz_class& b) const;
+  bool equ(const EF_elem& a, const EF_elem& b) const;
 
   // common functions
   EF* clone(void) const;
@@ -427,7 +438,8 @@ __EXPORT__ {
   void EF_div(const EF *obj, EF_elem *ret, const EF_elem *a, const EF_elem *b);
   // r = a ^ b
   void EF_pow(const EF *obj, EF_elem *ret, const EF_elem *a, const char *b);
-
+  // a == b
+  int EF_equ(const EF *obj, const EF_elem *a, const EF_elem *b);
   void EF_to_string(const EF *obj, char *ptr, int len);
 };
 
@@ -451,7 +463,7 @@ __EXPORT__ {
 
 べき乗・除算は数式上ありえないので除外する。除外するにはdelete代入を利用する。
 
-テンプレート型引数の `T` は `FF/EF` 等構造クラスを表し、 `E` は値クラスを表す。
+テンプレート型引数の `T` は `FF/EF` 等構造クラスを表し、 `E` は対応する値クラスを表す。
 
 ## EC
 
@@ -476,6 +488,8 @@ struct EC {
   void sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
   void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
+  template <class E>
+  bool equ(const EC_elem& a, const EC_elem<E>& b) const;
 
   // ----------------- UNDEFINED(DELETED) -----------------
   template <class E>
