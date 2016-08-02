@@ -1,2 +1,79 @@
 #pragma once
 #include "ecpy_native.h"
+
+template <class T>
+struct EC {
+  const T& base;
+  mpz_class a, b;
+
+  EC(const T& base, const mpz_class& a, const mpz_class& b) : base(base), a(a), b(b) {}
+
+  EC() = default;
+  ~EC() = default;
+  EC(const EC<T>& ec) : base(ec.base), a(ec.a), b(ec.b) {};
+  EC(EC<T>&& ec) : base(std::move(ec.base)), a(std::move(ec.a)), b(std::move(ec.b)) {};
+  EC<T>& operator=(const EC<T>& ec);
+  EC<T>& operator=(EC<T>&& ec);
+
+  template <class E>
+  void add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
+  template <class E>
+  void sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
+  template <class E>
+  void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
+  template <class E>
+  bool equ(const EC_elem& a, const EC_elem<E>& b) const;
+
+  // ----------------- UNDEFINED(DELETED) -----------------
+  template <class E>
+  void div(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const = delete;
+  template <class E>
+  void pow(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const = delete;
+  // ------------------------------------------------------
+
+  template <class E>
+  EC_elem<E> to_affine(const EC_elem<E>& elem) const;
+  template <class E>
+  E line_coeff(const EC_elem<E>& P, const EC_elem<E>& Q) const;
+  template <class E>
+  bool is_on_curve(const EC_elem<E>& elem) const;
+  template <class E>
+  bool is_infinity(const EC_elem<E>& P) const;
+  EC<T>* clone(void) const;
+  std::string to_string(void) const;
+};
+
+template <class E>
+void EC::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
+  if (is_infinity(a)) {
+    ret = b;
+  } else if (is_infinity(b)) {
+    ret = a;
+  } else {
+    E t;
+    base.add(t, a.y, b.y);
+    static E zero {0};
+    static E one  {1};
+    static E two  {2};
+    static E three{3};
+    static E four {4};
+    static E eight{8};
+    static E c_a  {this->a};
+    if (base.equ(a.x, b.x) && base.equ(t, zero)) {
+      ret = EC_elem<E>(zero, one, zero);
+    } else {
+      if (equ(a, b)) {
+        E p, q, r, s, t, u, v;
+        base.mul(p, three, a.x);
+        base.mul(p, p, a.x);
+        base.mul(q, c_a, a.z);
+        base.mul(q, q, a.z);
+        base.add(u, p, q);
+
+        base.mul(v, a.y, a.z);
+      } else {
+
+      }
+    }
+  }
+}
