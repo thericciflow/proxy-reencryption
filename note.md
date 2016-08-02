@@ -31,7 +31,7 @@ C++側で書くクラスの設計について
 
 ```cpp
 struct T {
-  T *clone(void) const;
+  T* clone(void) const;
   std::string to_string(void) const;
 };
 ```
@@ -52,8 +52,6 @@ struct T {
 ```
 
 ## 特殊メンバ関数について
-
-各クラスの特殊メンバ関数について
 
 **これらの関数では例外は一切投げない**。
 
@@ -151,7 +149,7 @@ class E(object):
 
 ## 多倍長整数について
 
-Python側での多倍長整数(C APIでのPyLong型)をC++へ渡す際は文字列として渡した後C++側でmpz\_classへ変換する。
+Python側での多倍長整数(C APIでのPyLong型)をC\+\+へ渡す際は文字列として渡した後C\+\+側でmpz\_classへ変換する。
 
 Python\:
 ```python
@@ -256,7 +254,7 @@ struct FF {
   FF& operator=(FF&&);
 
   // common functions
-  FF *clone(void) const;
+  FF* clone(void) const;
   std::string to_string(void) const;
 
   // structure class member functions
@@ -285,7 +283,7 @@ struct FF_elem {
   FF_elem& operator=(FF_elem&&);
 
   // common functions
-  FF_elem *clone(void) const;
+  FF_elem* clone(void) const;
   std::string to_string(void) const;
 };
 ```
@@ -328,6 +326,7 @@ __EXPORT__ {
 ```
 
 ## to\_pythonの返り値: `FF_elem`
+
 `int(str(s))`
 
 つまり保持している数値をそのまま返す。
@@ -349,7 +348,7 @@ enum class IrreduciblePolynomialType : int {
 
 ```cpp
 struct EF {
-  FF base;
+  const FF& base;
   IrreduciblePolynomialType poly;
 
   EF(const FF& ff, IrreduciblePolynomialType pol) : base(ff), poly(pol) {}
@@ -373,7 +372,7 @@ struct EF {
   void pow(EF_elem& ret, const EF_elem& a, const mpz_class& b) const;
 
   // common functions
-  EF *clone(void) const;
+  EF* clone(void) const;
   std::string to_string(void) const;
 };
 ```
@@ -398,7 +397,7 @@ struct EF_elem {
   EF_elem& operator=(EF_elem&& ee);
 
   // common functions
-  EF_elem *clone(void) const;
+  EF_elem* clone(void) const;
   std::string to_string(void) const;
 };
 ```
@@ -441,58 +440,49 @@ __EXPORT__ {
 ```
 
 ## to\_pythonの返り値: `EF_elem`
+
 `ast.literal_eval(str(s).lstrip("EF_elem")))`
 
 二次拡大体なので2つの要素が返らなければならない。そのため返り値はタプルで内容は要素を `a+b*v` (vは基底) とした時 `(a, b)`。
 
 # EC/EC\_elem
-楕円曲線クラス、この場合はべき乗・除算は無効な操作としてdeleteする。このため、この関数を呼びだすことは不可能。
 
-テンプレート型引数の `T` は `FF/EF` 等構造クラスを表す。
-クラステンプレートなのでこれらはヘッダファイル `EC.h` に実装を書くことになる。
+楕円曲線クラス
+
+べき乗・除算は数式上ありえないので除外する。除外するにはdelete代入を利用する。
+
+テンプレート型引数の `T` は `FF/EF` 等構造クラスを表し、 `E` は値クラスを表す。
 
 ## EC
 
 ```cpp
 template <class T>
 struct EC {
-  T& base;
+  const T& base;
   mpz_class a, b;
-  
+
   EC(const T& base, const mpz_class& a, const mpz_class& b) : base(base), a(a), b(b) {}
-  
+
   EC() = default;
   ~EC() = default;
   EC(const EC<T>& ec) : base(ec.base), a(ec.a), b(ec.b) {};
   EC(EC<T>&& ec) : base(std::move(ec.base)), a(std::move(ec.a)), b(std::move(ec.b)) {};
-  EC<T>& operator=(const EC<T>& ec) {
-    base = ec.base;
-    a = ec.a;
-    b = ec.b;
-    return (*this);
-  }
+  EC<T>& operator=(const EC<T>& ec);
+  EC<T>& operator=(EC<T>&& ec);
 
-  EC<T>& operator=(EC<T>&& ec) {
-    base = std::move(ec.base);
-    a = std::move(ec.a);
-    b = std::move(ec.b);
-    return (*this);
-  }
-
-  
   template <class E>
   void add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
   void sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
   void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
-  
-  // ----------------- UNDEFINED -----------------
+
+  // ----------------- UNDEFINED(DELETED) -----------------
   template <class E>
   void div(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const = delete;
   template <class E>
   void pow(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const = delete;
-  // ---------------------------------------------
+  // ------------------------------------------------------
 
   template <class E>
   EC_elem<E> to_affine(const EC_elem<E>& elem) const;
@@ -505,10 +495,27 @@ struct EC {
   template <class E>
   bool is_infinity(const EC_elem<E>& P) const;
 
-  EC<T> *clone(void) const;
+  EC<T>* clone(void) const;
   std::string to_string(void) const;
 };
 ```
+
+追加した関数については以下の通り:
+
+### to\_affine
+あるEC\_elemについて通常の射影座標からアフィン座標(xy座標)に変換して返す(z座標を1にして実質アフィン座標になるようにする)
+
+### line\_coeff
+楕円曲線の点P、点Qを通る直線 $ax + b$ の係数 $a$ を求める。もし $P=Q$ だったならば接線の係数を返す。
+
+### is\_on\_curve
+ある点Pが楕円曲線上の点かどうかを判定する。
+
+### is\_equal
+点Pと点Qが射影座標を考慮して同一であるかを判定する。
+
+### is\_infinity
+ある点Pが無限遠点かどうかを判定する。
 
 ## EC\_elem
 
@@ -516,17 +523,17 @@ struct EC {
 template <class T>
 struct EC_elem {
   T x, y, z;
-  
+
   EC_elem(const mpz_class& x, const mpz_class& y, const mpz_class& z) : x(x), y(y), z(z) {}
-  
+
   EC_elem() = default;
   ~EC_elem() = default;
   EC_elem(const EC_elem<T>& ee) : x(ee.x), y(ee.y), z(ee.z) {};
   EC_elem(EC_elem<T>&& ee) : x(std::move(ee.x)), y(std::move(ee.y)), z(std::move(ee.z)) {};
   EC_elem<T>& operator=(const EC_elem<T>&);
   EC_elem<T>& operator=(EC_elem<T>&&);
-  
-  EC_elem<T> *clone(void) const;
+
+  EC_elem<T>* clone(void) const;
   std::string to_string(void) const;
 };
 ```
@@ -534,12 +541,13 @@ struct EC_elem {
 # References
 * [C\+\+11 時代のクラス設計に関する提案 - 野良C\+\+erの雑記帳](http://d.hatena.ne.jp/gintenlabo/20130604/1370362451)
 * [本の虫: C\+\+03とC\+\+11の違い: 特別なメンバー関数編](https://cpplover.blogspot.jp/2013/12/c03c11_13.html)
-* [Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_%28C%2B%2B_programming%29#Rule_of_Five)
+* [Rule of Three (C++ programming)#Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_%28C%2B%2B_programming%29#Rule_of_Five)
 * Modern Effective C++
   * 項目11 privateな未定義関数よりもdeleteを優先する
   * 項目14 例外を発生させない関数はnoexceptと宣言する
   * 項目17 自動的に生成される特殊メンバ関数を理解する
   * 項目25 右辺値参照にはstd::moveを、ユニヴァーサル参照にはstd::forwardを用いる
+
 
 
 
