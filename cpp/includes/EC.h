@@ -51,6 +51,7 @@ struct EC_elem {
   T x, y, z;
 
   EC_elem(const mpz_class& x, const mpz_class& y, const mpz_class& z) : x(x), y(y), z(z) {}
+  EC_elem(const T& x, const T& y, const T& z) : x(x), y(y), z(z) {}
 
   EC_elem() = default;
   ~EC_elem() = default;
@@ -66,12 +67,12 @@ struct EC_elem {
 template <class T>
 template <class E>
 void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
-  static E zero {0};
-  static E one  {1};
-  static E two  {2};
-  static E three{3};
-  static E four {4};
-  static E eight{8};
+  const static E zero {0};
+  const static E one  {1};
+  const static E two  {2};
+  const static E three{3};
+  const static E four {4};
+  const static E eight{8};
   if (is_infinity(a)) {
     ret = b;
   } else if (is_infinity(b)) {
@@ -152,9 +153,26 @@ void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
         base.mul(p, v3, a.z);
         base.mul(Rz, p, b.z);
       }
-      return {Rx, Ry, Rz};
+      ret = {Rx, Ry, Rz};
     }
   }
+}
+
+template <class T>
+template <class E>
+bool EC<T>::equ(const EC_elem<E>& a, const EC_elem<E>& b) const {
+  E p, q;
+  base.mul(p, a.x, b.y);
+  base.mul(q, a.y, b.x);
+  return base.equ(p, q);
+}
+
+template <class T>
+template <class E>
+bool EC<T>::is_infinity(const EC_elem<E>& P) const {
+  static E zero {0};
+  static E one  {1};
+  return base.equ(P.x, zero) && base.equ(P.y, one) && base.equ(P.z, zero);
 }
 
 template <class T>
@@ -172,7 +190,6 @@ EC_elem<T>& EC_elem<T>::operator=(EC_elem<T>&& other) {
   z = std::move(other.z);
   return (*this);
 }
-
 
 template <class T>
 EC_elem<T>* EC_elem<T>::clone(void) const {

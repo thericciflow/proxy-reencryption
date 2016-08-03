@@ -84,6 +84,15 @@ TEST(ef_2) {
 TEST(ec_ff) {
   auto F = FF(7);
   auto E = EC<FF>(F, 0, 1);
+  auto P = EC_elem<FF_elem>(0, 1, 1);
+  auto Q = EC_elem<FF_elem>(3, 0, 1);
+  EC_elem<FF_elem> T;
+
+  E.add(T, P, Q);
+  ES_ASSERT_EQ_FM(T.to_string(), "(6, 3, 6)", "P+Q=(6:3:6)");
+
+  E.add(T, P, P);
+  ES_ASSERT_EQ_FM(T.to_string(), "(0, 6, 1)", "P+P=(0:6:1)");
 }
 
 TEST(ff) {
