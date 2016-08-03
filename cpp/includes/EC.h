@@ -156,3 +156,38 @@ void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
     }
   }
 }
+
+template <class T>
+EC_elem<T>& EC_elem<T>::operator=(const EC_elem<T>& other) {
+  x = other.x;
+  y = other.y;
+  z = other.z;
+  return (*this);
+}
+
+template <class T>
+EC_elem<T>& EC_elem<T>::operator=(EC_elem<T>&& other) {
+  x = std::move(other.x);
+  y = std::move(other.y);
+  z = std::move(other.z);
+  return (*this);
+}
+
+
+template <class T>
+EC_elem<T>* EC_elem<T>::clone(void) const {
+  return new EC_elem<T>(*this);
+}
+
+template <class T>
+std::string EC_elem<T>::to_string(void) const {
+  std::stringstream ss;
+  ss << "("
+     << x.to_string()
+     << ", "
+     << y.to_string()
+     << ", "
+     << z.to_string()
+     << ")";
+  return ss.str();
+}

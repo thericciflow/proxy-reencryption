@@ -45,6 +45,9 @@ void EF::mul(EF_elem& ret, const EF_elem& a, const EF_elem& b) const {
     base.add(r, r, s);     // ad+bc
     base.sub(v, r, q); // ad+bc-bd
     break;
+  default:
+    // do not reach here
+    ;
   }
   ret.u = u;
   ret.v = v;
@@ -95,6 +98,9 @@ void EF::div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const {
     base.sub(p, p, q);
     base.div(v, p, t);
     break;
+  default:
+    // do not reach here
+    ;
   }
   ret.u = u;
   ret.v = v;
@@ -142,6 +148,9 @@ std::string EF::to_string(void) const {
   case IrreduciblePolynomialType::X2_X_1:
     ss << "(x^2+x+1)";
     break;
+  default:
+    // do not reach here
+    ;
   }
   return ss.str();
 }

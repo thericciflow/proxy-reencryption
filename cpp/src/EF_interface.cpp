@@ -7,7 +7,7 @@
 __EXPORT__ EF *EF_create(const char *p, const char *polynomial) {
   // string to polynomial
   auto poly_ = std::string(polynomial);
-  IrreduciblePolynomialType pol;
+  IrreduciblePolynomialType ret;
   // lower case
   std::transform(poly_.begin(), poly_.end(), poly_.begin(), ::tolower);
   // remove spaces
@@ -18,11 +18,13 @@ __EXPORT__ EF *EF_create(const char *p, const char *polynomial) {
         return a;
       });
   if (poly == "x^2+1") {
-    pol = IrreduciblePolynomialType::X2_1;
+    ret = IrreduciblePolynomialType::X2_1;
   } else if (poly == "x^2+x+1") {
-    pol = IrreduciblePolynomialType::X2_X_1;
+    ret = IrreduciblePolynomialType::X2_X_1;
+  } else {
+    throw std::runtime_error("Invalid Irreducible Polynomial");
   }
-  return new EF(mpz_class(p), pol);
+  return new EF(mpz_class(p), ret);
 }
 // delete EF instance
 __EXPORT__ void EF_delete(const EF *ef) {

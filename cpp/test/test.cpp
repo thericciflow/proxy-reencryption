@@ -113,6 +113,7 @@ void exec_test() {
   ff_test();
   ef_1_test();
   ef_2_test();
+  ec_ff_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count
