@@ -52,6 +52,10 @@ void FF::pow(FF_elem& ret, const FF_elem& a, const mpz_class& b) const {
   ret.v = modulo(t, p);
 }
 
+bool FF::equ(const FF_elem& a, const FF_elem& b) const {
+  return modulo(a.v - b.v, p) == 0;
+}
+
 FF_elem& FF_elem::operator=(const FF_elem& f) {
   v = f.v;
   return (*this);

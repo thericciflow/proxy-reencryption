@@ -2,6 +2,9 @@
 #include "ecpy_native.h"
 
 template <class T>
+struct EC_elem;
+
+template <class T>
 struct EC {
   const T& base;
   mpz_class a, b;
@@ -22,7 +25,7 @@ struct EC {
   template <class E>
   void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
-  bool equ(const EC_elem& a, const EC_elem<E>& b) const;
+  bool equ(const EC_elem<E>& a, const EC_elem<E>& b) const;
 
   // ----------------- UNDEFINED(DELETED) -----------------
   template <class E>
@@ -43,8 +46,32 @@ struct EC {
   std::string to_string(void) const;
 };
 
+template <class T>
+struct EC_elem {
+  T x, y, z;
+
+  EC_elem(const mpz_class& x, const mpz_class& y, const mpz_class& z) : x(x), y(y), z(z) {}
+
+  EC_elem() = default;
+  ~EC_elem() = default;
+  EC_elem(const EC_elem<T>& ee) : x(ee.x), y(ee.y), z(ee.z) {};
+  EC_elem(EC_elem<T>&& ee) : x(std::move(ee.x)), y(std::move(ee.y)), z(std::move(ee.z)) {};
+  EC_elem<T>& operator=(const EC_elem<T>&);
+  EC_elem<T>& operator=(EC_elem<T>&&);
+
+  EC_elem<T>* clone(void) const;
+  std::string to_string(void) const;
+};
+
+template <class T>
 template <class E>
-void EC::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
+void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
+  static E zero {0};
+  static E one  {1};
+  static E two  {2};
+  static E three{3};
+  static E four {4};
+  static E eight{8};
   if (is_infinity(a)) {
     ret = b;
   } else if (is_infinity(b)) {
@@ -52,18 +79,13 @@ void EC::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
   } else {
     E t;
     base.add(t, a.y, b.y);
-    static E zero {0};
-    static E one  {1};
-    static E two  {2};
-    static E three{3};
-    static E four {4};
-    static E eight{8};
-    static E c_a  {this->a};
+    E c_a  {this->a};
     if (base.equ(a.x, b.x) && base.equ(t, zero)) {
       ret = EC_elem<E>(zero, one, zero);
     } else {
+      E Rx, Ry, Rz;
       if (equ(a, b)) {
-        E p, q, r, s, t, u, v;
+        E p, q, u, v, yv, yv4, w;
         base.mul(p, three, a.x);
         base.mul(p, p, a.x);
         base.mul(q, c_a, a.z);
@@ -71,9 +93,66 @@ void EC::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
         base.add(u, p, q);
 
         base.mul(v, a.y, a.z);
-      } else {
 
+        base.mul(yv, a.y, v);
+
+        base.mul(yv4, yv, four);
+
+        base.mul(p, u, u);
+        base.mul(q, two, a.x);
+        base.mul(q, q, yv4);
+        base.sub(w, p, q);
+
+        base.mul(p, two, v);
+        base.mul(Rx, p, w);
+
+        base.mul(p, a.x, yv4);
+        base.sub(p, p, w);
+        base.mul(p, u, p);
+        base.mul(q, eight, yv);
+        base.mul(q, q, yv);
+        base.sub(Ry, p, q);
+
+        base.mul(p, eight, v);
+        base.mul(q, v, v);
+        base.mul(Rz, p, q);
+      } else {
+        E p, q, r, u, v, v2, v3, w;
+        base.mul(p, b.y, a.z);
+        base.mul(q, a.y, b.z);
+        base.sub(u, p, q);
+
+        base.mul(p, b.x, a.z);
+        base.mul(q, a.x, b.z);
+        base.sub(v, p, q);
+
+        base.mul(v2, v, v);
+
+        base.mul(v3, v2, v);
+
+        base.mul(p, u, u);
+        base.mul(q, a.z, a.z);
+        base.mul(p, p, q);
+        base.sub(p, p, v3);
+        base.mul(q, two, v2);
+        base.mul(r, a.x, b.z);
+        base.mul(q, q, r);
+        base.sub(w, p, q);
+
+        base.mul(Rx, v, w);
+
+        base.mul(p, v2, a.x);
+        base.mul(p, p, b.z);
+        base.sub(p, p, w);
+        base.mul(p, p, u);
+        base.mul(q, v3, a.y);
+        base.mul(q, q, b.z);
+        base.sub(Ry, p, q);
+
+        base.mul(p, v3, a.z);
+        base.mul(Rz, p, b.z);
       }
+      return {Rx, Ry, Rz};
     }
   }
 }

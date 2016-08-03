@@ -18,6 +18,8 @@
 
 #include "EF.h"
 
+#include "EC.h"
+
 template <class T>
 void write_to_python_string(const T *x, char *ptr, int len) {
   std::stringstream ss;

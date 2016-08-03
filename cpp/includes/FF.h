@@ -25,6 +25,7 @@ struct FF {
   void mul(FF_elem&, const FF_elem&, const FF_elem&) const;
   void div(FF_elem&, const FF_elem&, const FF_elem&) const;
   void pow(FF_elem&, const FF_elem&, const mpz_class&) const;
+  bool equ(const FF_elem&, const FF_elem&) const;
 };
 
 struct FF_elem {

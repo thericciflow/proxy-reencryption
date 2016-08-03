@@ -30,6 +30,7 @@ struct EF {
   void mul(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void div(EF_elem& ret, const EF_elem& a, const EF_elem& b) const;
   void pow(EF_elem& ret, const EF_elem& a, const mpz_class& b) const;
+  bool equ(const EF_elem& a, const EF_elem& b) const;
 
   // common functions
   EF *clone(void) const;

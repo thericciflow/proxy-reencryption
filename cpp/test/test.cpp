@@ -81,6 +81,11 @@ TEST(ef_2) {
   ES_ASSERT_EQ_FM((t.u.v == 14 && t.v.v == 17), true, "x^40=14+17w");
 }
 
+TEST(ec_ff) {
+  auto F = FF(7);
+  auto E = EC<FF>(F, 0, 1);
+}
+
 TEST(ff) {
   auto ff = FF(7);
   FF_elem x(3), y(6);

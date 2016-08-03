@@ -124,6 +124,10 @@ void EF::pow(EF_elem& ret, const EF_elem& a, const mpz_class& b) const {
   }
 }
 
+bool EF::equ(const EF_elem& a, const EF_elem& b) const {
+  return base.equ(a.u, b.u) && base.equ(a.v, b.v);
+}
+
 EF *EF::clone(void) const {
   return new EF(*this);
 }
