@@ -87,73 +87,75 @@ void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
       E Rx, Ry, Rz;
       if (equ(a, b)) {
         E p, q, u, v, yv, yv4, w;
-        base.mul(p, three, a.x);
-        base.mul(p, p, a.x);
-        base.mul(q, c_a, a.z);
-        base.mul(q, q, a.z);
-        base.add(u, p, q);
+        base.mul(p, three, a.x); // 3x
+        base.mul(p, p, a.x);     // 3x^2
+        base.mul(q, c_a, a.z);   // az
+        base.mul(q, q, a.z);     // az^2
+        base.add(u, p, q);       // 3x^2 + az^2
 
-        base.mul(v, a.y, a.z);
+        base.mul(v, a.y, a.z);   // yz
 
-        base.mul(yv, a.y, v);
+        base.mul(yv, a.y, v);    // yv
 
-        base.mul(yv4, yv, four);
+        base.mul(yv4, yv, four); // 4yv
 
-        base.mul(p, u, u);
-        base.mul(q, two, a.x);
-        base.mul(q, q, yv4);
-        base.sub(w, p, q);
+        base.mul(p, u, u);       // u^2
+        base.mul(q, two, a.x);   // 2x
+        base.mul(q, q, yv4);     // 2x * yv4
+        base.sub(w, p, q);       // u^2 - 2x * yv4
 
-        base.mul(p, two, v);
-        base.mul(Rx, p, w);
+        base.mul(p, two, v);     // 2v
+        base.mul(Rx, p, w);      // 2vw
 
-        base.mul(p, a.x, yv4);
-        base.sub(p, p, w);
-        base.mul(p, u, p);
-        base.mul(q, eight, yv);
-        base.mul(q, q, yv);
-        base.sub(Ry, p, q);
+        base.mul(p, a.x, yv4);   // x*yv4
+        base.sub(p, p, w);       // x*yv4 - w
+        base.mul(p, u, p);       // u(x*yv4 - w)
+        base.mul(q, eight, yv);  // 8yv
+        base.mul(q, q, yv);      // 8yv^2
+        base.sub(Ry, p, q);      // u(x*yv4 - w) - 8yv^2
 
-        base.mul(p, eight, v);
-        base.mul(q, v, v);
-        base.mul(Rz, p, q);
+        base.mul(p, eight, v);   // 8v
+        base.mul(q, v, v);       // v^2
+        base.mul(Rz, p, q);      // 8v^3
       } else {
         E p, q, r, u, v, v2, v3, w;
-        base.mul(p, b.y, a.z);
-        base.mul(q, a.y, b.z);
-        base.sub(u, p, q);
+        base.mul(p, b.y, a.z);   // ByAz
+        base.mul(q, a.y, b.z);   // AyBz
+        base.sub(u, p, q);       // ByAz - AyBz
 
-        base.mul(p, b.x, a.z);
-        base.mul(q, a.x, b.z);
-        base.sub(v, p, q);
+        base.mul(p, b.x, a.z);   // BxAz
+        base.mul(q, a.x, b.z);   // AxBz
+        base.sub(v, p, q);       // BxAz - AxBz
 
-        base.mul(v2, v, v);
+        base.mul(v2, v, v);      // v^2
 
-        base.mul(v3, v2, v);
+        base.mul(v3, v2, v);     // v^3
 
-        base.mul(p, u, u);
-        base.mul(q, a.z, a.z);
-        base.mul(p, p, q);
-        base.sub(p, p, v3);
-        base.mul(q, two, v2);
-        base.mul(r, a.x, b.z);
-        base.mul(q, q, r);
-        base.sub(w, p, q);
+        base.mul(p, u, u);       // u^2
+        base.mul(q, a.z, a.z);   // Az^2
+        base.mul(p, p, q);       // u^2 Az^2
+        base.sub(p, p, v3);      // u^2 Az^2 - v3
+        base.mul(q, two, v2);    // 2 v2
+        base.mul(r, a.x, b.z);   // AxBz
+        base.mul(q, q, r);       // 2 Ax Bz v2
+        base.sub(w, p, q);       // u^2 Az^2 - v3 - 2 Ax Bz v2
 
-        base.mul(Rx, v, w);
+        base.mul(Rx, v, w);      // vw
 
-        base.mul(p, v2, a.x);
-        base.mul(p, p, b.z);
-        base.sub(p, p, w);
-        base.mul(p, p, u);
-        base.mul(q, v3, a.y);
-        base.mul(q, q, b.z);
-        base.sub(Ry, p, q);
+        base.mul(p, v2, a.x);    // Ax v2
+        base.mul(p, p, b.z);     // Ax Bz v2
+        base.sub(p, p, w);       // Ax Bz v2 - w
+        base.mul(p, p, u);       // u(Ax Bz v2 - w)
+        base.mul(q, v3, a.y);    // Ay v3
+        base.mul(q, q, b.z);     // Ay Bz v3
+        base.sub(Ry, p, q);      // u(Ax Bz v2 - w) - Ay Bz v3
 
-        base.mul(p, v3, a.z);
-        base.mul(Rz, p, b.z);
+        base.mul(p, v3, a.z);    // Az v3
+        base.mul(Rz, p, b.z);    // Az Bz v3
       }
-      ret = {Rx, Ry, Rz};
+      ret.x = Rx;
+      ret.y = Ry;
+      ret.z = Rz;
     }
   }
 }

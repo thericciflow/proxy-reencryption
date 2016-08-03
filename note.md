@@ -394,9 +394,9 @@ struct EF {
 struct EF_elem {
   FF_elem u, v;
 
-  EF_elem(const FF_elem& u, const FF_elem& v) : u(u), v(v) {}
+  EF_elem(const FF_elem& u, const FF_elem& v = 0) : u(u), v(v) {}
 
-  EF_elem(const mpz_class& u, const mpz_class& v) : u(u), v(v) {}
+  EF_elem(const mpz_class& u, const mpz_class& v = 0) : u(u), v(v) {}
 
 
   EF_elem() = default;
@@ -505,10 +505,7 @@ struct EC {
   template <class E>
   bool is_on_curve(const EC_elem<E>& elem) const;
   template <class E>
-  bool is_equal(const EC_elem<E>& rhs, const EC_elem<E>& lhs) const;
-  template <class E>
   bool is_infinity(const EC_elem<E>& P) const;
-
   EC<T>* clone(void) const;
   std::string to_string(void) const;
 };
@@ -524,9 +521,6 @@ struct EC {
 
 ### is\_on\_curve
 ある点Pが楕円曲線上の点かどうかを判定する。
-
-### is\_equal
-点Pと点Qが射影座標を考慮して同一であるかを判定する。
 
 ### is\_infinity
 ある点Pが無限遠点かどうかを判定する。

@@ -44,6 +44,10 @@ struct EF_elem {
 
   EF_elem(const mpz_class& u, const mpz_class& v) : u(u), v(v) {}
 
+  EF_elem(const FF_elem& u) : u(u), v(0) {}
+
+  EF_elem(const mpz_class& u) : u(u), v(0) {}
+
   EF_elem() = default;
   ~EF_elem() = default;
   EF_elem(const EF_elem& ee) : u(ee.u), v(ee.v) {};

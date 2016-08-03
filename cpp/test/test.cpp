@@ -45,6 +45,76 @@ static int wa_count = 0;
 } \
 void _ ## name ## _test()
 
+TEST(ec_ff) {
+  auto F = FF(7);
+  auto E = EC<FF>(F, 0, 1);
+  auto P = EC_elem<FF_elem>(0, 1, 1);
+  auto Q = EC_elem<FF_elem>(3, 0, 1);
+  EC_elem<FF_elem> T, U, Z;
+
+  ES_ASSERT_NEQ_FM(E.equ(P, Q), true, "P != Q");
+  ES_ASSERT_EQ_FM(E.equ(P, P), true, "P == P");
+  ES_ASSERT_EQ_FM(E.equ(Q, Q), true, "Q == Q");
+
+  E.add(T, P, Q);
+  E.add(U, Q, P);
+
+  ES_ASSERT_EQ_FM(E.equ(T, U), true, "P+Q == Q+P");
+
+  Z = {6, 3, 6};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+Q=(6:3:6)");
+
+  E.add(T, P, P);
+  Z = {0, 6, 1};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+P=(0:6:1)");
+}
+
+TEST(ec_ef_1) {
+  auto F = EF(7, IrreduciblePolynomialType::X2_1);
+  auto E = EC<EF>(F, 0, 1);
+  auto P = EC_elem<EF_elem>(EF_elem(4, 2), EF_elem(2, 1), EF_elem(1, 0));
+  auto Q = EC_elem<EF_elem>(EF_elem(0, 3), EF_elem(3, 6), EF_elem(1, 0));
+  EC_elem<EF_elem> T, U, Z;
+
+  ES_ASSERT_NEQ_FM(E.equ(P, Q), true, "P != Q");
+  ES_ASSERT_EQ_FM(E.equ(P, P), true, "P == P");
+  ES_ASSERT_EQ_FM(E.equ(Q, Q), true, "Q == Q");
+
+  E.add(T, P, Q);
+  E.add(U, Q, P);
+  ES_ASSERT_EQ_FM(E.equ(T, U), true, "P+Q == Q+P");
+
+  Z = {EF_elem(0, 2), EF_elem(4, 6), EF_elem(1)};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+Q=(2i:4+6i:1)");
+
+  E.add(T, P, P);
+  Z = {EF_elem(4, 1), EF_elem(6, 5), EF_elem(2, 4)};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+P=(4+i:6+5i:2+4i)");
+}
+
+TEST(ec_ef_2) {
+  auto F = EF(41, IrreduciblePolynomialType::X2_X_1);
+  auto E = EC<EF>(F, 0, 1);
+  auto P = EC_elem<EF_elem>(EF_elem(39, 39), EF_elem(3, 0), EF_elem(1, 0));
+  auto Q = EC_elem<EF_elem>(EF_elem(5, 5), EF_elem(9, 0), EF_elem(1, 0));
+  EC_elem<EF_elem> T, U, Z;
+
+  ES_ASSERT_NEQ_FM(E.equ(P, Q), true, "P != Q");
+  ES_ASSERT_EQ_FM(E.equ(P, P), true, "P == P");
+  ES_ASSERT_EQ_FM(E.equ(Q, Q), true, "Q == Q");
+
+  E.add(T, P, Q);
+  E.add(U, Q, P);
+  ES_ASSERT_EQ_FM(E.equ(T, U), true, "P+Q == Q+P");
+
+  Z = {EF_elem(10, 10), EF_elem(27), EF_elem(26)};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+Q=(10+10w:27:26)");
+
+  E.add(T, P, P);
+  Z = {EF_elem(0), EF_elem(11), EF_elem(11)};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+P=(0:11:11)");
+}
+
 TEST(ef_1) {
   auto F = EF(7, IrreduciblePolynomialType::X2_1);
   auto x = EF_elem(3, 0);
@@ -81,20 +151,6 @@ TEST(ef_2) {
   ES_ASSERT_EQ_FM((t.u.v == 14 && t.v.v == 17), true, "x^40=14+17w");
 }
 
-TEST(ec_ff) {
-  auto F = FF(7);
-  auto E = EC<FF>(F, 0, 1);
-  auto P = EC_elem<FF_elem>(0, 1, 1);
-  auto Q = EC_elem<FF_elem>(3, 0, 1);
-  EC_elem<FF_elem> T;
-
-  E.add(T, P, Q);
-  ES_ASSERT_EQ_FM(T.to_string(), "(6, 3, 6)", "P+Q=(6:3:6)");
-
-  E.add(T, P, P);
-  ES_ASSERT_EQ_FM(T.to_string(), "(0, 6, 1)", "P+P=(0:6:1)");
-}
-
 TEST(ff) {
   auto ff = FF(7);
   FF_elem x(3), y(6);
@@ -123,6 +179,8 @@ void exec_test() {
   ef_1_test();
   ef_2_test();
   ec_ff_test();
+  ec_ef_1_test();
+  ec_ef_2_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count
