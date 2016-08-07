@@ -247,3 +247,46 @@ std::string EC_elem<T>::to_string(void) const {
      << ")";
   return ss.str();
 }
+
+template <class T>
+template <class E>
+EC_elem<E> EC<T>::to_affine(const EC_elem<E>& elem) const {
+  EC_elem<E> ret = elem;
+  base.div(ret.x, ret.x, ret.z);
+  base.div(ret.y, ret.y, ret.z);
+  ret.z = 1;
+  return ret;
+}
+
+template <class T>
+template <class E>
+E EC<T>::line_coeff(const EC_elem<E>& P, const EC_elem<E>& Q) const {
+  const static E two   {2};
+  const static E three {3};
+  E p, q, r;
+  base.mul(p, P.x, Q.z);
+  base.mul(q, P.z, Q.x);
+  if (base.equ(p, q)) {
+    base.mul(p, P.x, P.x); // x^2
+    base.mul(p, p, three); // 3x^2
+    base.mul(q, a, P.z);   // az
+    base.mul(q, q, P.z);   // az^2
+    base.add(p, p, q);     // 3x^2+az^2
+
+    base.mul(q, P.y, P.z); // yz
+    base.mul(q, q, two);   // 2yz
+
+    base.div(p, p, q);     // (3x^2+az^2) / (2yz)
+  } else {
+    base.mul(p, P.z, Q.y); // PzQy
+    base.mul(q, P.y, Q.z); // PyQz
+    base.sub(p, p, q);     // PzQy - PyQz
+
+    base.mul(q, P.z, Q.x); // PzQx
+    base.mul(r, P.x, Q.z); // PxQz
+    base.sub(q, q, r);     // PzQx - PxQz
+
+    base.div(p, p, q);     // (PzQy - PyQz) / (PzQx - PxQz)
+  }
+  return p;
+}
