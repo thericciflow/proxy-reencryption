@@ -134,13 +134,13 @@ void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
         base.mul(v3, v2, v);     // v^3
 
         base.mul(p, u, u);       // u^2
-        base.mul(q, a.z, a.z);   // Az^2
-        base.mul(p, p, q);       // u^2 Az^2
-        base.sub(p, p, v3);      // u^2 Az^2 - v3
+        base.mul(q, a.z, b.z);   // AzBz
+        base.mul(p, p, q);       // u^2 AzBz
+        base.sub(p, p, v3);      // u^2 AzBz - v3
         base.mul(q, two, v2);    // 2 v2
         base.mul(r, a.x, b.z);   // AxBz
         base.mul(q, q, r);       // 2 Ax Bz v2
-        base.sub(w, p, q);       // u^2 Az^2 - v3 - 2 Ax Bz v2
+        base.sub(w, p, q);       // u^2 AzBz - v3 - 2 Ax Bz v2
 
         base.mul(Rx, v, w);      // vw
 
@@ -174,7 +174,27 @@ void EC<T>::sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
 template <class T>
 template <class E>
 void EC<T>::mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const {
-
+  const static E zero {0};
+  const static E one  {1};
+  if (b == 0) {
+    ret = {zero, one, zero};
+  } else if (b == 1) {
+    ret = {a};
+  } else if (b == 2) {
+    add(ret, a, a);
+  } else {
+    EC_elem<E> P {a};
+    EC_elem<E> Q = {zero, one, zero};
+    auto m = b;
+    while (m != 0) {
+      if ((m&1) == 1) {
+        add(Q, Q, P);
+      }
+      add(P, P, P);
+      m >>= 1;
+    }
+    ret = Q;
+  }
 }
 
 template <class T>
