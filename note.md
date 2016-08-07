@@ -112,7 +112,7 @@ class T(object):
   def pow(s, ret, a, b):
     assert isinstance(ret, E) and isinstance(a, E)
     lib.T_pow(s.ptr, ret.ptr, a.ptr, str(b))
-
+	
   def equ(s, a, b):
     assert isinstance(a, E) and isinstance(b, E)
 	return lib.T_equ(s.ptr, a.ptr, b.ptr) != 0
@@ -472,26 +472,28 @@ template <class T>
 struct EC {
   const T& base;
   mpz_class a, b;
-
+  
   EC(const T& base, const mpz_class& a, const mpz_class& b) : base(base), a(a), b(b) {}
-
+  
   EC() = default;
   ~EC() = default;
   EC(const EC<T>& ec) : base(ec.base), a(ec.a), b(ec.b) {};
   EC(EC<T>&& ec) : base(std::move(ec.base)), a(std::move(ec.a)), b(std::move(ec.b)) {};
   EC<T>& operator=(const EC<T>& ec);
   EC<T>& operator=(EC<T>&& ec);
-
+  
   template <class E>
   void add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
   void sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
-  void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
+  void mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const;
   template <class E>
-  bool equ(const EC_elem& a, const EC_elem<E>& b) const;
-
+  bool equ(const EC_elem<E>	& a, const EC_elem<E>& b) const;
+  
   // ----------------- UNDEFINED(DELETED) -----------------
+  template <class E>
+  void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const = delete;
   template <class E>
   void div(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const = delete;
   template <class E>
@@ -531,16 +533,16 @@ struct EC {
 template <class T>
 struct EC_elem {
   T x, y, z;
-
+  
   EC_elem(const mpz_class& x, const mpz_class& y, const mpz_class& z) : x(x), y(y), z(z) {}
-
+  
   EC_elem() = default;
   ~EC_elem() = default;
   EC_elem(const EC_elem<T>& ee) : x(ee.x), y(ee.y), z(ee.z) {};
   EC_elem(EC_elem<T>&& ee) : x(std::move(ee.x)), y(std::move(ee.y)), z(std::move(ee.z)) {};
   EC_elem<T>& operator=(const EC_elem<T>&);
   EC_elem<T>& operator=(EC_elem<T>&&);
-
+  
   EC_elem<T>* clone(void) const;
   std::string to_string(void) const;
 };
@@ -555,12 +557,6 @@ struct EC_elem {
   * 項目14 例外を発生させない関数はnoexceptと宣言する
   * 項目17 自動的に生成される特殊メンバ関数を理解する
   * 項目25 右辺値参照にはstd::moveを、ユニヴァーサル参照にはstd::forwardを用いる
-
-
-
-
-
-
 
 
 

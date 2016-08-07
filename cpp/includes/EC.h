@@ -23,11 +23,13 @@ struct EC {
   template <class E>
   void sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
-  void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
+  void mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const;
   template <class E>
   bool equ(const EC_elem<E>& a, const EC_elem<E>& b) const;
 
   // ----------------- UNDEFINED(DELETED) -----------------
+  template <class E>
+  void mul(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const = delete;
   template <class E>
   void div(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const = delete;
   template <class E>
@@ -169,6 +171,11 @@ void EC<T>::sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
   add(ret, a, b_); // a-b
 }
 
+template <class T>
+template <class E>
+void EC<T>::mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const {
+
+}
 
 template <class T>
 template <class E>
