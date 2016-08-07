@@ -67,6 +67,10 @@ TEST(ec_ff) {
   E.add(T, P, P);
   Z = {0, 6, 1};
   ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+P=(0:6:1)");
+
+  E.sub(T, P, P);
+  Z = {0, 1, 0};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P-P=(0:1:0)");
 }
 
 TEST(ec_ef_1) {
@@ -90,6 +94,10 @@ TEST(ec_ef_1) {
   E.add(T, P, P);
   Z = {EF_elem(4, 1), EF_elem(6, 5), EF_elem(2, 4)};
   ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+P=(4+i:6+5i:2+4i)");
+
+  E.sub(T, P, P);
+  Z = {0, 1, 0};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P-P=(0:1:0)");
 }
 
 TEST(ec_ef_2) {
@@ -113,6 +121,10 @@ TEST(ec_ef_2) {
   E.add(T, P, P);
   Z = {EF_elem(0), EF_elem(11), EF_elem(11)};
   ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P+P=(0:11:11)");
+
+  E.sub(T, P, P);
+  Z = {0, 1, 0};
+  ES_ASSERT_EQ_FM(E.equ(T, Z), true, "P-P=(0:1:0)");
 }
 
 TEST(ef_1) {
