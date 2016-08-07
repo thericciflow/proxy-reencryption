@@ -215,6 +215,29 @@ bool EC<T>::is_infinity(const EC_elem<E>& P) const {
 }
 
 template <class T>
+template <class E>
+bool EC<T>::is_on_curve(const EC_elem<E>& P) const {
+  E p, q, r, s, t;
+  base.mul(p, P.y, P.y); // y^2
+  base.mul(p, p, P.z);   // y^2z
+
+  base.mul(q, P.x, P.x); // x^2
+  base.mul(q, q, P.x);   // x^3
+  base.mul(r, a, P.x);   // ax
+  base.mul(r, r, P.z);   // axz
+  base.mul(r, r, P.z);   // axz^2
+
+  base.add(q, q, r);     // x^3 + axz^2
+
+  base.mul(r, b, P.z);   // bz
+  base.mul(r, r, P.z);   // bz^2
+  base.mul(r, r, P.z);   // bz^3
+
+  base.add(q, q, r);     // x^3 + axz^2 + bz^3
+  return base.equ(p, q);
+}
+
+template <class T>
 EC_elem<T>& EC_elem<T>::operator=(const EC_elem<T>& other) {
   x = other.x;
   y = other.y;
@@ -290,3 +313,43 @@ E EC<T>::line_coeff(const EC_elem<E>& P, const EC_elem<E>& Q) const {
   }
   return p;
 }
+
+template <class T>
+EC<T>& EC<T>::operator=(const EC<T>& other) {
+  base = other.base;
+  a = other.a;
+  b = other.b;
+  return (*this);
+}
+
+template <class T>
+EC<T>& EC<T>::operator=(EC<T>&& other) {
+  base = std::move(other.base);
+  a = std::move(other.a);
+  b = std::move(other.b);
+  return (*this);
+}
+
+template <class T>
+EC<T>* EC<T>::clone(void) const {
+  return new EC<T>(*this);
+}
+
+template <class T>
+std::string EC<T>::to_string(void) const {
+  std::stringstream ss;
+  ss << "Elliptic Curve: y^2 = x^3";
+  if (a != 0) {
+    ss << " + ";
+    if (a != 1) {
+      ss << a;
+    }
+    ss << "x";
+  }
+  if (b != 0) {
+    ss << " + " << b;
+  }
+  ss << " over " << base.to_string();
+  return ss.str();
+}
+

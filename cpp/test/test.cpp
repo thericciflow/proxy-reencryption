@@ -76,6 +76,10 @@ TEST(ec_ff) {
   Z = {0, 1, 0};
   ES_ASSERT_EQ_FM(E.equ(T, Z), true, "3P=(0:1:0)");
 
+  ES_ASSERT_EQ(E.is_on_curve(P), true);
+  ES_ASSERT_EQ(E.is_on_curve(Q), true);
+  ES_ASSERT_EQ(E.is_on_curve(T), true);
+
   auto r = E.line_coeff(P, Q);
   ES_ASSERT_EQ_FM(F.equ(r, FF_elem(2)), true, "line_coeff(P, Q)");
 }
@@ -112,6 +116,10 @@ TEST(ec_ef_1) {
 
   auto r = E.line_coeff(P, Q);
   ES_ASSERT_EQ_FM(F.equ(r, EF_elem(5)), true, "line_coeff(P, Q)");
+
+  ES_ASSERT_EQ(E.is_on_curve(P), true);
+  ES_ASSERT_EQ(E.is_on_curve(Q), true);
+  ES_ASSERT_EQ(E.is_on_curve(T), true);
 }
 
 TEST(ec_ef_2) {
@@ -147,6 +155,10 @@ TEST(ec_ef_2) {
 
   auto r = E.line_coeff(P, Q);
   ES_ASSERT_EQ_FM(F.equ(r, EF_elem(0, 5)), true, "line_coeff(P, Q)");
+
+  ES_ASSERT_EQ(E.is_on_curve(P), true);
+  ES_ASSERT_EQ(E.is_on_curve(Q), true);
+  ES_ASSERT_EQ(E.is_on_curve(T), true);
 }
 
 TEST(ef_1) {
