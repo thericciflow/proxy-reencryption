@@ -162,6 +162,16 @@ void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
 
 template <class T>
 template <class E>
+void EC<T>::sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
+  const static E zero {0};
+  EC_elem<E> b_ { b };
+  base.sub(b_.y, zero, b_.y); // -b
+  add(ret, a, b_); // a-b
+}
+
+
+template <class T>
+template <class E>
 bool EC<T>::equ(const EC_elem<E>& a, const EC_elem<E>& b) const {
   E p, q;
   base.mul(p, a.x, b.y);
