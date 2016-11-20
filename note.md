@@ -548,6 +548,111 @@ struct EC_elem {
 };
 ```
 
+## ECのPythonインターフェース
+```cpp
+template <class T>
+struct EC;
+template <class E>
+struct EC_elem;
+
+__EXPORT__ {
+  // create EC<FF> instance
+  EC<FF> *EC_FF_create(const char *a, const char *b, const FF *base);
+  // delete EC<FF> instance
+  void EC_FF_delete(const EC<FF>* obj);
+  // ret = a + b
+  void EC_FF_add(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_elem<FF_elem> *a, const EC_elem<FF_elem> *b);
+  // ret = a - b
+  void EC_FF_sub(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_elem<FF_elem> *a, const EC_elem<FF_elem> *b);
+  // ret = a * b
+  void EC_FF_mul(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_elem<FF_elem> *a, const char *b);
+  // a == b
+  int EC_FF_equ(const EC<FF> *obj, const EC_elem<FF_elem> *a, const EC_elem<FF_elem> *b);
+  // to python __str__ function
+  void EC_FF_to_string(const EC<FF> *obj, char *ptr, int len);
+};
+
+__EXPORT__ {
+  // create EC<EF> instance
+  EC<FF> *EC_EF_create(const char *a, const char *b, const EF *base);
+  // delete EC<EF> instance
+  void EC_EF_delete(const EC<EF>* obj);
+  // ret = a + b
+  void EC_EF_add(const EC<EF> *obj, EC_elem<EF_elem> *ret, const EC_elem<EF_elem> *a, const EC_elem<EF_elem> *b);
+  // ret = a - b
+  void EC_EF_sub(const EC<EF> *obj, EC_elem<EF_elem> *ret, const EC_elem<EF_elem> *a, const EC_elem<EF_elem> *b);
+  // ret = a * b
+  void EC_EF_mul(const EC<EF> *obj, EC_elem<EF_elem> *ret, const EC_elem<EF_elem> *a, const char *b);
+  // a == b
+  int EC_EF_equ(const EC<EF> *obj, const EC_elem<EF_elem> *a, const EC_elem<EF_elem> *b);
+  // to python __str__ function
+  void EC_EF_to_string(const EC<EF> *obj, char *ptr, int len);
+};
+```
+
+## EC\_elemのPythonインターフェース
+
+```
+template <class T>
+struct EC;
+template <class E>
+struct EC_elem;
+
+__EXPORT__ {
+  // create EC_elem<FF_elem> instance
+  EC_elem<FF_elem> *EC_elem_FF_create(const FF_elem *x, const FF_elem *y, const FF_elem *z);
+  // delete E instance
+  void EC_elem_FF_delete(const EC_elem<FF_elem>* obj);
+  // to python __str__ function
+  void EC_elem_FF_to_string(const EC_elem<FF_elem> *obj, char *ptr, int len);
+};
+
+__EXPORT__ {
+  // create EC_elem<EF_elem> instance
+  EC_elem<EF_elem> *EC_elem_EF_create(const EF_elem *x, const EF_elem *y, const EF_elem *z);
+  // delete E instance
+  void EC_elem_EF_delete(const EC_elem<EF_elem>* obj);
+  // to python __str__ function
+  void EC_elem_EF_to_string(const EC_elem<EF_elem> *obj, char *ptr, int len);
+};
+
+```
+
+# ペアリング関数群
+ペアリングのために必要な関数の設計
+
+* miller
+* weil\_pairing
+* tate\_pairing
+
+## miller関数
+Miller algorithmの実装, 中にラムダ式でh関数を持つ
+返り値は第一引数`const E& ret`に返り、その値は因子$m(P) - m(O)$を持つ関数$f_P$に$Q$を適用した$f_P(Q)$の値。
+
+```cpp
+template <class T>
+template <class E>
+void miller(const E& ret, const EC<T> curve const EC_elem<E> P, const EC_elem<E> Q, const int& m);
+```
+
+## weil\_pairing関数
+Weil Pairingの計算をする関数。
+
+```cpp
+template <class T>
+template <class E>
+void weil_pairing(const E& ret, const EC<T> curve const EC_elem<E> P, const EC_elem<E> Q, const int& m);
+```
+
+## weil\_pairing関数
+	Tate-Lichtenbaum Pairingの計算をする関数。
+
+```cpp
+template <class T>
+template <class E>
+void tate_pairing(const E& ret, const EC<T> curve const EC_elem<E> P, const EC_elem<E> Q, const int& m, const int& embedding_degree);
+```
+
 # References
 * [C\+\+11 時代のクラス設計に関する提案 - 野良C\+\+erの雑記帳](http://d.hatena.ne.jp/gintenlabo/20130604/1370362451)
 * [本の虫: C\+\+03とC\+\+11の違い: 特別なメンバー関数編](https://cpplover.blogspot.jp/2013/12/c03c11_13.html)
@@ -557,6 +662,11 @@ struct EC_elem {
   * 項目14 例外を発生させない関数はnoexceptと宣言する
   * 項目17 自動的に生成される特殊メンバ関数を理解する
   * 項目25 右辺値参照にはstd::moveを、ユニヴァーサル参照にはstd::forwardを用いる
+
+
+
+
+
 
 
 

@@ -353,3 +353,54 @@ std::string EC<T>::to_string(void) const {
   return ss.str();
 }
 
+__EXPORT__ {
+  // create EC<FF> instance
+  EC<FF> *EC_FF_create(const char *a, const char *b, const FF *base);
+  // delete EC<FF> instance
+  void EC_FF_delete(const EC<FF>* obj);
+  // ret = a + b
+  void EC_FF_add(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_elem<FF_elem> *a, const EC_elem<FF_elem> *b);
+  // ret = a - b
+  void EC_FF_sub(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_elem<FF_elem> *a, const EC_elem<FF_elem> *b);
+  // ret = a * b
+  void EC_FF_mul(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_elem<FF_elem> *a, const char *b);
+  // a == b
+  int EC_FF_equ(const EC<FF> *obj, const EC_elem<FF_elem> *a, const EC_elem<FF_elem> *b);
+  // to python __str__ function
+  void EC_FF_to_string(const EC<FF> *obj, char *ptr, int len);
+};
+
+__EXPORT__ {
+  // create EC<EF> instance
+  EC<EF> *EC_EF_create(const char *a, const char *b, const EF *base);
+  // delete EC<EF> instance
+  void EC_EF_delete(const EC<EF>* obj);
+  // ret = a + b
+  void EC_EF_add(const EC<EF> *obj, EC_elem<EF_elem> *ret, const EC_elem<EF_elem> *a, const EC_elem<EF_elem> *b);
+  // ret = a - b
+  void EC_EF_sub(const EC<EF> *obj, EC_elem<EF_elem> *ret, const EC_elem<EF_elem> *a, const EC_elem<EF_elem> *b);
+  // ret = a * b
+  void EC_EF_mul(const EC<EF> *obj, EC_elem<EF_elem> *ret, const EC_elem<EF_elem> *a, const char *b);
+  // a == b
+  int EC_EF_equ(const EC<EF> *obj, const EC_elem<EF_elem> *a, const EC_elem<EF_elem> *b);
+  // to python __str__ function
+  void EC_EF_to_string(const EC<EF> *obj, char *ptr, int len);
+};
+
+__EXPORT__ {
+  // create EC_elem<FF_elem> instance
+  EC_elem<FF_elem> *EC_elem_FF_create(const FF_elem *x, const FF_elem *y, const FF_elem *z);
+  // delete E instance
+  void EC_elem_FF_delete(const EC_elem<FF_elem>* obj);
+  // to python __str__ function
+  void EC_elem_FF_to_string(const EC_elem<FF_elem> *obj, char *ptr, int len);
+};
+
+__EXPORT__ {
+  // create EC_elem<EF_elem> instance
+  EC_elem<EF_elem> *EC_elem_EF_create(const EF_elem *x, const EF_elem *y, const EF_elem *z);
+  // delete E instance
+  void EC_elem_EF_delete(const EC_elem<EF_elem>* obj);
+  // to python __str__ function
+  void EC_elem_EF_to_string(const EC_elem<EF_elem> *obj, char *ptr, int len);
+};
