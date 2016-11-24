@@ -328,12 +328,15 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
       x += 1
 
   def _add(s, P, Q):
-    R = _native.EC_elem(s.ec, 0, 0)
-    P = _native.EC_elem(s.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
-    Q = _native.EC_elem(s.ec, tuple(Q[0]), tuple(Q[1]), tuple(Q[2]))
-    s.ec.add(R, P, Q)
-    R = FiniteFieldEllipticCurvePoint(s, *R.to_python(), normalize=True)
-    return R
+    if is_enable_native:
+      R = _native.EC_elem(s.ec, 0, 0)
+      P = _native.EC_elem(s.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
+      Q = _native.EC_elem(s.ec, tuple(Q[0]), tuple(Q[1]), tuple(Q[2]))
+      s.ec.add(R, P, Q)
+      R = FiniteFieldEllipticCurvePoint(s, *R.to_python(), normalize=True)
+      return R
+    else:
+      super(FiniteFieldEllipticCurve, s)._add(P, Q)
 
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
