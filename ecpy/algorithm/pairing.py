@@ -46,8 +46,21 @@ def weil_pairing(E, P, Q, m, S=None):
   if S is None:
     S = E.random_point()
   from ecpy.util import is_enable_native, _native
+  from ecpy.structure.ExtendedFiniteField import ExtendedFiniteFieldElement
   if is_enable_native:
-    pass
+    P = _native.EC_elem(E.ec, tuple(P.x), tuple(P.y), tuple(P.z))
+    Q = _native.EC_elem(E.ec, tuple(Q.x), tuple(Q.y), tuple(Q.z))
+    S = _native.EC_elem(E.ec, tuple(S.x), tuple(S.y), tuple(S.z))
+    if E.ec.type == 1:
+      t = _native.FF_elem(0)
+    elif E.ec.type == 2:
+      t = _native.EF_elem(0, 0)
+    _native.weil_pairing(t, E.ec, P, Q, S, m)
+    if E.ec.type == 1:
+      return t.to_python()
+    elif E.ec.type == 2:
+      t = t.to_python()
+      return ExtendedFiniteFieldElement(E.field, t[0], t[1])
   else:
     fpqs = miller(E, P, Q + S, m)
     fps = miller(E, P, S, m)
@@ -66,8 +79,24 @@ def tate_pairing(E, P, Q, m, k=2):
     m: The order of P, Q on E
     k: [Optional] The Embedding Degree of m on E
   """
-  f = miller(E, P, Q, m)
-  return f ** (((E.field.p ** k) - 1) / m)
+  from ecpy.util import is_enable_native, _native
+  from ecpy.structure.ExtendedFiniteField import ExtendedFiniteFieldElement
+  if is_enable_native:
+    P = _native.EC_elem(E.ec, tuple(P.x), tuple(P.y), tuple(P.z))
+    Q = _native.EC_elem(E.ec, tuple(Q.x), tuple(Q.y), tuple(Q.z))
+    if E.ec.type == 1:
+      t = _native.FF_elem(0)
+    elif E.ec.type == 2:
+      t = _native.EF_elem(0, 0)
+    _native.tate_pairing(t, E.ec, P, Q, m, k)
+    if E.ec.type == 1:
+      return t.to_python()
+    elif E.ec.type == 2:
+      t = t.to_python()
+      return ExtendedFiniteFieldElement(E.field, t[0], t[1])
+  else:
+    f = miller(E, P, Q, m)
+    return f ** (((E.field.p ** k) - 1) / m)
 
 
 def MapToPoint(E, y):
