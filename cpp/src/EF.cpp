@@ -140,7 +140,7 @@ EF *EF::clone(void) const {
 
 std::string EF::to_string(void) const {
   std::stringstream ss;
-  ss << "Extended Field F_" << base.to_string() << "/";
+  ss << "Extended Field " << base.to_string() << "/";
   switch (poly) {
   case IrreduciblePolynomialType::X2_1:
     ss << "(x^2+1)";

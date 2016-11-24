@@ -29,7 +29,7 @@ def SSSA_Attack(F, E, P, Q):
   from ecpy.structure.EllipticCurve import EllipticCurve
   from ecpy.structure.RationalField import QQ
   from ecpy.structure.Zmod import Zmod
-  from ecpy.util import modinv, is_enable_native
+  from ecpy.util import modinv, is_enable_native, _native
   A = E.a
   # lP, lQ, ... is "lifted" P, Q, ...
   x1, y1 = hensel_lift(E, P)
@@ -52,15 +52,17 @@ def SSSA_Attack(F, E, P, Q):
     m = (dy1 * dx2 * modinv(dx1 * dy2, modulo)) % modulo
     return m % F.p
   else:
-    from ecpy.native import *
-    lE = EC_create(lA, lB, "FF")
-    modulo = F.p ** 2
-    lP = EP_FF_create(lE, x1, y1, 1, modulo)
-    lQ = EP_FF_create(lE, x2, y2, 1, modulo)
-    lU = lP * (F.p - 1)
-    lV = lQ * (F.p - 1)
-    lUx, lUy, lUz = lU.tuple()
-    lVx, lVy, lVz = lV.tuple()
+    modulo = F.p**2
+    base = _native.FF(modulo)
+    lE = _native.EC(base, lA, lB)
+    lP = _native.EC_elem(lE, x1, y1)
+    lQ = _native.EC_elem(lE, x2, y2)
+    lU = _native.EC_elem(lE, 0, 0)
+    lV = _native.EC_elem(lE, 0, 0)
+    lE.mul(lU, lP, F.p - 1)
+    lE.mul(lV, lQ, F.p - 1)
+    lUx, lUy, lUz = lU.to_python()
+    lVx, lVy, lVz = lV.to_python()
     lUx = (lUx * modinv(lUz, modulo)) % modulo
     lUy = (lUy * modinv(lUz, modulo)) % modulo
     lVx = (lVx * modinv(lVz, modulo)) % modulo

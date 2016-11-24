@@ -71,7 +71,10 @@ class EC_elem(object):
   def __init__(s, curve, x, y, z=1):
     def conv(x):
       if s.curve.type == 1:
-        return FF_elem(x)
+        if isinstance(x, tuple):
+          return FF_elem(x[0])
+        else:
+          return FF_elem(x)
       elif s.curve.type == 2:
         if isinstance(x, tuple):
           return EF_elem(x[0], x[1])
@@ -84,21 +87,20 @@ class EC_elem(object):
     s.z = z
     s.curve = curve
     s.base = curve.base
-    cond = {
-      1 : lib.EC_elem_FF_create, 
-      2 : lib.EC_elem_EF_create, 
-    }
     if isinstance(x, (int, long, tuple)):
       x = conv(x)
     if isinstance(y, (int, long, tuple)):
       y = conv(y)
     if isinstance(z, (int, long, tuple)):
       z = conv(z)
-
+    cond = {
+      1 : lib.EC_elem_FF_create, 
+      2 : lib.EC_elem_EF_create, 
+    }
     s.ptr = cond[curve.type](x.ptr, y.ptr, z.ptr)
 
   def to_python(s):
-    r = str(s).lstrip("EC_elem")
+    r = str(s).lstrip("EC_elem").replace("EF_elem", "").replace("FF_elem", "")
     return tuple(ast.literal_eval(r))
 
   def __to_string(s, bufsize):

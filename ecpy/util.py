@@ -139,7 +139,15 @@ try:
 except ImportError:
   _is_prime = miller_rabin
 
-is_enable_native = False
+try:
+  import ecpy.native
+  _native = ecpy.native
+  is_enable_native = True
+  sys.stderr.write("[+] Found native module!\n")
+except ImportError:
+  _native = None
+  is_enable_native = False
+
 
 @memoize
 def is_prime(x):

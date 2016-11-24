@@ -1,7 +1,9 @@
 from ecpy.abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from ecpy.algorithm.root import modular_square_root
+from ecpy.util import is_enable_native, _native
 from random import randint
 from FiniteField import FiniteField
+from ExtendedFiniteField import ExtendedFiniteField
 
 
 def EllipticCurve(field, a, b):
@@ -278,6 +280,17 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
     s.b = b
     s.element_class = FiniteFieldEllipticCurvePoint
     s.O = s.element_class(s, 0, 1, 0)
+    if is_enable_native:
+      if isinstance(field, ExtendedFiniteField):
+        cond = {
+            1 : "x^2+1",
+            2 : "x^2+x+1"
+        }
+        poly = cond[field.t]
+        s.base = _native.EF(field.p, poly)
+      elif isinstance(field, FiniteField):
+        s.base = _native.FF(field.p)
+      s.ec = _native.EC(s.base, a, b)
 
   def get_corresponding_y(s, x):
     """
@@ -314,9 +327,17 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
           return s.element_class(s, x, y)
       x += 1
 
+  def _add(s, P, Q):
+    R = _native.EC_elem(s.ec, 0, 0)
+    P = _native.EC_elem(s.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
+    Q = _native.EC_elem(s.ec, tuple(Q[0]), tuple(Q[1]), tuple(Q[2]))
+    s.ec.add(R, P, Q)
+    R = FiniteFieldEllipticCurvePoint(s, *R.to_python(), normalize=True)
+    return R
+
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
-  def __init__(s, group, x, y, z=1):
+  def __init__(s, group, x, y, z=1, normalize=False):
     def F(x):
       if type(x) == tuple:
         return group.field(*x)
@@ -326,6 +347,10 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     s.x = F(x)
     s.y = F(y)
     s.z = F(z)
+    if normalize and s.z != 0:
+      s.x = s.x / s.z
+      s.y = s.y / s.z
+      s.z = s.z / s.z
     s.inf = s.x == 0 and s.y == 1 and s.z == 0
     if not (s.inf or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
@@ -362,4 +387,5 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       if r.is_infinity():
         return i
       r += s
+      print r
       i += 1
