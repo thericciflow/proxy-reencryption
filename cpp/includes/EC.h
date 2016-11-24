@@ -44,6 +44,8 @@ struct EC {
   bool is_on_curve(const EC_elem<E>& elem) const;
   template <class E>
   bool is_infinity(const EC_elem<E>& P) const;
+  template <class E>
+  EC_elem<E> random_point() const;
   EC<T>* clone(void) const;
   std::string to_string(void) const;
 };

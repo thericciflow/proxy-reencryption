@@ -21,6 +21,9 @@
 #include "EC.h"
 
 template <class T>
+mpz_class get_modulus(T base);
+
+template <class T>
 void write_to_python_string(const T *x, char *ptr, int len) {
   std::stringstream ss;
   ss << x->to_string();
@@ -101,4 +104,36 @@ void miller(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, c
       curve.add(G, G, P);
     }
   }
+}
+
+template <class T, class E>
+void weil_pairing(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const EC_elem<E> S, const mpz_class& m) {
+  E fpqs {0}, fps {0}, fqps {0}, fqs {0}, u {0}, v {0};
+  EC_elem<E> t;
+
+  curve.add(t, Q, S);
+  miller(fpqs, curve, P, t, m);
+
+  miller(fps, curve, P, S, m);
+
+  curve.sub(t, P, S);
+  miller(fqps, curve, Q, t, m);
+
+  curve.sub(t, EC_elem<E> {0, 1, 0}, S);
+  miller(fqs, curve, Q, t, m);
+
+  curve.base.mul(u, fpqs, fqs);
+  curve.base.mul(v, fps, fqps);
+  curve.base.div(ret, u, v);
+}
+template <class T, class E>
+void tate_pairing(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const mpz_class& m, const int& embedding_degree) {
+  E f {0};
+  miller(f, curve, P, Q, m);
+  mpz_class p = get_modulus(curve.base);
+  mpz_class t = 1;
+  for (int i = 0; i < embedding_degree; i++) {
+    t *= p;
+  }
+  curve.base.pow(ret, f, (t - 1)/m);
 }

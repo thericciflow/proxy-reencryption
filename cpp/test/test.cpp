@@ -113,6 +113,14 @@ TEST(ec_miller) {
   miller(t, E, Q, Z, m);
   z = {204};
   ES_ASSERT_EQ_FM(F.equ(t, z), true, "miller(Q, -S) == 204");
+
+  weil_pairing(t, E, P, Q, S, m);
+  z = {242};
+  ES_ASSERT_EQ_FM(F.equ(t, z), true, "weil_pairing(P, Q) == 242");
+
+  tate_pairing(t, E, P, Q, m, 1);
+  z = {279};
+  ES_ASSERT_EQ_FM(F.equ(t, z), true, "tate_pairing(P, Q) == 279");
 }
 
 TEST(ec_ef_1) {
