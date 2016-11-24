@@ -84,6 +84,37 @@ TEST(ec_ff) {
   ES_ASSERT_EQ_FM(F.equ(r, FF_elem(2)), true, "line_coeff(P, Q)");
 }
 
+TEST(ec_miller) {
+  auto F = FF(631);
+  auto E = EC<FF>(F, 30, 34);
+  auto m = 5;
+
+  auto P = EC_elem<FF_elem>{36, 60, 1};
+  auto Q = EC_elem<FF_elem>{121, 387, 1};
+  auto S = EC_elem<FF_elem>{0, 36, 1};
+  FF_elem t {0}, z {0};
+  EC_elem<FF_elem> Z;
+
+  E.add(Z, Q, S);
+  miller(t, E, P, Z, m);
+  z = {103};
+  ES_ASSERT_EQ_FM(F.equ(t, z), true, "miller(P, Q+S) == 103");
+
+  miller(t, E, P, S, m);
+  z = {219};
+  ES_ASSERT_EQ_FM(F.equ(t, z), true, "miller(P, S) == 219");
+
+  E.sub(Z, P, S);
+  miller(t, E, Q, Z, m);
+  z = {284};
+  ES_ASSERT_EQ_FM(F.equ(t, z), true, "miller(Q, P-S) == 284");
+
+  E.sub(Z, EC_elem<FF_elem>{0, 1, 0}, S);
+  miller(t, E, Q, Z, m);
+  z = {204};
+  ES_ASSERT_EQ_FM(F.equ(t, z), true, "miller(Q, -S) == 204");
+}
+
 TEST(ec_ef_1) {
   auto F = EF(7, IrreduciblePolynomialType::X2_1);
   auto E = EC<EF>(F, 0, 1);
@@ -227,6 +258,7 @@ void exec_test() {
   ec_ff_test();
   ec_ef_1_test();
   ec_ef_2_test();
+  ec_miller_test();
   cout << boost::format("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail.")
     % (ac_count + wa_count)
     % ac_count
