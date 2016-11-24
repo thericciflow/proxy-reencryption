@@ -1,5 +1,4 @@
 from ecpy.native import *
-from ecpy import *
 import time
 import sys
 
@@ -76,6 +75,21 @@ def main():
   assert_eq(t.to_python(), (15, 3, 7), "4*P")
   E.mul(t, P, 9)
   assert_eq(t.to_python(), (0, 1, 0), "#P = 9")
+
+  p = 631
+  m = 5
+  F = FF(p)
+  E = EC(F, 30, 34)
+  P = EC_elem(E, 36, 60)
+  Q = EC_elem(E, 121, 387)
+  S = EC_elem(E, 0, 36)
+  t = FF_elem(0)
+  weil_pairing(t, E, P, Q, S, m)
+  assert_eq(t.to_python(), 242, "weil_pairing")
+  tate_pairing(t, E, P, Q, m, 1)
+  assert_eq(t.to_python(), 279, "tate_pairing")
+
+
 
 
   sys.exit(wa_count)

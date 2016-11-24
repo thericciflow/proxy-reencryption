@@ -106,6 +106,15 @@ void miller(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, c
   }
 }
 
+__EXPORT__ {
+  void EC_FF_miller(FF_elem *ret, const EC<FF> *curve, const EC_elem<FF_elem> *P, const EC_elem<FF_elem> *Q, const char *m);
+  void EC_EF_miller(EF_elem *ret, const EC<EF> *curve, const EC_elem<EF_elem> *P, const EC_elem<EF_elem> *Q, const char *m);
+  void EC_FF_weil_pairing(FF_elem *ret, const EC<FF> *curve, const EC_elem<FF_elem> *P, const EC_elem<FF_elem> *Q, const EC_elem<FF_elem> *S, const char *m);
+  void EC_EF_weil_pairing(EF_elem *ret, const EC<EF> *curve, const EC_elem<EF_elem> *P, const EC_elem<EF_elem> *Q, const EC_elem<EF_elem> *S, const char *m);
+  void EC_FF_tate_pairing(FF_elem *ret, const EC<FF> *curve, const EC_elem<FF_elem> *P, const EC_elem<FF_elem> *Q, const char *m, const int k);
+  void EC_EF_tate_pairing(EF_elem *ret, const EC<EF> *curve, const EC_elem<EF_elem> *P, const EC_elem<EF_elem> *Q, const char *m, const int k);
+};
+
 template <class T, class E>
 void weil_pairing(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const EC_elem<E> S, const mpz_class& m) {
   E fpqs {0}, fps {0}, fqps {0}, fqs {0}, u {0}, v {0};

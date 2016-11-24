@@ -45,11 +45,15 @@ def weil_pairing(E, P, Q, m, S=None):
   """
   if S is None:
     S = E.random_point()
-  fpqs = miller(E, P, Q + S, m)
-  fps = miller(E, P, S, m)
-  fqps = miller(E, Q, P - S, m)
-  fqs = miller(E, Q, -S, m)
-  return E.field._inv(fps * fqps) * fpqs * fqs
+  from ecpy.util import is_enable_native, _native
+  if is_enable_native:
+    pass
+  else:
+    fpqs = miller(E, P, Q + S, m)
+    fps = miller(E, P, S, m)
+    fqps = miller(E, Q, P - S, m)
+    fqs = miller(E, Q, -S, m)
+    return E.field._inv(fps * fqps) * fpqs * fqs
 
 
 def tate_pairing(E, P, Q, m, k=2):
