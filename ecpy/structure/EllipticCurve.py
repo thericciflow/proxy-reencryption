@@ -336,7 +336,7 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
       R = FiniteFieldEllipticCurvePoint(s, *R.to_python(), normalize=True)
       return R
     else:
-      super(FiniteFieldEllipticCurve, s)._add(P, Q)
+      return super(FiniteFieldEllipticCurve, s)._add(P, Q)
 
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
