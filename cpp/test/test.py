@@ -58,6 +58,26 @@ def main():
   assert_eq(t.to_python(), (29, 5), "x+y=29+5w")
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
         ac_count + wa_count, ac_count, wa_count)
+
+  p = 17
+  F = FF(p)
+  E = EC(F, 0, 1)
+  P = EC_elem(E, 1, 6)
+  Q = EC_elem(E, 14, 5)
+  t = EC_elem(E, 0, 0)
+
+  E.add(t, P, Q)
+  assert_eq(t.to_python(), (4, 10, 4), "P+Q")
+  E.add(t, P, P)
+  assert_eq(t.to_python(), (1, 13, 11), "P+P")
+  E.mul(t, P, 2)
+  assert_eq(t.to_python(), (1, 13, 11), "2*P")
+  E.mul(t, P, 4)
+  assert_eq(t.to_python(), (15, 3, 7), "4*P")
+  E.mul(t, P, 9)
+  assert_eq(t.to_python(), (0, 1, 0), "#P = 9")
+
+
   sys.exit(wa_count)
 
 if __name__ == "__main__":

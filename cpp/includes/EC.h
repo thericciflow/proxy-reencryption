@@ -155,9 +155,13 @@ void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
         base.mul(p, v3, a.z);    // Az v3
         base.mul(Rz, p, b.z);    // Az Bz v3
       }
-      ret.x = Rx;
-      ret.y = Ry;
-      ret.z = Rz;
+      if (!base.equ(Rz, zero)) {
+        ret.x = Rx;
+        ret.y = Ry;
+        ret.z = Rz;
+      } else {
+        ret = EC_elem<E>(zero, one, zero);
+      }
     }
   }
 }
@@ -261,7 +265,7 @@ EC_elem<T>* EC_elem<T>::clone(void) const {
 template <class T>
 std::string EC_elem<T>::to_string(void) const {
   std::stringstream ss;
-  ss << "("
+  ss << "EC_elem("
      << x.to_string()
      << ", "
      << y.to_string()
