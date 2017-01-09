@@ -29,40 +29,41 @@ ecpy does not need other module(s) for install & use. but, If installed gmpy, ec
 See `bench_pairing.py` .
 
 ```
-Thu Nov 24 14:33:55 JST 2016 ~/prog/lab/mathematics/ecpy 100%
+Mon Jan  9 23:45:19 JST 2017 ~/prog/lab/mathematics/ecpy 100%
 > time python scripts/bench_pairing.py
 [+] found gmpy! use gmpy.is_prime
 [+] Found native module!
 Point (25 : 7572690594L + 1936823611Lw : 1) on Elliptic Curve y^2 = x^3 + 1 over ExtendedFiniteField(13208557577, "x^2+x+1")
 [+] Weil Pairing: 
-weil: 16189.55 usec/pass
-weil: 15987.54 usec/pass
-weil: 16135.55 usec/pass
-weil: 15801.89 usec/pass
-weil: 15559.90 usec/pass
-weil: 16082.70 usec/pass
-weil: 15545.90 usec/pass
-weil: 16006.70 usec/pass
-weil: 16379.70 usec/pass
-weil: 15683.25 usec/pass
+weil: 15067.84 usec/pass
+weil: 15350.75 usec/pass
+weil: 14928.81 usec/pass
+weil: 16086.85 usec/pass
+weil: 15138.26 usec/pass
+weil: 15738.64 usec/pass
+weil: 15705.55 usec/pass
+weil: 15250.10 usec/pass
+weil: 14912.95 usec/pass
+weil: 14979.51 usec/pass
 [+] Tate Pairing: 
-tate: 3366.21 usec/pass
-tate: 3534.65 usec/pass
-tate: 3481.95 usec/pass
-tate: 3605.70 usec/pass
-tate: 4865.16 usec/pass
-tate: 3525.25 usec/pass
-tate: 3454.05 usec/pass
-tate: 3374.05 usec/pass
-tate: 3407.90 usec/pass
-tate: 3514.30 usec/pass
+tate: 3155.10 usec/pass
+tate: 3121.40 usec/pass
+tate: 3106.36 usec/pass
+tate: 3146.70 usec/pass
+tate: 3116.00 usec/pass
+tate: 3123.04 usec/pass
+tate: 3126.85 usec/pass
+tate: 3201.40 usec/pass
+tate: 3134.64 usec/pass
+tate: 3135.75 usec/pass
 ================================================================
-weil: 15937.27 usec/pass
-tate: 3612.92 usec/pass
+weil: 15315.92 usec/pass
+tate: 3136.72 usec/pass
 
-real    0m4.708s
-user    0m4.608s
-sys     0m0.024s
+real    0m4.410s
+user    0m4.376s
+sys     0m0.008s
+
 ```
 
 # Special Thanks
