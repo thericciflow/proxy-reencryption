@@ -19,7 +19,7 @@
 #include "EC.h"
 
 template <class T>
-mpz_class get_modulus(T base);
+mpz_class get_modulus(const T& base);
 
 template <class T>
 void write_to_python_string(const T *x, char *ptr, const int& len) {
@@ -84,26 +84,24 @@ void h(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem<E>& Q, con
 template <class T, class E>
 void miller(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem<E>& Q, mpz_class m) {
   E t {0};
-  unsigned int n = 0;
 
   ret = E {1};
 
   if (curve.equ(P, Q)) {
     return;
   }
-  n = mpz_sizeinbase(m.get_mpz_t(), 2);
+  auto n = mpz_sizeinbase(m.get_mpz_t(), 2);
   EC_elem<E> G {P};
   for (int i = n - 2; i >= 0; i--) {
     curve.base.mul(ret, ret, ret);
     h(t, curve, G, G, Q);
     curve.base.mul(ret, ret, t);
     curve.add(G, G, G);
-    if ((m & 1) == 1) {
+    if (((m >> i) & 1) == 1) {
       h(t, curve, G, P, Q);
       curve.base.mul(ret, ret, t);
       curve.add(G, G, P);
     }
-    m >>= 1;
   }
 }
 
