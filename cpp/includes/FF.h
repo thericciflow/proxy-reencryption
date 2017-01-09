@@ -10,14 +10,14 @@ struct FF {
   ~FF() = default;
   FF(const mpz_class& p) : p(p) {}
   FF(const FF& t) : p(t.p) {}
-  FF(FF&& t) : p(std::move(t.p)) {};
+  FF(FF&& t) : p(std::move(t.p)) {}
 
   FF& operator=(const FF&);
   FF& operator=(FF&&);
 
   // common functions
-  FF *clone(void) const;
-  std::string to_string(void) const;
+  FF *clone() const;
+  std::string to_string() const;
 
   // structure class member functions
   void add(FF_elem&, const FF_elem&, const FF_elem&) const;
@@ -42,8 +42,8 @@ struct FF_elem {
   FF_elem& operator=(FF_elem&&);
 
   // common functions
-  FF_elem *clone(void) const;
-  std::string to_string(void) const;
+  FF_elem *clone() const;
+  std::string to_string() const;
 };
 
 // FF

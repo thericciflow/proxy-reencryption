@@ -134,11 +134,11 @@ bool EF::equ(const EF_elem& a, const EF_elem& b) const {
   return base.equ(a.u, b.u) && base.equ(a.v, b.v);
 }
 
-EF *EF::clone(void) const {
+EF *EF::clone() const {
   return new EF(*this);
 }
 
-std::string EF::to_string(void) const {
+std::string EF::to_string() const {
   std::stringstream ss;
   ss << "Extended Field " << base.to_string() << "/";
   switch (poly) {
@@ -168,11 +168,11 @@ EF_elem& EF_elem::operator=(EF_elem&& ee) {
 }
 
 
-EF_elem *EF_elem::clone(void) const {
+EF_elem *EF_elem::clone() const {
   return new EF_elem(*this);
 }
 
-std::string EF_elem::to_string(void) const {
+std::string EF_elem::to_string() const {
   std::stringstream ss;
   ss << "EF_elem("
      << u.to_string()

@@ -33,8 +33,8 @@ struct EF {
   bool equ(const EF_elem& a, const EF_elem& b) const;
 
   // common functions
-  EF *clone(void) const;
-  std::string to_string(void) const;
+  EF *clone() const;
+  std::string to_string() const;
 };
 
 struct EF_elem {
@@ -57,8 +57,8 @@ struct EF_elem {
   EF_elem& operator=(EF_elem&& ee);
 
   // common functions
-  EF_elem *clone(void) const;
-  std::string to_string(void) const;
+  EF_elem *clone() const;
+  std::string to_string() const;
 };
 
 // EF

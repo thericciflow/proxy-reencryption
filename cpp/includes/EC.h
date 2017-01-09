@@ -46,8 +46,8 @@ struct EC {
   bool is_infinity(const EC_elem<E>& P) const;
   template <class E>
   EC_elem<E> random_point() const;
-  EC<T>* clone(void) const;
-  std::string to_string(void) const;
+  EC<T>* clone() const;
+  std::string to_string() const;
 };
 
 template <class T>
@@ -64,8 +64,8 @@ struct EC_elem {
   EC_elem<T>& operator=(const EC_elem<T>&);
   EC_elem<T>& operator=(EC_elem<T>&&);
 
-  EC_elem<T>* clone(void) const;
-  std::string to_string(void) const;
+  EC_elem<T>* clone() const;
+  std::string to_string() const;
 };
 
 template <class T>
@@ -260,12 +260,12 @@ EC_elem<T>& EC_elem<T>::operator=(EC_elem<T>&& other) {
 }
 
 template <class T>
-EC_elem<T>* EC_elem<T>::clone(void) const {
+EC_elem<T>* EC_elem<T>::clone() const {
   return new EC_elem<T>(*this);
 }
 
 template <class T>
-std::string EC_elem<T>::to_string(void) const {
+std::string EC_elem<T>::to_string() const {
   std::stringstream ss;
   ss << "EC_elem("
      << x.to_string()
@@ -337,12 +337,12 @@ EC<T>& EC<T>::operator=(EC<T>&& other) {
 }
 
 template <class T>
-EC<T>* EC<T>::clone(void) const {
+EC<T>* EC<T>::clone() const {
   return new EC<T>(*this);
 }
 
 template <class T>
-std::string EC<T>::to_string(void) const {
+std::string EC<T>::to_string() const {
   std::stringstream ss;
   ss << "Elliptic Curve: y^2 = x^3";
   if (a != 0) {

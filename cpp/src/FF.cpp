@@ -12,7 +12,7 @@ FF& FF::operator=(FF&& f) {
   return (*this);
 }
 
-std::string FF::to_string(void) const {
+std::string FF::to_string() const {
   std::stringstream ss;
   ss << "F_"
      << p.get_str(10);
@@ -66,10 +66,10 @@ FF_elem& FF_elem::operator=(FF_elem&& f) {
   return (*this);
 }
 
-FF_elem *FF_elem::clone(void) const {
+FF_elem *FF_elem::clone() const {
   return new FF_elem((*this));
 }
 
-std::string FF_elem::to_string(void) const {
+std::string FF_elem::to_string() const {
   return v.get_str(10);
 }

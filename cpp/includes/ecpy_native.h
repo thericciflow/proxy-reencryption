@@ -22,17 +22,19 @@ template <class T>
 mpz_class get_modulus(T base);
 
 template <class T>
-void write_to_python_string(const T *x, char *ptr, int len) {
+void write_to_python_string(const T *x, char *ptr, const int& len) {
   std::stringstream ss;
   ss << x->to_string();
   std::string r = ss.str();
   if (r.size() < static_cast<unsigned int>(len)) {
     strcpy(ptr, r.c_str());
+  } else {
+    *ptr = '\0';
   }
 }
 
 template <class T, class E>
-void h(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const EC_elem<E> R) {
+void h(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem<E>& Q, const EC_elem<E>& R) {
   E u {0}, v {0};
   E p {0}, q {0};
   curve.base.mul(u, P.x, Q.z);
@@ -80,27 +82,28 @@ void h(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const 
 }
 
 template <class T, class E>
-void miller(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const mpz_class& m) {
+void miller(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem<E>& Q, mpz_class m) {
   E t {0};
+  unsigned int n = 0;
 
   ret = E {1};
 
   if (curve.equ(P, Q)) {
     return;
   }
-  unsigned int n = 0;
-  for (;(m>>n) != 0; n++);
+  n = mpz_sizeinbase(m.get_mpz_t(), 2);
   EC_elem<E> G {P};
   for (int i = n - 2; i >= 0; i--) {
     curve.base.mul(ret, ret, ret);
     h(t, curve, G, G, Q);
     curve.base.mul(ret, ret, t);
     curve.add(G, G, G);
-    if (((m >> i) & 1) == 1) {
+    if ((m & 1) == 1) {
       h(t, curve, G, P, Q);
       curve.base.mul(ret, ret, t);
       curve.add(G, G, P);
     }
+    m >>= 1;
   }
 }
 
@@ -114,7 +117,7 @@ extern "C" {
 };
 
 template <class T, class E>
-void weil_pairing(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const EC_elem<E> S, const mpz_class& m) {
+void weil_pairing(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem<E>& Q, const EC_elem<E>& S, const mpz_class& m) {
   E fpqs {0}, fps {0}, fqps {0}, fqs {0}, u {0}, v {0};
   EC_elem<E> t;
 
@@ -134,7 +137,7 @@ void weil_pairing(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E
   curve.base.div(ret, u, v);
 }
 template <class T, class E>
-void tate_pairing(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, const mpz_class& m, const int& embedding_degree) {
+void tate_pairing(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem<E>& Q, const mpz_class& m, const int& embedding_degree) {
   E f {0};
   miller(f, curve, P, Q, m);
   mpz_class p = get_modulus(curve.base);
