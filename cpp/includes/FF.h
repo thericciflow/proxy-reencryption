@@ -47,7 +47,7 @@ struct FF_elem {
 };
 
 // FF
-__EXPORT__ {
+extern "C" {
   // create FF instance
   FF *FF_create(const char *p);
   // delete FF instance
@@ -67,7 +67,7 @@ __EXPORT__ {
 };
 
 // FF_elem
-__EXPORT__ {
+extern "C" {
   // create FF_elem instance
   FF_elem *FF_elem_create(const char *v);
   // delete FF_elem instance

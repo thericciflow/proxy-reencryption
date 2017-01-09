@@ -12,8 +12,6 @@
 #include <gmp.h>
 #include <gmpxx.h>
 
-#define __EXPORT__ extern "C"
-
 #include "FF.h"
 
 #include "EF.h"
@@ -106,7 +104,7 @@ void miller(E& ret, const EC<T> curve, const EC_elem<E> P, const EC_elem<E> Q, c
   }
 }
 
-__EXPORT__ {
+extern "C" {
   void EC_FF_miller(FF_elem *ret, const EC<FF> *curve, const EC_elem<FF_elem> *P, const EC_elem<FF_elem> *Q, const char *m);
   void EC_EF_miller(EF_elem *ret, const EC<EF> *curve, const EC_elem<EF_elem> *P, const EC_elem<EF_elem> *Q, const char *m);
   void EC_FF_weil_pairing(FF_elem *ret, const EC<FF> *curve, const EC_elem<FF_elem> *P, const EC_elem<FF_elem> *Q, const EC_elem<FF_elem> *S, const char *m);

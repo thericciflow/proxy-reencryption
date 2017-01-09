@@ -359,7 +359,7 @@ std::string EC<T>::to_string(void) const {
   return ss.str();
 }
 
-__EXPORT__ {
+extern "C" {
   // create EC<FF> instance
   EC<FF> *EC_FF_create(const char *a, const char *b, const FF *base);
   // delete EC<FF> instance
@@ -376,7 +376,7 @@ __EXPORT__ {
   void EC_FF_to_string(const EC<FF> *obj, char *ptr, int len);
 };
 
-__EXPORT__ {
+extern "C" {
   // create EC<EF> instance
   EC<EF> *EC_EF_create(const char *a, const char *b, const EF *base);
   // delete EC<EF> instance
@@ -393,7 +393,7 @@ __EXPORT__ {
   void EC_EF_to_string(const EC<EF> *obj, char *ptr, int len);
 };
 
-__EXPORT__ {
+extern "C" {
   // create EC_elem<FF_elem> instance
   EC_elem<FF_elem> *EC_elem_FF_create(const FF_elem *x, const FF_elem *y, const FF_elem *z);
   // delete E instance
@@ -402,7 +402,7 @@ __EXPORT__ {
   void EC_elem_FF_to_string(const EC_elem<FF_elem> *obj, char *ptr, int len);
 };
 
-__EXPORT__ {
+extern "C" {
   // create EC_elem<EF_elem> instance
   EC_elem<EF_elem> *EC_elem_EF_create(const EF_elem *x, const EF_elem *y, const EF_elem *z);
   // delete E instance

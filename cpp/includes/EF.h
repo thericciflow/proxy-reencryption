@@ -62,7 +62,7 @@ struct EF_elem {
 };
 
 // EF
-__EXPORT__ {
+extern "C" {
   // create EF instance
   // polynomial is string of irreducible polynomial. 
   // e.g. x^2+x+1, x^2+1, X^2+1, x^2+ x +1 (ignore spaces and case insensitive)
@@ -85,7 +85,7 @@ __EXPORT__ {
 };
 
 // EF_elem
-__EXPORT__ {
+extern "C" {
   EF_elem *EF_elem_create(const char *u, const char *v);
   void EF_elem_delete(const EF_elem *obj);
   void EF_elem_to_string(const EF_elem *obj, char *ptr, int len);
