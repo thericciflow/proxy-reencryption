@@ -1,4 +1,3 @@
-from ecpy.abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from ecpy.algorithm.root import modular_square_root
 from ecpy.util import is_enable_native, _native
 from random import randint
@@ -16,7 +15,7 @@ def EllipticCurve(field, a, b):
     return GenericEllipticCurve(field, a, b)
 
 
-class GenericEllipticCurve(AdditiveGroup):
+class GenericEllipticCurve(object):
   """
   Elliptic Curve on General Field
   """
@@ -59,6 +58,9 @@ class GenericEllipticCurve(AdditiveGroup):
 
   def __repr__(s):
     return "EllipticCurve(%r, %r, %r)" % (s.field, s.a, s.b)
+
+  def __call__(s, *x):
+    return s.element_class(s, *x)
 
   def __str__(s):
     res = "Elliptic Curve y^2 = x^3"
@@ -121,7 +123,7 @@ class GenericEllipticCurve(AdditiveGroup):
     return s.element_class(s, P[0], -P[1])
 
 
-class GenericEllipticCurvePoint(AdditiveGroupElement):
+class GenericEllipticCurvePoint(object):
   """
   Elliptic Curve Point on General Field
   """
@@ -182,6 +184,9 @@ class GenericEllipticCurvePoint(AdditiveGroupElement):
       return s.__class__(s.group, d[0], d[1])
     else:
       return s.group._add(tuple(s), d)
+
+  def __sub__(s, rhs):
+    return s + (-rhs)
 
   def __mul__(s, rhs):
     """
@@ -291,6 +296,9 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
       elif isinstance(field, FiniteField):
         s.base = _native.FF(field.p)
       s.ec = _native.EC(s.base, a, b)
+      s._add = s.__add_native
+    else:
+      s.add_func = s.__add
 
   def get_corresponding_y(s, x):
     """
@@ -327,17 +335,16 @@ class FiniteFieldEllipticCurve(GenericEllipticCurve):
           return s.element_class(s, x, y)
       x += 1
 
-  def _add(s, P, Q):
-    if is_enable_native:
-      R = _native.EC_elem(s.ec, 0, 0)
-      P = _native.EC_elem(s.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
-      Q = _native.EC_elem(s.ec, tuple(Q[0]), tuple(Q[1]), tuple(Q[2]))
-      s.ec.add(R, P, Q)
-      R = FiniteFieldEllipticCurvePoint(s, *R.to_python(), normalize=True)
-      return R
-    else:
-      return super(FiniteFieldEllipticCurve, s)._add(P, Q)
+  def __add(s, P, Q):
+    return super(FiniteFieldEllipticCurve, s)._add(P, Q)
 
+  def __add_native(s, P, Q):
+    R = _native.EC_elem(s.ec, 0, 0)
+    P = _native.EC_elem(s.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
+    Q = _native.EC_elem(s.ec, tuple(Q[0]), tuple(Q[1]), tuple(Q[2]))
+    s.ec.add(R, P, Q)
+    R = FiniteFieldEllipticCurvePoint(s, *R.to_python(), normalize=True)
+    return R
 
 class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
   def __init__(s, group, x, y, z=1, normalize=False):
@@ -357,6 +364,22 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     s.inf = s.x == 0 and s.y == 1 and s.z == 0
     if not (s.inf or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
+    if is_enable_native:
+      s.__mul__ = s._mul_native
+    else:
+      s.__mul__ = s._mul
+
+  def _mul_native(s, rhs):
+    P = tuple(s)
+    R = _native.EC_elem(s.group.ec, 0, 0)
+    P = _native.EC_elem(s.group.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
+    m = rhs
+    s.group.ec.mul(R, P, m)
+    R = FiniteFieldEllipticCurvePoint(s.group, *R.to_python(), normalize=True)
+    return R
+
+  def _mul(s, rhs):
+      return s.mult_binary(rhs)
 
   def distortion_map(s):
     """
@@ -390,5 +413,4 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       if r.is_infinity():
         return i
       r += s
-      print r
       i += 1

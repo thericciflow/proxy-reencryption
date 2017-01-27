@@ -1,5 +1,3 @@
-from ecpy.abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
-
 class Field(object):
   def __init__(s, element_class):
     s.element_class = element_class

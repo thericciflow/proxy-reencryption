@@ -80,7 +80,6 @@ def tate_pairing(E, P, Q, m, k=2):
     k: [Optional] The Embedding Degree of m on E
   """
   from ecpy.util import is_enable_native, _native
-  from ecpy.structure.ExtendedFiniteField import ExtendedFiniteFieldElement
   if is_enable_native:
     P = _native.EC_elem(E.ec, tuple(P.x), tuple(P.y), tuple(P.z))
     Q = _native.EC_elem(E.ec, tuple(Q.x), tuple(Q.y), tuple(Q.z))
@@ -90,8 +89,10 @@ def tate_pairing(E, P, Q, m, k=2):
       t = _native.EF_elem(0, 0)
     _native.tate_pairing(t, E.ec, P, Q, m, k)
     if E.ec.type == 1:
-      return t.to_python()
+      from ecpy.structure.Zmod import ZmodElement
+      return ZmodElement(E.field, t.to_python())
     elif E.ec.type == 2:
+      from ecpy.structure.ExtendedFiniteField import ExtendedFiniteFieldElement
       t = t.to_python()
       return ExtendedFiniteFieldElement(E.field, t[0], t[1])
   else:
