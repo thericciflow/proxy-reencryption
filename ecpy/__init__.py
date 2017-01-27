@@ -1,4 +1,3 @@
-from .abstract.AdditiveGroup import AdditiveGroup, AdditiveGroupElement
 from .abstract.Field import Field, FieldElement
 from .structure.RealField import RR
 from .structure.RationalField import QQ
