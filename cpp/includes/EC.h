@@ -182,16 +182,19 @@ template <class E>
 void EC<T>::mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const {
   const static E zero {0};
   const static E one  {1};
-  if (b == 0) {
+  mpz_class m = b;
+  if (b < 0) {
+    m = -m;
+  }
+  if (m == 0) {
     ret = {zero, one, zero};
-  } else if (b == 1) {
+  } else if (m == 1) {
     ret = {a};
-  } else if (b == 2) {
+  } else if (m == 2) {
     add(ret, a, a);
   } else {
     EC_elem<E> P {a};
     EC_elem<E> Q = {zero, one, zero};
-    auto m = b;
     while (m != 0) {
       if ((m&1) == 1) {
         add(Q, Q, P);
@@ -200,6 +203,9 @@ void EC<T>::mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const 
       m >>= 1;
     }
     ret = Q;
+  }
+  if (b < 0) {
+    base.sub(ret.y, zero, ret.y);
   }
 }
 
