@@ -11,4 +11,4 @@ from .algorithm.sssa_attack import SSSA_Attack
 from .algorithm.root import modular_square_root, modular_square_root_extended, extended_legendre_symbol, cubic_root
 from .structure.ComplexField import CC
 from .structure.ExtendedFiniteField import ExtendedFiniteField
-import util
+from .util import gcd, gcd_multiple, egcd, modinv, lcm, crt, legendre_symbol, jacobi_symbol, miller_rabin, is_prime

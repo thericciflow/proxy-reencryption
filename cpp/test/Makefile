@@ -1,7 +1,7 @@
 CC       := g++
 LD       := g++
 CFLAGS   := -I../includes/
-OPTFLAGS := -O3 -Os -mtune=corei7 -mavx 
+OPTFLAGS := -O2 -Os -mtune=corei7 -mavx 
 GFLAGS   := -g -std=c++11 # -stdlib=libc++ <= if use clang++
 PYTHON   := python
 

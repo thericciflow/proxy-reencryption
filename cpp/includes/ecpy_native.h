@@ -92,12 +92,12 @@ void miller(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem<E>& Q
   }
   auto n = mpz_sizeinbase(m.get_mpz_t(), 2);
   EC_elem<E> G {P};
-  for (auto i = static_cast<int>(n - 2); i >= 0; i--) {
+  for (mpz_class i = 1_mpz << (n - 2); i != 0; i >>= 1) {
     curve.base.mul(ret, ret, ret);
     h(t, curve, G, G, Q);
     curve.base.mul(ret, ret, t);
     curve.add(G, G, G);
-    if (((m >> i) & 1) == 1) {
+    if ((m & i) != 0) {
       h(t, curve, G, P, Q);
       curve.base.mul(ret, ret, t);
       curve.add(G, G, P);
