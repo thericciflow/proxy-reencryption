@@ -23,6 +23,7 @@ def EllipticCurveRepository(name):
     n: Order of `G`
   '''
   from ecpy.structure import FiniteField, EllipticCurve
+  name = name.lower()
   if name in _repo.keys():
     data = _repo[name]
     F = FiniteField(data.p)
