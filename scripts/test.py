@@ -1,6 +1,6 @@
 from ecpy import util, ExtendedFiniteField, EllipticCurve, FiniteField
 from ecpy import miller, weil_pairing, tate_pairing, SSSA_Attack
-from ecpy import CC
+from ecpy import CC, EllipticCurveRepository
 from ecpy import symmetric_tate_pairing, symmetric_weil_pairing
 from random import randint
 import sys
@@ -266,6 +266,10 @@ def test():
   assert_eq(util.prime_factorization(12345678), {2:1, 3:2, 47:1, 14593: 1}, 'prime factor1')
   assert_eq(util.prime_factorization(12345), {3:1, 5:1, 823: 1}, 'prime factor2')
   assert_eq(util.euler_phi(12345), 6576, 'phi(12345)')
+
+  for name in ['secp192k1', 'secp192r1', 'secp224k1', 'secp224r1']:
+    F, E, G, n = EllipticCurveRepository(name)
+    assert_eq(G*n, E.O, name)
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count)
