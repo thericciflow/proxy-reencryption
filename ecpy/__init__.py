@@ -12,3 +12,4 @@ from .algorithm.root import modular_square_root, modular_square_root_extended, e
 from .structure.ComplexField import CC
 from .structure.ExtendedFiniteField import ExtendedFiniteField
 from .util import gcd, gcd_multiple, egcd, modinv, lcm, crt, legendre_symbol, jacobi_symbol, miller_rabin, is_prime
+from .EllipticCurveRepository import EllipticCurveRepository
