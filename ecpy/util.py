@@ -191,11 +191,12 @@ def prime_factorization(n):
   else:
     ret = {}
     # trial division method - too slow
-    pow_2 = 0
-    while n % 2 == 0:
-      pow_2 += 1
-      n /= 2
-    ret[2] = pow_2
+    if n % 2 == 0:
+      pow_2 = 0
+      while n % 2 == 0:
+        pow_2 += 1
+        n /= 2
+      ret[2] = pow_2
     while not is_prime(n):
       k = 3
       while n % k != 0:

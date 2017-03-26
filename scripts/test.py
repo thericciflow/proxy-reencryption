@@ -263,7 +263,8 @@ def test():
     assert_eq(tate_pairing(E, P, a * Q, l)**b, gab, "e(P, aQ)^b")
     assert_eq(tate_pairing(E, P, b * Q, l)**a, gab, "e(P, bQ)^a")
 
-  assert_eq(util.prime_factorization(12345678), {2:1, 3:2, 47:1, 14593: 1}, 'prime factor')
+  assert_eq(util.prime_factorization(12345678), {2:1, 3:2, 47:1, 14593: 1}, 'prime factor1')
+  assert_eq(util.prime_factorization(12345), {3:1, 5:1, 823: 1}, 'prime factor2')
   assert_eq(util.euler_phi(12345), 6576, 'phi(12345)')
 
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
