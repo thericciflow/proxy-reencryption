@@ -4,7 +4,6 @@ from random import randint
 from FiniteField import FiniteField
 from ExtendedFiniteField import ExtendedFiniteField
 
-
 def EllipticCurve(field, a, b):
   """
   Return Elliptic Curve Instance.
