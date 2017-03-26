@@ -131,22 +131,26 @@ def miller_rabin(x):
       prime += 1
   return prime > 6
 
-
-try:
-  import gmpy
-  _is_prime = gmpy.is_prime
-  sys.stderr.write("[+] found gmpy! use gmpy.is_prime\n")
-except ImportError:
-  _is_prime = miller_rabin
-
-try:
-  import ecpy.native
-  _native = ecpy.native
-  is_enable_native = True
-  sys.stderr.write("[+] Found native module!\n")
-except ImportError:
-  _native = None
-  is_enable_native = False
+def _check_external_modules():
+  global _gmpy, _is_prime, _native, is_enable_native, _primefac
+  try:
+    import gmpy
+    _gmpy = gmpy
+    _is_prime = gmpy.is_prime
+  except ImportError:
+    _is_prime = miller_rabin
+  try:
+    import ecpy.native
+    _native = ecpy.native
+    is_enable_native = True
+  except ImportError:
+    _native = None
+    is_enable_native = False
+  try:
+    import primefac
+    _primefac = primefac
+  except ImportError:
+    _primefac = None
 
 
 @memoize
@@ -169,3 +173,57 @@ def modinv(a, n):
     n: modulus
   """
   return __modinv(a, n)
+
+@memoize
+def prime_factorization(n):
+  """
+  Prime factorization of `n`
+  Args:
+    n: A integer
+  Return: Factored `n`
+
+  e.g. n = 2, return `{2: 1}`. n = 
+  """
+  if is_prime(n):
+    return {n: 1}
+  if _primefac is not None:
+    return _primefac.factorint(n)
+  else:
+    ret = {}
+    # trial division method - too slow
+    pow_2 = 0
+    while n % 2 == 0:
+      pow_2 += 1
+      n /= 2
+    ret[2] = pow_2
+    while not is_prime(n):
+      k = 3
+      while n % k != 0:
+        k += 2
+      pow_k = 0
+      while n % k == 0:
+        pow_k += 1
+        n /= k
+      ret[k] = pow_k
+    if n != 1:
+      ret[n] = 1
+    return ret
+
+
+def euler_phi(n):
+  '''
+  Calculate Euler's totient function
+  Args:
+    n: A integer
+  Return: Order of the group (Z/nZ)^*
+  '''
+  from ecpy.structure.RationalField import QQ
+  ret = 1
+  factors = prime_factorization(n)
+  for p in factors:
+    k = factors[p]
+    ret *= (1 - QQ(1, p))
+  return int(ret * n)
+
+
+_check_external_modules()
