@@ -1,7 +1,15 @@
 from collections import namedtuple as _namedtuple
 
 _ECData = _namedtuple('ECData', ['p', 'a', 'b', 'n', 'Gx', 'Gy'])
-_repo = {}
+_repo = {
+  'secp192k1': _ECData(
+    p=2**192 - 2**32 - 2**12 - 2**8 - 2**7 - 2**6 - 2**3 - 1, 
+    a=0, b=3,
+    Gx=0xDB4FF10EC057E9AE26B07D0280B7F4341DA5D1B1EAE06C7D, 
+    Gy=0x9B2F2F6D9C5628A7844163D015BE86344082AA88D95E2F9D,
+    n=0xFFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D
+  )
+}
 
 def EllipticCurveRepository(name):
   '''
