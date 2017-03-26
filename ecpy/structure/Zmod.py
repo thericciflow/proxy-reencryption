@@ -1,4 +1,4 @@
-from ..util import modinv
+from ..util import modinv, euler_phi
 from ..abstract.Field import Field, FieldElement
 
 
@@ -14,7 +14,7 @@ class Zmod(Field):
     return "%s : %s = %d" % (s.__class__.__name__, var, s.n)
 
   def order(s):
-    return s.n - 1
+    return euler_phi(s.n)
 
   def _ord(s, a):
     a = a[0]
@@ -32,7 +32,7 @@ class Zmod(Field):
     return s.element_class(s, a[0] * b[0])
 
   def _inv(s, a):
-    return s.element_class(s, modinv(a[0], s.n ** s.degree()))
+    return s.element_class(s, modinv(a[0], s.n))
 
   def _neg(s, a):
     return s.element_class(s, s.n - a[0])
