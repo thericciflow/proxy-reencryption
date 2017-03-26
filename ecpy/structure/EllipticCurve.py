@@ -119,6 +119,8 @@ class GenericEllipticCurve(object):
     """
     return -P
     """
+    if P == (0, 1, 0):
+      return s.O
     return s.element_class(s, P[0], -P[1])
 
 
@@ -194,7 +196,12 @@ class GenericEllipticCurvePoint(object):
     return s.mult_binary(rhs)
 
   def mult_binary(s, rhs):
-    d = s.group.field(rhs).int()
+    d = rhs
+    if d < 0:
+      b = -1
+      d = -d
+    else:
+      b = 1
     if d == 0:
       return s.group.O
     bits = map(int, bin(d)[2:])[::-1]
@@ -207,6 +214,8 @@ class GenericEllipticCurvePoint(object):
       x += x
       if cur:
         res += x
+    if b == -1:
+      res = -res
     return res
 
   def mult_m_ary(s, rhs, power=2):
