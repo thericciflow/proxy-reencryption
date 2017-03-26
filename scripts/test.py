@@ -271,6 +271,18 @@ def test():
     F, E, G, n = EllipticCurveRepository(name)
     assert_eq(G*n, E.O, name)
 
+  # secp224k1 bug (Issue #3)
+  p = 0xfffffffffffffffffffffffffffffffffffffffffffffffeffffe56d
+  a = 0
+  b = 5
+  F = FiniteField(p)
+  E = EllipticCurve(F, a, b)
+  Gx = 0xA1455B334DF099DF30FC28A169A467E9E47075A90F7E650EB6B7A45C
+  Gy = 0x7E089FED7FBA344282CAFBD6F7E319F7C0B0BD59E2CA4BDB556D61A5
+  G = E(Gx, Gy)
+  n = 0x010000000000000000000000000001DCE8D2EC6184CAF0A971769FB1F7
+  assert_eq(n * G, E.O, 'Issue #3')
+
   print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count)
   sys.exit(wa_count)
