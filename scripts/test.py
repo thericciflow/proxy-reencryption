@@ -268,7 +268,7 @@ def test():
   assert_eq(util.euler_phi(12345), 6576, 'phi(12345)')
 
   for name in ['secp192k1', 'secp192r1', 'secp224k1', 'secp224r1',
-               'secp256k1', 'secp256r1']:
+               'secp256k1', 'secp256r1', 'secp384r1', 'secp521r1']:
     F, E, G, n = EllipticCurveRepository(name)
     assert_eq(G*n, E.O, name)
 
