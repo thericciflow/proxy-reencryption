@@ -9,10 +9,10 @@ class EC(object):
     s.a = a
     s.b = b
     if isinstance(base, FF):
-      s.ptr = lib.EC_FF_create(c_char_p(str(a).encode('us-ascii')), c_char_p(str(b).encode('us-ascii')), base.ptr)
+      s.ptr = lib.EC_FF_create(to_char_ptr(str(a)), to_char_ptr(str(b)), base.ptr)
       s.type = 1
     elif isinstance(base, EF):
-      s.ptr = lib.EC_EF_create(str(a), str(b), base.ptr, base.poly)
+      s.ptr = lib.EC_EF_create(to_char_ptr(str(a)), to_char_ptr(str(b)), base.ptr, to_char_ptr(base.poly))
       s.type = 2
 
   def __to_string(s, bufsize):
@@ -28,7 +28,7 @@ class EC(object):
     return b
 
   def __str__(s):
-    return s.__to_string(1024)
+    return s.__to_string(1024).decode('us-ascii')
 
   def add(s, ret, a, b):
     assert isinstance(ret, EC_elem) and isinstance(a, EC_elem) and isinstance(b, EC_elem)
@@ -52,7 +52,7 @@ class EC(object):
         1 : lib.EC_FF_mul,
         2 : lib.EC_EF_mul
     }
-    cond[s.type](s.ptr, ret.ptr, a.ptr, str(b))
+    cond[s.type](s.ptr, ret.ptr, a.ptr, to_char_ptr(str(b)))
 
   def div(s, ret, a, b):
     raise NotImplementedError()

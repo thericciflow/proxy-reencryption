@@ -24,7 +24,10 @@ Elliptic-Curve Cryptography Library (Implemented by Python)
 > pip install --upgrade .
 ```
 
-ecpy doesn't need other module(s) for install & use. but if installed following modules, `ecpy` uses that.
+## Require modules:
+* six (for Python 3.x compatibility)
+
+if installed following modules, `ecpy` uses that.
 
 * `gmpy`
 * `primefac` or [primefac-fork](https://github.com/elliptic-shiho/primefac-fork/)

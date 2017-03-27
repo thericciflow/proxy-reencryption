@@ -68,9 +68,9 @@ def SSSA_Attack(F, E, P, Q):
     lUy = (lUy * modinv(lUz, modulo)) % modulo
     lVx = (lVx * modinv(lVz, modulo)) % modulo
     lVy = (lVy * modinv(lVz, modulo)) % modulo
-    dx1 = ((lUx - x1) / F.p) % modulo
+    dx1 = ((lUx - x1) // F.p) % modulo
     dx2 = lUy - y1
-    dy1 = ((lVx - x2) / F.p) % modulo
+    dy1 = ((lVx - x2) // F.p) % modulo
     dy2 = lVy - y2
     m = (dy1 * dx2 * modinv(dx1 * dy2, modulo)) % modulo
     return m % F.p

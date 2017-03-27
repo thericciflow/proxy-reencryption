@@ -5,7 +5,7 @@ class EF(object):
   def __init__(s, p, poly):
     s.p = p
     s.poly = poly
-    s.ptr = lib.EF_create(c_char_p(str(p).encode('us-ascii')), c_char_p(poly.encode('us-ascii')))
+    s.ptr = lib.EF_create(to_char_ptr(str(p)), to_char_ptr(poly))
 
   def __to_string(s, bufsize):
     b = create_string_buffer(bufsize)
@@ -36,14 +36,14 @@ class EF(object):
 
   def pow(s, ret, a, b):
     assert isinstance(ret, EF_elem) and isinstance(a, EF_elem)
-    lib.EF_pow(s.ptr, ret.ptr, a.ptr, str(b))
+    lib.EF_pow(s.ptr, ret.ptr, a.ptr, to_char_ptr(str(b)))
 
   def __del__(s):
     lib.EF_delete(s.ptr)
 
 class EF_elem(object):
   def __init__(s, u, v):
-    s.ptr = lib.EF_elem_create(c_char_p(str(u).encode('us-ascii')), c_char_p(str(v).encode('us-ascii')))
+    s.ptr = lib.EF_elem_create(to_char_ptr(str(u)), to_char_ptr(str(v)))
 
   def to_python(s):
     r = str(s).lstrip("EF_elem")
