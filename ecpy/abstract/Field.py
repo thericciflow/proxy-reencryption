@@ -54,6 +54,12 @@ class FieldElement(object):
   def __mul__(s, rhs):
     return s.field._mul(tuple(s), s._to_tuple(rhs))
 
+  def __div__(s, rhs):
+    return s.field._div(tuple(s), s._to_tuple(rhs))
+
+  def __rdiv__(s, lhs):
+    return s.field._div(s._to_tuple(lhs), tuple(s))
+
   def __truediv__(s, rhs):
     return s.field._div(tuple(s), s._to_tuple(rhs))
 
