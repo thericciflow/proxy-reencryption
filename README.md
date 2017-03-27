@@ -6,7 +6,7 @@ Elliptic-Curve Cryptography Library (Implemented by Python)
 
 # Features
 * Calculation between elliptic curve points
-  - Elliptic curve\: `y^2 = x^3 + ax + b` over K, `char(K)` is not 2, 3 where K is field.
+  - Elliptic curve\: `y^2 = x^3 + ax + b` over Finite Field `K` (`char(K) != 2, 3`).
   - You can choose K from below:
     + Complex Field, Rational Field, FiniteField and Extended Finite Field(Irreducible polynomial: `x^2 + 1` or `x^2 + x + 1`)
 * Weil/Tate Pairing
@@ -15,6 +15,7 @@ Elliptic-Curve Cryptography Library (Implemented by Python)
 * Example Applications
   - `example/id_based_encryption.py`: Implementation of Boneh-Franklin's Identity-based Encryption Scheme
   - `example/boneh_lynn_shacham_short_signature.py`: Implementation of Boneh-Lynn-Shacham's Short Signature Scheme
+  - `example/ecdsa.py`: Implementation of ECDSA Signature
 
 # Setup
 
@@ -23,7 +24,21 @@ Elliptic-Curve Cryptography Library (Implemented by Python)
 > pip install --upgrade .
 ```
 
-ecpy does not need other module(s) for install & use. but, If installed gmpy, ecpy uses that.
+ecpy doesn't need other module(s) for install & use. but if installed following modules, `ecpy` uses that.
+
+* `gmpy`
+* `primefac` or [primefac-fork](https://github.com/elliptic-shiho/primefac-fork/)
+
+# Setup with Native modules
+`ecpy` has native module. If you want to speed-up ecpy, you can use that.
+
+```
+> cd ecpy/cpp
+> make
+> sudo make install
+```
+
+description is here: [cpp/README.md](cpp/README.md)
 
 # Speed
 See `bench_pairing.py` .
