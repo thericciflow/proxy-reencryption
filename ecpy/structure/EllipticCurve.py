@@ -1,8 +1,8 @@
 from ecpy.algorithm.root import modular_square_root
 from ecpy.util import is_enable_native, _native
 from random import randint
-from FiniteField import FiniteField
-from ExtendedFiniteField import ExtendedFiniteField
+from .FiniteField import FiniteField
+from .ExtendedFiniteField import ExtendedFiniteField
 
 def EllipticCurve(field, a, b):
   """
@@ -74,6 +74,7 @@ class GenericEllipticCurve(object):
     return res
 
   def _add(s, P, Q):
+    from six import integer_types
     """
     Add Operation on Perspective Coordinate
     P : tuple (x, y, z)
@@ -101,7 +102,7 @@ class GenericEllipticCurve(object):
       Rx = v * w
       Ry = u * (v2 * Px * Qz - w) - v3 * Py * Qz
       Rz = v3 * Pz * Qz
-    if isinstance(Rz, (int, long)):
+    if isinstance(Rz, integer_types):
       z = 1 / s.field(Rz)
     else:
       z = 1 / Rz
@@ -164,6 +165,7 @@ class GenericEllipticCurvePoint(object):
     return s.__class__(_group, *tuple(s))
 
   def line_coeff(s, Q):
+    from six.moves import map
     """
     Calculate Line Coefficient of Line self to Q
     """
@@ -172,9 +174,9 @@ class GenericEllipticCurvePoint(object):
     x2, y2, z2 = map(s.group.field, Q)
     assert z1 == z2 == 1  # is normalized?
     if x1 == x2:
-      l = (3 * x1 * x1 + s.group.a) / (2 * y1)
+      l = (3 * x1 * x1 + s.group.a) // (2 * y1)
     else:
-      l = (y2 - y1) / (x2 - x1)
+      l = (y2 - y1) // (x2 - x1)
     return l
 
   def __add__(s, rhs):
@@ -196,6 +198,7 @@ class GenericEllipticCurvePoint(object):
     return s.mult_binary(rhs)
 
   def mult_binary(s, rhs):
+    from six.moves import map
     d = rhs
     if d < 0:
       b = -1
@@ -204,7 +207,7 @@ class GenericEllipticCurvePoint(object):
       b = 1
     if d == 0:
       return s.group.O
-    bits = map(int, bin(d)[2:])[::-1]
+    bits = list(map(int, bin(d)[2:]))[::-1]
     x = s
     if bits[0]:
       res = x
@@ -219,6 +222,7 @@ class GenericEllipticCurvePoint(object):
     return res
 
   def mult_m_ary(s, rhs, power=2):
+    from six.moves import xrange
     k = s.group.field(rhs).int()
     if k == 0:
       return s.group.O
@@ -397,7 +401,8 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     Polynomial: x^2+1 or x^2+x+1
     """
     def to_tuple(x):
-      if type(x) in [int, long]:
+      from six import integer_types
+      if type(x) in integer_types:
         return (x, 0)
       return tuple(x)
 

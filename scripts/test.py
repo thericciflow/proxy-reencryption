@@ -1,8 +1,10 @@
+from __future__ import print_function
 from ecpy import util, ExtendedFiniteField, EllipticCurve, FiniteField
 from ecpy import miller, weil_pairing, tate_pairing, SSSA_Attack
 from ecpy import CC, EllipticCurveRepository
 from ecpy import symmetric_tate_pairing, symmetric_weil_pairing
 from random import randint
+from six.moves import xrange
 import sys
 
 ac_count = 0
@@ -12,13 +14,13 @@ wa_count = 0
 def _assert(a, b, msg, cond):
   global ac_count, wa_count
   msg = msg.ljust(16)
-  print ("[+] %s..." % (msg)).ljust(30),
+  print(("[+] %s..." % (msg)).ljust(30), end=' ')
   var = {"a": a, "b": b}
   if eval("a %s b" % cond, var):
-    print "\x1b[33m[  OK  ]\x1b[0m %r" % (b, )
+    print("\x1b[33m[  OK  ]\x1b[0m %r" % (b, ))
     ac_count += 1
   else:
-    print "\x1b[31m[ Fail ]\x1b[0m Expected: %r, Result: %r" % (b, a)
+    print("\x1b[31m[ Fail ]\x1b[0m Expected: %r, Result: %r" % (b, a))
     wa_count += 1
 
 
@@ -40,15 +42,15 @@ def test():
   F = FiniteField(5)
   x = F(3)
   y = F(7)  # = 2
-  print F
-  print "[+] x, y = %s, %s" % (x, y)
+  print(F)
+  print("[+] x, y = %s, %s" % (x, y))
   assert_eq(x + y, F(0), "x+y == F(0)")
   assert_eq(x + y, 0, "x+y == 0")
   assert_eq(x - y, 1, "x-y == 1")
   assert_eq(x * y, 1, "x*y == 1")
   x = F(2)
   y = F(3)
-  print "[+] x, y = %s, %s" % (x, y)
+  print("[+] x, y = %s, %s" % (x, y))
   # commutive!
   assert_eq(1 / x, y, "1/x == y")
   assert_eq(util.modinv(x.x, F.p), y, "modinv(x) == y")
@@ -67,27 +69,27 @@ def test():
 
   P = E(1, 6)
   Q = E(11, 4)
-  print "P, Q = %r, %r" % (P, Q)
+  print("P, Q = %r, %r" % (P, Q))
   assert_eq(P + Q, E(3, 8), "P+Q")
   assert_eq(P + P, E(0, 0), "P+P")
   assert_eq(P * 2, E(0, 0), "P*2")
   assert_eq(2 * P, E(0, 0), "2*P")
   assert_eq(P.order(), 4, "|P| = 4")
 
-  print "Random Test: "
+  print("Random Test: ")
   i = 0
   while i < 10:
     while True:
       r = randint(-50, 50)
       if r != 0:
         break
-    print "[+] random 1 = %d" % r
+    print("[+] random 1 = %d" % r)
     assert_eq((util.modinv(r, 101) * r) % 101, 1, "modinv")
     while True:
       q = randint(-50, 50)
       if q != 0:
         break
-    print "[+] random 2 = %d" % q
+    print("[+] random 2 = %d" % q)
     assert_eq(r * (q * P), q * (r * P), "ECDH test")
     i += 1
 
@@ -100,7 +102,7 @@ def test():
   Q = E(121, 387)
   S = E(0, 36)
 
-  print "P, Q, S = %r, %r, %r" % (P, Q, S)
+  print("P, Q, S = %r, %r, %r" % (P, Q, S))
   assert_eq(E.embedding_degree(m), 1, "embedding degree")
   assert_eq(miller(E, P, Q + S, m), 103, "miller(P, Q+S)")
   assert_eq(miller(E, P, S, m), 219, "miller(P, S)")
@@ -109,12 +111,12 @@ def test():
   assert_eq(weil_pairing(E, P, Q, m, S), 242, "weil_pairing")
   assert_eq(tate_pairing(E, P, Q, m, 1), 279, "tate_pairing")
   g = tate_pairing(E, P, Q, m)
-  print "[+] g = %s" % g
+  print("[+] g = %s" % g)
   assert_eq(tate_pairing(E, 2 * P, Q, m), g**2, "e(2P, Q) == g^2")
   assert_eq(tate_pairing(E, P, 2 * Q, m), g**2, "e(P, 2Q) == g^2")
   assert_eq(tate_pairing(E, P, Q, m)**2, g**2, "e(P, Q)^2 == g^2")
 
-  print "[+] SSSA-Attack"
+  print("[+] SSSA-Attack")
   F = FiniteField(16857450949524777441941817393974784044780411511252189319)
 
   A = 16857450949524777441941817393974784044780411507861094535
@@ -154,7 +156,7 @@ def test():
             "SSSA-Attack (TJCTF 2016 Crypto 200: curvature2)\n")
   z = CC(1, 2)  # 1+2i
   w = CC(5, 1)  # 5+i
-  print "z, w = %r, %r" % (z, w)
+  print("z, w = %r, %r" % (z, w))
   assert_eq(z + w, CC(6, 3), "z+w")
   assert_eq(z - w, CC(-4, 1), "z-w")
   assert_eq(z * w, CC(3, 11), "z*w")
@@ -174,28 +176,28 @@ def test():
   m = l
   p = l * 6 - 1
   F = ExtendedFiniteField(p, "x^2+x+1")
-  print "Random Test 2:"
+  print("Random Test 2:")
   for x in xrange(10):
     r1 = randint(0, p)
     r2 = randint(0, p)
     r = F(r1, r2)
-    print "[+] r = %s" % r
+    print("[+] r = %s" % r)
     assert_eq(r ** (p ** 2), r, "r^(p^2) == r")
 
   E = EllipticCurve(F, 0, 1)
   P = E(3, 1164)
-  print P
-  print P.distortion_map()
+  print(P)
+  print(P.distortion_map())
 
   g = symmetric_weil_pairing(E, P, P, m)
-  print "[+] g = %s" % g
+  print("[+] g = %s" % g)
 
   assert_eq(symmetric_weil_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
   assert_eq(symmetric_weil_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
   assert_eq(symmetric_weil_pairing(E, P, P, m)**2, g**2, "e(P, P)^2 == g^2")
 
   g = symmetric_tate_pairing(E, P, P, m)
-  print "[+] g = %s" % g
+  print("[+] g = %s" % g)
 
   assert_eq(symmetric_tate_pairing(E, P, 2 * P, m), g**2, "e(P, 2P) == g^2")
   assert_eq(symmetric_tate_pairing(E, 2 * P, P, m), g**2, "e(2P, 2P) == g^2")
@@ -231,8 +233,8 @@ def test():
   a = F(234687, 190012)
   b = F(218932, 251221)
 
-  print "[+] a = %s" % a
-  print "[+] b = %s" % b
+  print("[+] a = %s" % a)
+  print("[+] b = %s" % b)
 
   assert_eq(a + b, F(114902, 102516), "a+b")
   assert_eq(a - b, F(15755, 277508), "a-b")
@@ -251,11 +253,11 @@ def test():
   P = E(7, 658176732497617012595, 1)
   Q = P.distortion_map()
   g = tate_pairing(E, P, Q, l)
-  print E
+  print(E)
   for x in xrange(10):
     a = randint(2**15, 2**16)
     b = randint(2**15, 2**16)
-    print "Random Pairing Test: a = %d, b = %d" % (a, b)
+    print("Random Pairing Test: a = %d, b = %d" % (a, b))
     gab = g**(a * b)
     assert_eq(tate_pairing(E, a * P, b * Q, l), gab, "e(aP, bQ)")
     assert_eq(tate_pairing(E, a * P, Q, l)**b, gab, "e(aP, Q)^b")
@@ -284,8 +286,8 @@ def test():
   n = 0x010000000000000000000000000001DCE8D2EC6184CAF0A971769FB1F7
   assert_eq(n * G, E.O, 'Issue #3')
 
-  print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
-      ac_count + wa_count, ac_count, wa_count)
+  print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
+      ac_count + wa_count, ac_count, wa_count))
   sys.exit(wa_count)
 
 if __name__ == "__main__":

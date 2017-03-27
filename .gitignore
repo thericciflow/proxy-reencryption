@@ -30,3 +30,4 @@
 *.pyc
 *.sage.py
 !.gitkeep
+.python-version

@@ -1,4 +1,5 @@
 def miller(E, P, Q, m):
+  from six.moves import map
   """
   Calculate Divisor by Miller's Algorithm
   Args:
@@ -20,9 +21,10 @@ def miller(E, P, Q, m):
   if P == Q:
     return 1
   b = map(int, bin(m)[2:])
+  next(b)
   f = 1
   T = P
-  for i in b[1:]:
+  for i in b:
     f = f * f * h(T, T, Q)
     T = T + T
     if i:
@@ -97,7 +99,7 @@ def tate_pairing(E, P, Q, m, k=2):
       return ExtendedFiniteFieldElement(E.field, t[0], t[1])
   else:
     f = miller(E, P, Q, m)
-    return f ** (((E.field.p ** k) - 1) / m)
+    return f ** (((E.field.p ** k) - 1) // m)
 
 
 def MapToPoint(E, y):

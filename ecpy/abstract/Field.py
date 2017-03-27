@@ -54,13 +54,26 @@ class FieldElement(object):
   def __mul__(s, rhs):
     return s.field._mul(tuple(s), s._to_tuple(rhs))
 
-  def __div__(s, rhs):
+  def __truediv__(s, rhs):
     return s.field._div(tuple(s), s._to_tuple(rhs))
 
-  def __rdiv__(s, lhs):
+  def __rtruediv__(s, lhs):
     return s.field._div(s._to_tuple(lhs), tuple(s))
 
+  def __floordiv__(s, rhs):
+    if hasattr(s.field, '_fdiv'):
+      return s.field._fdiv(tuple(s), s._to_tuple(rhs))
+    else:
+      return s.field._div(tuple(s), s._to_tuple(rhs))
+
+  def __rfloordiv__(s, lhs):
+    if hasattr(s.field, '_fdiv'):
+      return s.field._fdiv(s._to_tuple(lhs), tuple(s))
+    else:
+      return s.field._div(s._to_tuple(lhs), tuple(s))
+
   def __pow__(s, rhs, mod=None):
+    from six.moves import map
     if rhs == 0:
       return s.__class__(s.field, 1)
     d = int(rhs)
@@ -69,7 +82,7 @@ class FieldElement(object):
       d = -d
     else:
       x = s
-    bits = map(int, bin(d)[2:])[::-1]
+    bits = list(map(int, bin(d)[2:]))[::-1]
     if bits[0]:
       res = x
     else:

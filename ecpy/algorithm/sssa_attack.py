@@ -7,10 +7,11 @@ def hensel_lift(curve, P):
   Returns:
     The "lifted" Point
   """
+  from six.moves import map
   from ecpy.util import modinv
   x, y, _ = map(int, tuple(P))
   p = curve.field.p
-  t = (((x * x * x + curve.a * x + curve.b) - y * y) / p) % p
+  t = (((x * x * x + curve.a * x + curve.b) - y * y) // p) % p
   t = (t * modinv(2 * y, p)) % p
   return map(int, (x, y + (curve.field.p * t)))
 
@@ -45,9 +46,9 @@ def SSSA_Attack(F, E, P, Q):
     lQ = lE(x2, y2)
     lU = (F.p - 1) * lP
     lV = (F.p - 1) * lQ
-    dx1 = ((int(lU.x) - x1) / F.p) % modulo
+    dx1 = ((int(lU.x) - x1) // F.p) % modulo
     dx2 = int(lU.y) - y1
-    dy1 = ((int(lV.x) - x2) / F.p) % modulo
+    dy1 = ((int(lV.x) - x2) // F.p) % modulo
     dy2 = int(lV.y) - y2
     m = (dy1 * dx2 * modinv(dx1 * dy2, modulo)) % modulo
     return m % F.p

@@ -25,6 +25,7 @@ def gcd(x, y):
 
 
 def gcd_multiple(*a):
+  from six.moves import reduce
   """
   Apply gcd to some variables.
   Args: 
@@ -54,14 +55,16 @@ def __modinv(a, m):
 
 
 def lcm(*a):
+  from six.moves import reduce
   """
   Calculate Least Common Multiple
   Args:
     *a: args list
   """
-  return reduce(op.mul, a) / gcd_multiple(*a)
+  return reduce(op.mul, a) // gcd_multiple(*a)
 
 def crt(ak, nk):
+  from six.moves import reduce
   """
   Chinese-Reminders-Theorem Implementation
   using Gauss's proof and generalization on gcd(n1, n2) != 1
@@ -78,9 +81,9 @@ def crt(ak, nk):
   l = lcm(*nk)
   s = 0
   for n, a in zip(nk, ak):
-    m = N / n
+    m = N // n
     g, x, y = egcd(m, n)
-    s += (m / g) * x * a
+    s += (m // g) * x * a
     s %= l
   return s
 
@@ -91,7 +94,7 @@ def legendre_symbol(a, p):
   """
   if gcd(a, p) != 1:
     return 0
-  d = pow(a, ((p - 1) / 2), p)
+  d = pow(a, ((p - 1) // 2), p)
   if d == p - 1:
     return -1
   return 1
@@ -106,7 +109,7 @@ def jacobi_symbol(a, n):
   j = 1
   while a != 0:
     while not a % 2:
-      a /= 2
+      a //= 2
       if n & 7 == 3 or n & 7 == 5:
         j = -j
     a, n = n, a
@@ -119,10 +122,11 @@ def jacobi_symbol(a, n):
 
 
 def miller_rabin(x):
+  from six.moves import xrange
   s = 0
   while (x - 1) % 2**(s + 1) == 0:
     s += 1
-  d = x / (2**s)
+  d = x // (2**s)
   prime = 0
   for i in xrange(10):  # k = 10
     a = random.randint(1, x - 1)
@@ -195,7 +199,7 @@ def prime_factorization(n):
       pow_2 = 0
       while n % 2 == 0:
         pow_2 += 1
-        n /= 2
+        n //= 2
       ret[2] = pow_2
     while not is_prime(n):
       k = 3
@@ -204,7 +208,7 @@ def prime_factorization(n):
       pow_k = 0
       while n % k == 0:
         pow_k += 1
-        n /= k
+        n //= k
       ret[k] = pow_k
     if n != 1:
       ret[n] = 1

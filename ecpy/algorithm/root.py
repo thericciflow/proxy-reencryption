@@ -40,15 +40,15 @@ def __modular_square_root(a, m):
   if is_prime(m):
     # Tonelli-Shanks Algorithm
     if m % 4 == 3:
-      r = pow(a, (m + 1) / 4, m)
+      r = pow(a, (m + 1) // 4, m)
       return [r, m - r]
     s = _find_power_divisor(2, m - 1)
-    q = (m - 1) / 2**s
+    q = (m - 1) // 2**s
     z = 0
     while legendre_symbol(z, m) != -1:
       z = random.randint(1, m)
     c = pow(z, q, m)
-    r = pow(a, (q + 1) / 2, m)
+    r = pow(a, (q + 1) // 2, m)
     t = pow(a, q, m)
     l = s
     while True:
@@ -63,23 +63,23 @@ def __modular_square_root(a, m):
   if m == 2:
     return a
   if m % 4 == 3:
-    r = pow(a, (m + 1) / 4, m)
+    r = pow(a, (m + 1) // 4, m)
     return [r, m - r]
   if m % 8 == 5:
-    v = pow(2 * a, (m - 5) / 8, m)
+    v = pow(2 * a, (m - 5) // 8, m)
     i = pow(2 * a * v, 2, m)
     r = a * v * (i - 1) % m
     return [r, m - r]
   if m % 8 == 1:
     e = _find_power_divisor(2, m - 1)
-    q = (m - 1) / 2**e
+    q = (m - 1) // 2**e
     z = 1
     while pow(z, 2**(e - 1), m) == 1:
       x = random.randint(1, m)
       z = pow(x, q, m)
     y = z
     r = e
-    x = pow(a, (q - 1) / 2, m)
+    x = pow(a, (q - 1) // 2, m)
     v = a * x % m
     w = v * x % m
     while True:
@@ -101,6 +101,7 @@ def extended_legendre_symbol(a):
   Returns:
     Legendre Symbol of a
   """
+  from six.moves import xrange
   from ecpy.util import legendre_symbol
   m = a.field.degree()
   p = a.field.p
@@ -122,17 +123,17 @@ def modular_square_root_extended(x):
 
   m = a.field.degree()
   p = a.field.p
-  q = p**(m / 2)
+  q = p**(m // 2)
   if m % 2 == 0:
-    if pow(q, m / 2, 4) == 1:
+    if pow(q, m // 2, 4) == 1:
       c0 = 1
       while c0 == 1:
         c = x.field(random.randint(0, q**2), random.randint(0, q**2))
         c0 = extended_legendre_symbol(c)
-      d = pow(c, (q - 1) / 2)
+      d = pow(c, (q - 1) // 2)
       e = 1 / (c * d)
       f = (c * d)**2
-      b = pow(a, (q - 1) / 4)
+      b = pow(a, (q - 1) // 4)
       b2 = b**2
       a0 = (b2) ** q * b2
       if a0 == -1:
@@ -144,7 +145,7 @@ def modular_square_root_extended(x):
         R *= f
       x0 = modular_square_root(R, q, force=True)[0]
       return [x0 * S]
-    elif pow(q, m / 2, 4) == 3:
+    elif pow(q, m // 2, 4) == 3:
       pass
     else:
       pass
