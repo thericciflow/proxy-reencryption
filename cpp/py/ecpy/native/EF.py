@@ -1,11 +1,11 @@
-from library import *
+from .library import *
 import ast
 
 class EF(object):
   def __init__(s, p, poly):
     s.p = p
     s.poly = poly
-    s.ptr = lib.EF_create(str(p), poly)
+    s.ptr = lib.EF_create(c_char_p(str(p).encode('us-ascii')), c_char_p(poly.encode('us-ascii')))
 
   def __to_string(s, bufsize):
     b = create_string_buffer(bufsize)
@@ -43,7 +43,7 @@ class EF(object):
 
 class EF_elem(object):
   def __init__(s, u, v):
-    s.ptr = lib.EF_elem_create(str(u), str(v))
+    s.ptr = lib.EF_elem_create(c_char_p(str(u).encode('us-ascii')), c_char_p(str(v).encode('us-ascii')))
 
   def to_python(s):
     r = str(s).lstrip("EF_elem")
@@ -58,7 +58,7 @@ class EF_elem(object):
     return b
 
   def __str__(s):
-    return s.__to_string(1024)
+    return str(s.__to_string(1024).decode('us-ascii'))
 
   def __del__(s):
     lib.EF_elem_delete(s.ptr)

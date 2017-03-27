@@ -8,7 +8,9 @@ struct FF {
 
   FF() = default;
   ~FF() = default;
-  FF(const mpz_class& p) : p(p) {}
+  FF(const mpz_class& _p) : p(_p) {
+    std::cout << "Received: " << p << std::endl;
+  }
   FF(const FF& t) : p(t.p) {}
   FF(FF&& t) : p(std::move(t.p)) {}
 

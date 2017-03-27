@@ -1,6 +1,6 @@
-from library import *
-from FF import FF, FF_elem
-from EF import EF, EF_elem
+from .library import *
+from .FF import FF, FF_elem
+from .EF import EF, EF_elem
 import ast
 
 class EC(object):
@@ -9,7 +9,7 @@ class EC(object):
     s.a = a
     s.b = b
     if isinstance(base, FF):
-      s.ptr = lib.EC_FF_create(str(a), str(b), base.ptr)
+      s.ptr = lib.EC_FF_create(c_char_p(str(a).encode('us-ascii')), c_char_p(str(b).encode('us-ascii')), base.ptr)
       s.type = 1
     elif isinstance(base, EF):
       s.ptr = lib.EC_EF_create(str(a), str(b), base.ptr, base.poly)
@@ -69,6 +69,7 @@ class EC(object):
 
 class EC_elem(object):
   def __init__(s, curve, x, y, z=1):
+    from six import integer_types
     def conv(x):
       if s.curve.type == 1:
         if isinstance(x, tuple):
@@ -87,11 +88,11 @@ class EC_elem(object):
     s.z = z
     s.curve = curve
     s.base = curve.base
-    if isinstance(x, (int, long, tuple)):
+    if isinstance(x, integer_types + (tuple, )):
       x = conv(x)
-    if isinstance(y, (int, long, tuple)):
+    if isinstance(y, integer_types + (tuple, )):
       y = conv(y)
-    if isinstance(z, (int, long, tuple)):
+    if isinstance(z, integer_types + (tuple, )):
       z = conv(z)
     cond = {
       1 : lib.EC_elem_FF_create, 
@@ -116,7 +117,7 @@ class EC_elem(object):
     return b
 
   def __str__(s):
-    return s.__to_string(1024)
+    return str(s.__to_string(1024).decode('us-ascii'))
 
   def __del__(s):
     cond = {

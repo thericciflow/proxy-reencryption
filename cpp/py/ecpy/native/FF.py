@@ -1,9 +1,9 @@
-from library import *
+from .library import *
 
 class FF(object):
   def __init__(s, p):
     s.p = p
-    s.ptr = lib.FF_create(str(p))
+    s.ptr = lib.FF_create(c_char_p(str(p).encode('us-ascii')))
 
   def __to_string(s, bufsize):
     b = create_string_buffer(bufsize)
@@ -14,7 +14,7 @@ class FF(object):
     return b
 
   def __str__(s):
-    return s.__to_string(1024)
+    return str(s.__to_string(1024).decode('us-ascii'))
 
   def add(s, ret, a, b):
     assert isinstance(ret, FF_elem) and isinstance(a, FF_elem) and isinstance(b, FF_elem)
@@ -34,14 +34,14 @@ class FF(object):
 
   def pow(s, ret, a, b):
     assert isinstance(ret, FF_elem) and isinstance(a, FF_elem)
-    lib.FF_pow(s.ptr, ret.ptr, a.ptr, str(b))
+    lib.FF_pow(s.ptr, ret.ptr, a.ptr, c_char_p(str(b).encode('us-ascii')))
 
   def __del__(s):
     lib.FF_delete(s.ptr)
 
 class FF_elem(object):
   def __init__(s, v):
-    s.ptr = lib.FF_elem_create(str(v))
+    s.ptr = lib.FF_elem_create(c_char_p(str(v).encode('us-ascii')))
     s.v = v
 
   def __to_string(s, bufsize):
@@ -53,7 +53,7 @@ class FF_elem(object):
     return b
 
   def __str__(s):
-    return s.__to_string(1024)
+    return str(s.__to_string(1024).decode('us-ascii'))
 
   def to_python(s):
     return int(str(s))

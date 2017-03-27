@@ -1,4 +1,4 @@
-from library import *
+from .library import *
 
 def miller(ret, E, P, Q, m):
   cond = {

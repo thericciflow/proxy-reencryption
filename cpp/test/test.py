@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ecpy.native import *
 import time
 import sys
@@ -8,16 +9,16 @@ wa_count = 0
 def _assert(a, b, msg, cond):
   global ac_count, wa_count
   msg = msg.ljust(16)
-  print ("[+] %s..." % (msg)).ljust(30),
+  print(("[+] %s..." % (msg)).ljust(30), end=' ')
   var = {"a": a, "b": b}
   if eval("a %s b" % cond, var):
     r = repr(b)[:64]
     if repr(b) != r:
       r +=  "..."
-    print "\x1b[33m[  OK  ]\x1b[0m %s" % (r, )
+    print("\x1b[33m[  OK  ]\x1b[0m %s" % (r, ))
     ac_count += 1
   else:
-    print "\x1b[31m[ Fail ]\x1b[0m Expected: %r, Result: %r" % (b, a)
+    print("\x1b[31m[ Fail ]\x1b[0m Expected: %r, Result: %r" % (b, a))
     wa_count += 1
 
 def assert_neq(a, b, m):
@@ -31,10 +32,11 @@ def main():
   x = FF_elem(25)
   y = FF_elem(10)
   t = FF_elem(0)
+  print(x, y)
   F.add(t, x, y)
   assert_eq(t.to_python(), 4, "x+y")
   F.sub(t, x, y)
-  assert_eq(t.to_python(), 15, "-+y")
+  assert_eq(t.to_python(), 15, "x+y")
   F.mul(t, x, y)
   assert_eq(t.to_python(), 2, "x*y")
   F.div(t, x, y)
@@ -55,8 +57,8 @@ def main():
   assert_eq(t.to_python(), (7, 14), "x+y=7+14w")
   F.div(t, x, y)
   assert_eq(t.to_python(), (29, 5), "x+y=29+5w")
-  print "[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
-        ac_count + wa_count, ac_count, wa_count)
+  print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
+        ac_count + wa_count, ac_count, wa_count))
 
   p = 17
   F = FF(p)
