@@ -32,7 +32,6 @@ def main():
   x = FF_elem(25)
   y = FF_elem(10)
   t = FF_elem(0)
-  print(x, y)
   F.add(t, x, y)
   assert_eq(t.to_python(), 4, "x+y")
   F.sub(t, x, y)
