@@ -4,7 +4,8 @@
 
 // create E instance
 extern "C" FF_elem *FF_elem_create(const char* v) {
-  return new FF_elem(mpz_class(v));
+  auto ret = new FF_elem(mpz_class(v));
+  return ret;
 }
 
 // delete E instance

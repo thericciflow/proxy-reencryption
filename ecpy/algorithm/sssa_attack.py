@@ -1,4 +1,5 @@
 def hensel_lift(curve, P):
+  from six.moves import map
   """
   Calculate Lifted Point using Hensel's Lemma
   Args:
@@ -13,7 +14,7 @@ def hensel_lift(curve, P):
   p = curve.field.p
   t = (((x * x * x + curve.a * x + curve.b) - y * y) // p) % p
   t = (t * modinv(2 * y, p)) % p
-  return map(int, (x, y + (curve.field.p * t)))
+  return list(map(int, (x, y + (curve.field.p * t))))
 
 
 def SSSA_Attack(F, E, P, Q):
@@ -58,8 +59,8 @@ def SSSA_Attack(F, E, P, Q):
     lE = _native.EC(base, lA, lB)
     lP = _native.EC_elem(lE, x1, y1)
     lQ = _native.EC_elem(lE, x2, y2)
-    lU = _native.EC_elem(lE, 0, 0)
-    lV = _native.EC_elem(lE, 0, 0)
+    lU = _native.EC_elem(lE, 0, 1, 0)
+    lV = _native.EC_elem(lE, 0, 1, 0)
     lE.mul(lU, lP, F.p - 1)
     lE.mul(lV, lQ, F.p - 1)
     lUx, lUy, lUz = lU.to_python()

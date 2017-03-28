@@ -103,9 +103,9 @@ class GenericEllipticCurve(object):
       Ry = u * (v2 * Px * Qz - w) - v3 * Py * Qz
       Rz = v3 * Pz * Qz
     if isinstance(Rz, integer_types):
-      z = 1 / s.field(Rz)
+      z = 1 // s.field(Rz)
     else:
-      z = 1 / Rz
+      z = 1 // Rz
     if z == 0:
       return s.O
     return s.element_class(s, Rx * z, Ry * z, 1)
@@ -235,7 +235,7 @@ class GenericEllipticCurvePoint(object):
     expanded_k = []
     while r != 0:
       expanded_k = [r % m] + expanded_k
-      r /= m
+      r //= m
     Pi = []
     Pi += [s.group.O]
     for i in xrange(1, m):
@@ -377,13 +377,14 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     if not (s.inf or s.group.is_on_curve(s)):
       raise ArithmeticError("Invalid Point: (%s, %s, %s)" % (s.x, s.y, s.z))
     if is_enable_native:
-      s.__mul__ = s._mul_native
+      s.__mul_method__ = s._mul_native
     else:
-      s.__mul__ = s._mul
+      s.__mul_method__ = s._mul
 
   def _mul_native(s, rhs):
+    print("x0")
     P = tuple(s)
-    R = _native.EC_elem(s.group.ec, 0, 0)
+    R = _native.EC_elem(s.group.ec, 0, 1, 0)
     P = _native.EC_elem(s.group.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
     m = rhs
     s.group.ec.mul(R, P, m)
@@ -392,6 +393,9 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
 
   def _mul(s, rhs):
       return s.mult_binary(rhs)
+
+  def __mul__(s, rhs):
+    return s.__mul_method__(rhs)
 
   def distortion_map(s):
     """
