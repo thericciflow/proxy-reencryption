@@ -21,7 +21,6 @@ extern "C" void EC_FF_sub(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_ele
 
 extern "C" void EC_FF_mul(const EC<FF> *obj, EC_elem<FF_elem> *ret, const EC_elem<FF_elem> *a, const char *_b) {
   mpz_class b(_b);
-  std::cerr << "x" << std::endl ;
   obj->mul(*ret, *a, b);
 }
 

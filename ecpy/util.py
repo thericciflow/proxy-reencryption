@@ -186,7 +186,7 @@ def prime_factorization(n):
     n: A integer
   Return: Factored `n`
 
-  e.g. n = 2, return `{2: 1}`. n = 
+  e.g. n = 2, return `{2: 1}`.
   """
   if is_prime(n):
     return {n: 1}

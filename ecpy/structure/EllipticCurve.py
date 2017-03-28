@@ -382,7 +382,6 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
       s.__mul_method__ = s._mul
 
   def _mul_native(s, rhs):
-    print("x0")
     P = tuple(s)
     R = _native.EC_elem(s.group.ec, 0, 1, 0)
     P = _native.EC_elem(s.group.ec, tuple(P[0]), tuple(P[1]), tuple(P[2]))
