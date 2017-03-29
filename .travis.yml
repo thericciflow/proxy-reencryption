@@ -8,8 +8,7 @@ before_install:
   - "sudo apt-get install build-essential g++-4.8 libboost-dev libgmp-dev libgmpxx* valgrind -y"
 install: 
   - "pip install ."
-  - "pip install tox"
 script:
-  - "tox ./scripts/test.py"
+  - "python ./scripts/test.py"
   - "cd cpp"
   - "make CC=g++-4.8 LD=g++-4.8 OPTFLAGS= test"
