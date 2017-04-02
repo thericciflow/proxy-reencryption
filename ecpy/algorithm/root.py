@@ -39,6 +39,8 @@ def modular_square_root(a, m, force=False):
 def __modular_square_root(a, m):
   from ecpy.util import is_prime, legendre_symbol, modinv
   if is_prime(m):
+    if legendre_symbol(a, m) == -1:
+      return []
     # Tonelli-Shanks Algorithm
     if m % 4 == 3:
       r = pow(a, (m + 1) // 4, m)
@@ -46,30 +48,27 @@ def __modular_square_root(a, m):
     s = _find_power_divisor(2, m - 1)
     q = (m - 1) // 2**s
     z = 0
+    while legendre_symbol(z, m) != -1:
+      z = random.randint(1, m)
+    c = pow(z, q, m)
+    r = pow(a, (q + 1) // 2, m)
+    t = pow(a, q, m)
+    l = s
     while True:
-      while legendre_symbol(z, m) != -1:
-        z = random.randint(1, m)
-      c = pow(z, q, m)
-      r = pow(a, (q + 1) // 2, m)
-      t = pow(a, q, m)
-      l = s
-      while True:
-        if t % m == 1:
-          assert (r ** 2) % m == a
-          return [r, m - r]
-        i = _find_power(2, t, 1, m)
-        power = l - i - 1
-        if power < 0:
-          power = modinv(2**-power, m)
-        else:
-          power = 2**power
-        b = pow(c, power, m)
-        if b == 1:
-          break
-        r = (r * b) % m
-        t = (t * (b**2)) % m
-        c = pow(b, 2, m)
-        l = i
+      if t % m == 1:
+        assert (r ** 2) % m == a
+        return [r, m - r]
+      i = _find_power(2, t, 1, m)
+      power = l - i - 1
+      if power < 0:
+        power = modinv(2**-power, m)
+      else:
+        power = 2**power
+      b = pow(c, power, m)
+      r = (r * b) % m
+      t = (t * (b**2)) % m
+      c = pow(b, 2, m)
+      l = i
   if m == 2:
     return a
   if m % 4 == 3:
