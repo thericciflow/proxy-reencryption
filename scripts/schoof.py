@@ -39,21 +39,19 @@ def torsion_polynomial(n, E, x, y):
     return 4 * y * (x**6  + 5 * E.a * x**4 + 20 * E.b * x**3  - 5 * E.a ** 2 * x ** 2 - 4 * E.a * E.b * x - 8 * E.b**2 - E.a**3)
 
 def schoof(F, E):
-  P = E.random_point()
   p = [5]
   N = 5
   t = {}
-  while N < math.sqrt(F.n) * 1000:
+  while N < math.sqrt(F.n) * 4:
     np = int(gmpy.next_prime(p[-1]))
     p += [np]
     N *= np
-  print(N)
-  print(p)
   q = F.p ** F.degree()
-  qx, qy = (P.x ** q, P.y ** q)
-  q2x, q2y = (P.x ** (q**2), P.y ** (q ** 2))
   for l in p:
-    qbar = q % l
+    P = find_point_by_order(E, l)
+    qx, qy = (P.x ** q, P.y ** q)
+    q2x, q2y = (P.x ** (q**2), P.y ** (q**2))
+    qbar = q % l - ((l-1)//2)
     qbarP = qbar * P
     qbarx, qbary = (qbarP.x, qbarP.y)
     if q2x != qbarx:
@@ -63,10 +61,10 @@ def schoof(F, E):
         tqx, tqy = (tbarP.x**q, tbarP.y**q)
         if X == tqx:
           if Y == tqy:
-            t[l] = int(tbar)
+            t[l] = tbar
             break
           else:
-            t[l] = -int(tbar)
+            t[l] = -tbar
             break
     elif legendre_symbol(q % l, l):
       w = modular_square_root(q % l, l)[0]
@@ -86,6 +84,7 @@ def schoof(F, E):
   ak = [t[n] for n in nk]
   print(t)
   t = crt(ak, nk)
+  print(N)
   print(t)
   return q + 1 - t
 
@@ -94,6 +93,6 @@ def schoof(F, E):
 if __name__ == '__main__':
   p = 182687704666362864775460604089535377456991567941
   F = FiniteField(p)
-  E = EllipticCurve(F, 3, 1)
+  E = EllipticCurve(F, 4, 1)
   print(schoof(F, E))
 
