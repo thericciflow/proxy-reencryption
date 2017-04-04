@@ -221,3 +221,6 @@ class UnivariatePolynomialElement(object):
       i += 1
     if i > 0:
       s.coeffs = s.coeffs[:-i]
+
+  def __hash__(s):
+    return hash(''.join(map(str, s.coeffs)))
