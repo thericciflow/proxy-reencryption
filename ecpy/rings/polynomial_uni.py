@@ -79,10 +79,10 @@ class UnivariatePolynomialElement(object):
     return divmod(s, rhs)[0]
 
   def __truediv__(s, rhs):
-    return s.__div__(s, rhs)
+    return s.__div__(rhs)
 
   def __floordiv__(s, rhs):
-    return s.__div__(s, rhs)
+    return s.__div__(rhs)
 
   def __eq__(s, rhs):
     if isinstance(rhs, UnivariatePolynomialElement):
