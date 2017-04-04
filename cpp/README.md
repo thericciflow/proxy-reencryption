@@ -16,5 +16,4 @@ This is Native module of [ecpy](https://github.com/elliptic-shiho/ecpy/).
 # Requirements
 * g++
  - require C++11 ~ Support
-* Python 2.x Development Package
 * GNU MP
