@@ -284,9 +284,6 @@ def test():
   assert_eq(n * G, E.O, 'Issue #3')
 
   PR = UnivariatePolynomialRing(RR, 'X')
-
-  print(PR)
-
   X = PR.gen()
   assert_eq(str(X), 'X', 'Polynomial ring generator name')
 
@@ -298,6 +295,17 @@ def test():
   assert_eq(poly_test((X**2 + 1) - X, [1, -1, 1]), True, '(x^2+1) - x')
   assert_eq(poly_test((X**3 + 8*X**2 + x + 8) / (X**2 + 1), [8, 1]), True, '(x^3+8x^2+x+8)/(x^2+1)')
   assert_eq(poly_test((X**2 + 2*X - 2) % (X**2 + 1), [-3, 2]), True, '(x^2+2x-2) % (x^2+1)')
+
+  print('=== Test for Univariate Polynomial Ring over Z/5Z ===')
+
+  PR = UnivariatePolynomialRing(Zmod(5))
+  x = PR.gen()
+  P = x**2 + 1
+  R = x**3 - 3
+  assert_eq(poly_test(P * R, [2, 0, 2, 1, 0, 1]), True, 'P * R')
+  assert_eq(poly_test((P * R) / R, P), True, '(P * R) / R')
+  assert_eq(poly_test((P * R) / (3*x**2 + 3), [4, 0, 0, 2]), True, '(P * R) / 3x^2 + 3')
+
 
   print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count))
