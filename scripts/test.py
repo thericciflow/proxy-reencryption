@@ -283,6 +283,22 @@ def test():
   n = 0x010000000000000000000000000001DCE8D2EC6184CAF0A971769FB1F7
   assert_eq(n * G, E.O, 'Issue #3')
 
+  PR = UnivariatePolynomialRing(RR, 'X')
+
+  print(PR)
+
+  X = PR.gen()
+  assert_eq(str(X), 'X', 'Polynomial ring generator name')
+
+  poly_test = lambda p,q: all(map(lambda x: x[0] == x[1], zip(p, q)))
+
+  assert_eq(poly_test(X + 1, [1, 1]), True, 'x+1')
+  assert_eq(poly_test(X - 1, [-1, 1]), True, 'x-1')
+  assert_eq(poly_test(X * X, [0, 0, 1]), True, 'x^2')
+  assert_eq(poly_test((X**2 + 1) - X, [1, -1, 1]), True, '(x^2+1) - x')
+  assert_eq(poly_test((X**3 + 8*X**2 + x + 8) / (X**2 + 1), [8, 1]), True, '(x^3+8x^2+x+8)/(x^2+1)')
+  assert_eq(poly_test((X**2 + 2*X - 2) % (X**2 + 1), [-3, 2]), True, '(x^2+2x-2) % (x^2+1)')
+
   print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count))
   sys.exit(wa_count)

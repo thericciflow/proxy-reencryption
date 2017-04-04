@@ -1,37 +1,43 @@
 from copy import deepcopy
 from ecpy.fields import QQ
 from ecpy.utils import memoize
+from six.moves import map, xrange
 import itertools
 
 class UnivariatePolynomialRing(object):
   '''
   Univariate Polynomial Ring
   '''
-  def __init__(s, field):
+  def __init__(s, field, gen='x'):
     '''
     Args:
       field : A base field class
     '''
-    super(UnivariatePolynomial, s).__init__()
+    super(UnivariatePolynomialRing, s).__init__()
     s.field = field
-    s.element_class = PolynomialElem
+    s.gen_name = gen
+    s.element_class = UnivariatePolynomialElement
 
   def gen(s):
-    return PolynomialElem(s, [1, 0])
+    return s.element_class(s, 0, 1) # x
 
   def __str__(s):
     return 'Univariate Polynomial Ring over %s' % s.field
 
+  def __repr__(s):
+    return '%s(%r)' % (s.__class__.__name__, s.field)
 
-class PolynomialElem(object):
-  def __init__(s, *args):
+
+class UnivariatePolynomialElement(object):
+  def __init__(s, poly_ring, *args):
     """
     coeffs = [x^0, x^1, x^2, ... degree's coefficient]
     """
-    super(Polynomial, s).__init__()
+    super(UnivariatePolynomialElement, s).__init__()
+    s.PR = poly_ring
     if len(args) == 1:
       v = args[0]
-      if isinstance(v, Polynomial):
+      if isinstance(v, UnivariatePolynomialElement):
         s.coeffs = v.coeffs
       elif hasattr(v, "__iter__"):
         s.coeffs = list(v)
@@ -40,40 +46,41 @@ class PolynomialElem(object):
     else:
       s.coeffs = args
     s.trim()
+    s.coeffs = list(map(s.PR.field, s.coeffs))
 
   def __add__(s, rhs):
-    if isinstance(rhs, Polynomial):
+    if isinstance(rhs, UnivariatePolynomialElement):
       A = deepcopy(s.coeffs)
       B = rhs.coeffs
       ret = []
       for x, y in itertools.izip_longest(A, B, fillvalue=0):
         ret += [(x + y)]
-      return Polynomial(ret)
+      return UnivariatePolynomialElement(s.PR, ret)
     else:
-      return Polynomial([s.coeffs[0] + rhs] + s.coeffs[1:])
+      return UnivariatePolynomialElement(s.PR, [s.coeffs[0] + rhs] + s.coeffs[1:])
 
   def __divmod__(s, rhs):
     assert rhs != 0
-    if isinstance(rhs, Polynomial):
+    if isinstance(rhs, UnivariatePolynomialElement):
       q = 0
-      r = Polynomial(s)
+      r = UnivariatePolynomialElement(s.PR, s)
       d = rhs.degree()
       c = rhs[-1]
       while r.degree() >= d:
-        t = Polynomial([r[-1] / c]).shift(r.degree() - d)
+        t = UnivariatePolynomialElement(s.PR, [r[-1] / c]).shift(r.degree() - d)
         q = q + t
         r = r - t * rhs
       return q, r
     else:
-      q = Polynomial(map(lambda x: x / rhs, s.coeffs))
-      r = Polynomial(map(lambda x: x % rhs, s.coeffs))
+      q = UnivariatePolynomialElement(s.PR, map(lambda x: x / rhs, s.coeffs))
+      r = UnivariatePolynomialElement(s.PR, map(lambda x: x % rhs, s.coeffs))
       return q, r
 
   def __div__(s, rhs):
     return divmod(s, rhs)[0]
 
   def __eq__(s, rhs):
-    if isinstance(rhs, Polynomial):
+    if isinstance(rhs, UnivariatePolynomialElement):
       return all([x == y for x, y in zip(s, rhs)])
     else:
       return len(s.coeffs) == 1 and s[0] == rhs
@@ -88,9 +95,9 @@ class PolynomialElem(object):
     return len(s.coeffs)
 
   def __mul__(s, rhs):
-    if isinstance(rhs, Polynomial):
+    if isinstance(rhs, UnivariatePolynomialElement):
       if rhs.apply(1) * s.apply(1) == 0:
-        return Polynomial(0)
+        return UnivariatePolynomialElement(s.PR, 0)
       if rhs.degree() == 0:
         return s * rhs[0]
       elif s.degree() == 0:
@@ -104,36 +111,35 @@ class PolynomialElem(object):
         for x, y in enumerate(s.coeffs):
           for u, v in enumerate(rhs.coeffs):
             ret[x + u] += y * v
-        return Polynomial(ret)
+        return UnivariatePolynomialElement(s.PR, ret)
     else:
-      return Polynomial(map(lambda x: rhs * x, s.coeffs))
+      return UnivariatePolynomialElement(s.PR, map(lambda x: rhs * x, s.coeffs))
 
   def __ne__(s, rhs):
     return not (s == rhs)
 
   def __neg__(s):
-    return Polynomial(map(lambda x: -x, s.coeffs))
+    return UnivariatePolynomialElement(s.PR, map(lambda x: -x, s.coeffs))
 
   def __mod__(s, rhs):
     return divmod(s, rhs)[1]
 
   def __pow__(s, rhs, mod=0):
     if rhs == 0:
-      return Polynomial(1)
+      return UnivariatePolynomialElement(s.PR, 1)
     d = int(rhs)
     if d < 0:
       x = 1 / s
       d = -d
     else:
       x = s
-    bits = map(int, bin(d)[2:])[::-1]
+    bits = list(map(int, bin(d)[2:]))[::-1]
     if bits[0]:
       res = x
     else:
-      res = Polynomial(1)
+      res = UnivariatePolynomialElement(s.PR, 1)
     b = 0
     for cur in bits[1:]:
-      print "[+] bit = %d" % b
       b += 1
       x *= x
       if mod > 0:
@@ -147,13 +153,13 @@ class PolynomialElem(object):
     return res
 
   def __radd__(s, lhs):
-    if isinstance(lhs, Polynomial):
+    if isinstance(lhs, UnivariatePolynomialElement):
       return s + lhs
     else:
-      return Polynomial([s.coeffs[0] + lhs] + s.coeffs[1:])
+      return UnivariatePolynomialElement(s.PR, [s.coeffs[0] + lhs] + s.coeffs[1:])
 
   def __repr__(s):
-    return "Polynomial(%s)" % s.coeffs
+    return "%s(%r)" % (s.__class__.__name__, s.coeffs)
 
   def __rmul__(s, lhs):
     return s * lhs
@@ -174,7 +180,7 @@ class PolynomialElem(object):
         elif x == -1:
           r += "-"
         if deg > 0:
-          r += "x"
+          r += s.PR.gen_name
           if deg > 1:
             r += "^%d" % deg
       if r != "":
@@ -203,9 +209,9 @@ class PolynomialElem(object):
 
   def shift(s, i):
     if i > 0:
-      return Polynomial([0] * abs(i) + s.coeffs)
+      return UnivariatePolynomialElement(s.PR, [0] * abs(i) + s.coeffs)
     else:
-      return Polynomial(s.coeffs[abs(i):])
+      return UnivariatePolynomialElement(s.PR, s.coeffs[abs(i):])
 
   def trim(s):
     i = 0
@@ -215,21 +221,3 @@ class PolynomialElem(object):
       i += 1
     if i > 0:
       s.coeffs = s.coeffs[:-i]
-
-if __name__ == "__main__":
-  poly = Polynomial([1, 2, 3])
-  print poly
-  print poly.apply(2)
-
-  print Polynomial([1, 0, QQ(3)]) + Polynomial([0, 2, 0, 4])
-  print Polynomial([1, 0, 3, 4, 2, 2, 2]) + Polynomial([0, 2, 0, 4, 0, -2, -2])
-  print Polynomial([1, 0, 3]) + 1
-  print 1 - Polynomial([1, 0, 3])
-  print Polynomial([-3, 1]) * Polynomial([3, 1])
-  print repr(Polynomial([-3, 1]) * Polynomial([3, 1]))
-  print map(str, (Polynomial([-3, 1]) * Polynomial([3, 1])) / Polynomial([-3, 1]))
-  print Polynomial([1, 0, 0, 3]).monic()
-  print Polynomial([1, 0, 0, QQ(3)]).monic()
-  f = Polynomial(1).shift(10)
-  g = Polynomial(1).shift(20)
-  print f * g
