@@ -1,8 +1,7 @@
 from copy import deepcopy
 from ecpy.fields import QQ
 from ecpy.utils import memoize
-from six.moves import map, xrange
-import itertools
+from six.moves import map, xrange, zip_longest
 
 class UnivariatePolynomialRing(object):
   '''
@@ -53,7 +52,7 @@ class UnivariatePolynomialElement(object):
       A = deepcopy(s.coeffs)
       B = rhs.coeffs
       ret = []
-      for x, y in itertools.izip_longest(A, B, fillvalue=0):
+      for x, y in zip_longest(A, B, fillvalue=0):
         ret += [(x + y)]
       return UnivariatePolynomialElement(s.PR, ret)
     else:
@@ -223,4 +222,4 @@ class UnivariatePolynomialElement(object):
       s.coeffs = s.coeffs[:-i]
 
   def __hash__(s):
-    return hash(''.join(map(str, s.coeffs)))
+    return hash(''.join(map(str, s.coeffs)) + str(s.PR))
