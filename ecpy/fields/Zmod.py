@@ -1,5 +1,5 @@
-from ..util import modinv, euler_phi
-from ..abstract.Field import Field, FieldElement
+from ecpy.utils import modinv, euler_phi
+from .Field import Field, FieldElement
 
 
 class Zmod(Field):

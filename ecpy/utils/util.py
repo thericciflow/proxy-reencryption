@@ -222,7 +222,7 @@ def euler_phi(n):
     n: A integer
   Return: Order of the group (Z/nZ)^*
   '''
-  from ecpy.structure.RationalField import QQ
+  from ecpy.fields import QQ
   ret = 1
   factors = prime_factorization(n)
   for p in factors:

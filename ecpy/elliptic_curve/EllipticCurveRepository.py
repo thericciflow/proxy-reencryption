@@ -76,7 +76,8 @@ def EllipticCurveRepository(name):
     G: Base point given by `name`
     n: Order of `G`
   '''
-  from ecpy.structure import FiniteField, EllipticCurve
+  from ecpy.fields import FiniteField
+  from .EllipticCurve import EllipticCurve
   name = name.lower()
   if name in _repo.keys():
     data = _repo[name]

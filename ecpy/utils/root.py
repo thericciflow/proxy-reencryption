@@ -29,7 +29,7 @@ def modular_square_root(a, m, force=False):
   Returns:
     A Quadratic Residue of a modulo m
   """
-  from ecpy.structure.ExtendedFiniteField import ExtendedFiniteFieldElement
+  from ecpy.fields.ExtendedFiniteField import ExtendedFiniteFieldElement
   if isinstance(a, ExtendedFiniteFieldElement) and not force:
     return modular_square_root_extended(a)
   else:
@@ -37,7 +37,7 @@ def modular_square_root(a, m, force=False):
 
 
 def __modular_square_root(a, m):
-  from ecpy.util import is_prime, legendre_symbol, modinv
+  from ecpy.utils import is_prime, legendre_symbol, modinv
   if is_prime(m):
     if legendre_symbol(a, m) == -1:
       return []
@@ -111,7 +111,7 @@ def extended_legendre_symbol(a):
     Legendre Symbol of a
   """
   from six.moves import xrange
-  from ecpy.util import legendre_symbol
+  from ecpy.utils import legendre_symbol
   m = a.field.degree()
   p = a.field.p
   b = pow(a, sum([p**i for i in xrange(0, m)]), p)

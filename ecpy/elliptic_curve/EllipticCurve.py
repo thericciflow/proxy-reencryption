@@ -1,8 +1,7 @@
-from ecpy.algorithm.root import modular_square_root
-from ecpy.util import is_enable_native, _native
+from ecpy.fields import FiniteField, ExtendedFiniteField
+from ecpy.utils.util import is_enable_native, _native
+from ecpy.utils import modular_square_root
 from random import randint
-from .FiniteField import FiniteField
-from .ExtendedFiniteField import ExtendedFiniteField
 
 def EllipticCurve(field, a, b):
   """

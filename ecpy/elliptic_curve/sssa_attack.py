@@ -9,7 +9,7 @@ def hensel_lift(curve, P):
     The "lifted" Point
   """
   from six.moves import map
-  from ecpy.util import modinv
+  from ecpy.utils import modinv
   x, y, _ = map(int, tuple(P))
   p = curve.field.p
   t = (((x * x * x + curve.a * x + curve.b) - y * y) // p) % p
@@ -28,10 +28,9 @@ def SSSA_Attack(F, E, P, Q):
   Returns:
     Return x where satisfies Q = xP.
   """
-  from ecpy.structure.EllipticCurve import EllipticCurve
-  from ecpy.structure.RationalField import QQ
-  from ecpy.structure.Zmod import Zmod
-  from ecpy.util import modinv, is_enable_native, _native
+  from .EllipticCurve import EllipticCurve
+  from ecpy.fields import QQ, Zmod
+  from ecpy.utils.util import modinv, is_enable_native, _native
   A = E.a
   # lP, lQ, ... is "lifted" P, Q, ...
   x1, y1 = hensel_lift(E, P)

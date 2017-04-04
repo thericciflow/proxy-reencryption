@@ -1,5 +1,5 @@
-from ..abstract.Field import Field, FieldElement
-from ..util import gcd, lcm
+from ecpy.utils import gcd, lcm
+from .Field import Field, FieldElement
 
 
 class RationalField(Field):

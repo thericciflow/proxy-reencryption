@@ -1,6 +1,6 @@
+from ecpy.utils import is_prime, modinv
 from .FiniteField import FiniteField
 from .Zmod import Zmod, ZmodElement
-from ..util import is_prime, modinv
 
 class ExtendedFiniteField(FiniteField):
   def __init__(s, p, poly="x^2+1"):
