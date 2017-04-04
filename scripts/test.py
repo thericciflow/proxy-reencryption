@@ -1,8 +1,5 @@
 from __future__ import print_function
-from ecpy import util, ExtendedFiniteField, EllipticCurve, FiniteField
-from ecpy import miller, weil_pairing, tate_pairing, SSSA_Attack
-from ecpy import CC, EllipticCurveRepository
-from ecpy import symmetric_tate_pairing, symmetric_weil_pairing
+from ecpy import *
 from random import randint
 from six.moves import xrange
 import sys

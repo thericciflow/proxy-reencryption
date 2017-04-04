@@ -3,7 +3,7 @@ from ecpy.fields import QQ
 from ecpy.utils import memoize
 import itertools
 
-class UnivariatePolynomial(object):
+class UnivariatePolynomialRing(object):
   '''
   Univariate Polynomial Ring
   '''
