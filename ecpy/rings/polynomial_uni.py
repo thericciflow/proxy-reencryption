@@ -37,7 +37,7 @@ class UnivariatePolynomialElement(object):
     coeffs = [x^0, x^1, x^2, ... degree's coefficient]
     """
     super(UnivariatePolynomialElement, s).__init__()
-    s.PR = poly_ring
+    s.ring = poly_ring
     if len(args) == 1:
       v = args[0]
       if isinstance(v, UnivariatePolynomialElement):
@@ -49,7 +49,7 @@ class UnivariatePolynomialElement(object):
     else:
       s.coeffs = args
     s.trim()
-    s.coeffs = list(map(s.PR.field, s.coeffs))
+    s.coeffs = list(map(s.ring.field, s.coeffs))
 
   def __add__(s, rhs):
     if isinstance(rhs, UnivariatePolynomialElement):
@@ -58,25 +58,25 @@ class UnivariatePolynomialElement(object):
       ret = []
       for x, y in zip_longest(A, B, fillvalue=0):
         ret += [(x + y)]
-      return UnivariatePolynomialElement(s.PR, ret)
+      return UnivariatePolynomialElement(s.ring, ret)
     else:
-      return UnivariatePolynomialElement(s.PR, [s.coeffs[0] + rhs] + s.coeffs[1:])
+      return UnivariatePolynomialElement(s.ring, [s.coeffs[0] + rhs] + s.coeffs[1:])
 
   def __divmod__(s, rhs):
     assert rhs != 0
     if isinstance(rhs, UnivariatePolynomialElement):
       q = 0
-      r = UnivariatePolynomialElement(s.PR, s)
+      r = UnivariatePolynomialElement(s.ring, s)
       d = rhs.degree()
       c = rhs[-1]
       while r.degree() >= d:
-        t = UnivariatePolynomialElement(s.PR, [r[-1] / c]).shift(r.degree() - d)
+        t = UnivariatePolynomialElement(s.ring, [r[-1] / c]).shift(r.degree() - d)
         q = q + t
         r = r - t * rhs
       return q, r
     else:
-      q = UnivariatePolynomialElement(s.PR, map(lambda x: x / rhs, s.coeffs))
-      r = UnivariatePolynomialElement(s.PR, map(lambda x: x % rhs, s.coeffs))
+      q = UnivariatePolynomialElement(s.ring, map(lambda x: x / rhs, s.coeffs))
+      r = UnivariatePolynomialElement(s.ring, map(lambda x: x % rhs, s.coeffs))
       return q, r
 
   def __div__(s, rhs):
@@ -106,7 +106,7 @@ class UnivariatePolynomialElement(object):
   def __mul__(s, rhs):
     if isinstance(rhs, UnivariatePolynomialElement):
       if rhs.apply(1) * s.apply(1) == 0:
-        return UnivariatePolynomialElement(s.PR, 0)
+        return UnivariatePolynomialElement(s.ring, 0)
       if rhs.degree() == 0:
         return s * rhs[0]
       elif s.degree() == 0:
@@ -120,22 +120,22 @@ class UnivariatePolynomialElement(object):
         for x, y in enumerate(s.coeffs):
           for u, v in enumerate(rhs.coeffs):
             ret[x + u] += y * v
-        return UnivariatePolynomialElement(s.PR, ret)
+        return UnivariatePolynomialElement(s.ring, ret)
     else:
-      return UnivariatePolynomialElement(s.PR, map(lambda x: rhs * x, s.coeffs))
+      return UnivariatePolynomialElement(s.ring, map(lambda x: rhs * x, s.coeffs))
 
   def __ne__(s, rhs):
     return not (s == rhs)
 
   def __neg__(s):
-    return UnivariatePolynomialElement(s.PR, map(lambda x: -x, s.coeffs))
+    return UnivariatePolynomialElement(s.ring, map(lambda x: -x, s.coeffs))
 
   def __mod__(s, rhs):
     return divmod(s, rhs)[1]
 
   def __pow__(s, rhs, mod=0):
     if rhs == 0:
-      return UnivariatePolynomialElement(s.PR, 1)
+      return UnivariatePolynomialElement(s.ring, 1)
     d = int(rhs)
     if d < 0:
       x = 1 / s
@@ -146,7 +146,7 @@ class UnivariatePolynomialElement(object):
     if bits[0]:
       res = x
     else:
-      res = UnivariatePolynomialElement(s.PR, 1)
+      res = UnivariatePolynomialElement(s.ring, 1)
     b = 0
     for cur in bits[1:]:
       b += 1
@@ -165,7 +165,7 @@ class UnivariatePolynomialElement(object):
     if isinstance(lhs, UnivariatePolynomialElement):
       return s + lhs
     else:
-      return UnivariatePolynomialElement(s.PR, [s.coeffs[0] + lhs] + s.coeffs[1:])
+      return UnivariatePolynomialElement(s.ring, [s.coeffs[0] + lhs] + s.coeffs[1:])
 
   def __repr__(s):
     return "%s(%r)" % (s.__class__.__name__, s.coeffs)
@@ -189,7 +189,7 @@ class UnivariatePolynomialElement(object):
         elif x == -1:
           r += "-"
         if deg > 0:
-          r += s.PR.gen_name
+          r += s.ring.gen_name
           if deg > 1:
             r += "^%d" % deg
       if r != "":
@@ -218,9 +218,9 @@ class UnivariatePolynomialElement(object):
 
   def shift(s, i):
     if i > 0:
-      return UnivariatePolynomialElement(s.PR, [0] * abs(i) + s.coeffs)
+      return UnivariatePolynomialElement(s.ring, [0] * abs(i) + s.coeffs)
     else:
-      return UnivariatePolynomialElement(s.PR, s.coeffs[abs(i):])
+      return UnivariatePolynomialElement(s.ring, s.coeffs[abs(i):])
 
   def trim(s):
     i = 0
@@ -228,8 +228,10 @@ class UnivariatePolynomialElement(object):
       if x != 0:
         break
       i += 1
-    if i > 0:
+    if 0 < i < len(s.coeffs):
       s.coeffs = s.coeffs[:-i]
+    elif i == len(s.coeffs):
+      s.coeffs = [0]
 
   def __hash__(s):
-    return hash(''.join(map(str, s.coeffs)) + str(s.PR))
+    return hash(''.join(map(str, s.coeffs)) + str(s.ring))
