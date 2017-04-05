@@ -235,7 +235,7 @@ class BivariatePolynomialElement(object):
     ret = 0
     for y in s.coeffs[::-1]:
       t = 0
-      for x in y:
+      for x in y[::-1]:
         t = t * x0 + x
       ret = ret * y0 + t
     return ret

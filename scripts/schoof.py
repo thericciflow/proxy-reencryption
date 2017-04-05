@@ -89,12 +89,12 @@ def schoof(F, E):
   x, y = PR.gens()
   Fx = x**3 + E.a*x + E.b
   xs = PU.gen()
-  pol_p, pol_q = torsion_polynomial(13, E, x, y)
+  pol_p, pol_q = torsion_polynomial(7, E, x, y)
   pol_p.trim()
   pol_q.trim()
   pol = y_div(pol_p, pol_q)
   pol = y2_reduce(pol, x, y, Fx)
-  print(pol)
+  print(pol.apply(xs, 0))
 
 
 
