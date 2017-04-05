@@ -3,19 +3,6 @@ from ecpy import *
 import math
 import gmpy
 
-def y2_reduce(pol, x, y, Fx):
-  '''
-  Reduce `pol` modulo (y^2 - Fx)
-    <=> pol over F_q[x, y] / (y^2 - Fx)
-  '''
-  if pol.degree() < 2:
-    return pol
-  assert all([len(t) == 1 and t[0] == 0 for t in pol[1::2]])
-  for i in xrange(1, (len(pol) - 1) // 2 + 1):
-    y2 = (sum(map(lambda t: x**t[0] * t[1], enumerate(pol[2 * i]))))
-    pol = pol - (y**(2*i) * y2)  + (y2 * Fx ** i)
-  return pol
-
 def y_div(pol, div):
   '''
   Calculate pol / div
@@ -43,41 +30,71 @@ def torsion_polynomial(n, E, x, y):
     if n % 2 == 0:
       n = n // 2
       psi = torsion_polynomial
-      pp2p, pp2q = psi(n + 2, E, x, y)
-      pp1p, pp1q = psi(n + 1, E, x, y)
-      pp0p, pp0q = psi(n, E, x, y)
-      pm1p, pm1q = psi(n - 1, E, x, y)
-      pm2p, pm2q = psi(n - 2, E, x, y)
-      R, S = pp0p, (pp0q * 2 * y)
-      X, Y = (pp2p * pm1p**2, pm2p * pp1p**2)
-      X_, Y_ = (pp2q * pm1q**2, pm2q * pp1q**2)
-      return y_div(R * (y_div(X, X_) - y_div(Y, Y_)), S), x**0
+      pp2 = psi(n + 2, E, x, y)
+      pp1 = psi(n + 1, E, x, y)
+      pp0 = psi(n, E, x, y)
+      pm1 = psi(n - 1, E, x, y)
+      pm2 = psi(n - 2, E, x, y)
+      R, S = pp0, 2 * y
+      X, Y = (pp2 * pm1**2, pm2 * pp1**2)
+      return y_div(R * (X - Y), S)
     else:
       n = (n-1) // 2
       psi = torsion_polynomial
-      pp2p, pp2q = psi(n + 2, E, x, y)
-      pp1p, pp1q = psi(n + 1, E, x, y)
-      pp0p, pp0q = psi(n, E, x, y)
-      pm1p, pm1q = psi(n - 1, E, x, y)
-      X,  Y  = pp2p * pp0p**3, pp1p**3 * pm1p
-      X_, Y_ = pp2q * pp0q**3, pp1q**3 * pm1q
-      return y_div(X, X_) - y_div(Y, Y_), x**0
+      pp2 = psi(n + 2, E, x, y)
+      pp1 = psi(n + 1, E, x, y)
+      pp0 = psi(n, E, x, y)
+      pm1 = psi(n - 1, E, x, y)
+      X,  Y  = pp2 * pp0**3, pp1**3 * pm1
+      return X - Y
   if n == -1:
-    return -1, x**0
+    return x - 1 - x
   elif n == 0:
-    return 0, x**0
+    return x - x
   elif n == 1:
-    return 1, x**0
+    return x + 1 - x
   elif n == 2:
-    return 2 * y, x**0
+    return 2 * y
   elif n == 3:
-    return 3 * x**4 + 6 * E.a * x**2 + 12 * E.b * x - E.a**2, x**0
+    return 3 * x**4 + 6 * E.a * x**2 + 12 * E.b * x - E.a**2
   elif n == 4:
-    return 4 * y * (x**6  + 5 * E.a * x**4 + 20 * E.b * x**3  - 5 * E.a ** 2 * x ** 2 - 4 * E.a * E.b * x - 8 * E.b**2 - E.a**3), x**0
+    return 4 * y * (x**6  + 5 * E.a * x**4 + 20 * E.b * x**3  - 5 * E.a ** 2 * x ** 2 - 4 * E.a * E.b * x - 8 * E.b**2 - E.a**3)
 
 def schoof(F, E):
-  p = [5]
-  N = 5
+  def y2_reduce(pol, x, y, Fx):
+    '''
+    Reduce `pol` modulo (y^2 - Fx)
+      <=> pol over F_q[x, y] / (y^2 - Fx)
+    '''
+    if pol.degree() < 2:
+      return pol
+    assert all([len(t) == 1 and t[0] == 0 for t in pol[1::2]])
+    for i in xrange(1, (len(pol) - 1) // 2 + 1):
+      y2 = (sum(map(lambda t: x**t[0] * t[1], enumerate(pol[2 * i]))))
+      pol = pol - (y**(2*i) * y2)  + (y2 * Fx ** i)
+    return pol
+
+
+  def division_polynomial(ell):
+    pol = torsion_polynomial(ell, E, x, y)
+    pol.trim()
+    return pol
+
+  def get_polynomial(ell):
+    pp0 = division_polynomial(ell)
+    pm1 = division_polynomial(ell - 1)
+    pp1 = division_polynomial(ell + 1)
+    pol_p = x - (pm1 * pp1)
+    pol_q = pp0 ** 2
+    pol_p = y2_reduce(pol_p, x, y, Fx)
+    pol_q = y2_reduce(pol_q, x, y, Fx)
+    pol_p = (pol_p.apply(xs, 0))
+    pol_q = (pol_q.apply(xs, 0))
+    return pol_p / pol_q
+
+
+  p = [3]
+  N = 3
   t = {}
   while N < math.sqrt(F.n) * 4:
     np = int(gmpy.next_prime(p[-1]))
@@ -89,12 +106,17 @@ def schoof(F, E):
   x, y = PR.gens()
   Fx = x**3 + E.a*x + E.b
   xs = PU.gen()
-  pol_p, pol_q = torsion_polynomial(7, E, x, y)
-  pol_p.trim()
-  pol_q.trim()
-  pol = y_div(pol_p, pol_q)
-  pol = y2_reduce(pol, x, y, Fx)
-  print(pol.apply(xs, 0))
+
+  for L in p:
+    qbar = q % L
+    mod_poly = get_polynomial(L)
+    poly1 = get_polynomial(qbar + 1) % mod_poly
+    for tbar in xrange(1, (L-1)//2 + 1):
+      poly2 = get_polynomial(tbar) % mod_poly
+      if poly1 == poly2:
+        print(tbar)
+        break
+
 
 
 

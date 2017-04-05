@@ -65,6 +65,10 @@ class UnivariatePolynomialElement(object):
   def __divmod__(s, rhs):
     assert rhs != 0
     if isinstance(rhs, UnivariatePolynomialElement):
+      if len(rhs) == 1:
+        q = UnivariatePolynomialElement(s.ring, map(lambda x: x / rhs[0], s.coeffs))
+        r = UnivariatePolynomialElement(s.ring, map(lambda x: x % rhs[0], s.coeffs))
+        return q, r
       q = 0
       r = UnivariatePolynomialElement(s.ring, s)
       d = rhs.degree()
@@ -195,6 +199,8 @@ class UnivariatePolynomialElement(object):
       if r != "":
         res += [r]
       deg += 1
+    if len(res) == 0:
+      return '0'
     return "+".join(res[::-1]).replace("+-", "-")
 
   def __sub__(s, rhs):
