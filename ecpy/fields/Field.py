@@ -46,6 +46,8 @@ class Field(object):
 class FieldElement(object):
   def __init__(s, field, x):
     s.group = s.field = field
+    if isinstance(x, FieldElement):
+      x = x.x
     s.x = x
 
   def change_field(s, _field):

@@ -306,6 +306,14 @@ def test():
   assert_eq(poly_test((P * R) / R, P), True, '(P * R) / R')
   assert_eq(poly_test((P * R) / (3*x**2 + 3), [4, 0, 0, 2]), True, '(P * R) / 3x^2 + 3')
 
+  PR = BivariatePolynomialRing(RR, ['x', 'y'])
+  print(PR)
+  x, y = PR.gens()
+  assert_eq(str(x), 'x', 'str(x)')
+  assert_eq(str(y), 'y', 'str(y)')
+  assert_eq(str(x + y), 'x+y', 'str(x+y)')
+  assert_eq(str(y*(x + y)), 'xy+y^2', 'str(y*(x+y))')
+  print(y**2 - x**3 + 3*x - 1)
 
   print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count))

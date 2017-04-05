@@ -24,7 +24,10 @@ class RealField(Field):
     return s.element_class(s, 1. / a[0])
 
   def _equ(s, a, b):
-    return int(a[0]) == int(b[0])
+    d = a[0] - b[0]
+    if isinstance(d, RealFieldElement):
+      d = d.x
+    return abs(d) < 0.00001
 
 
 class RealFieldElement(FieldElement):

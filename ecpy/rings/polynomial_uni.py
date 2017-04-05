@@ -26,6 +26,10 @@ class UnivariatePolynomialRing(object):
   def __repr__(s):
     return '%s(%r)' % (s.__class__.__name__, s.field)
 
+  def __call__(s, *args, **kwargs):
+    return s.element_class(s, *args, **kwargs)
+
+
 
 class UnivariatePolynomialElement(object):
   def __init__(s, poly_ring, *args):
