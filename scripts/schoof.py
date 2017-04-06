@@ -75,31 +75,34 @@ def schoof(F, E):
     return pol
 
 
-  def division_polynomial(ell):
+  @memoize
+  def division_polynomial(ell, x, y):
     pol = torsion_polynomial(ell, E, x, y)
     pol.trim()
     return pol
 
-  def get_polynomial(ell):
-    pp0 = division_polynomial(ell)
-    pm1 = division_polynomial(ell - 1)
-    pp1 = division_polynomial(ell + 1)
+  def get_polynomial(ell, x0, y0):
+    if ell == 0:
+      return PU.element_class(PU, [0])
+    pp0 = division_polynomial(ell, x0, y0)
+    pm1 = division_polynomial(ell - 1, x0, y0)
+    pp1 = division_polynomial(ell + 1, x0, y0)
     pol_p = x - (pm1 * pp1)
     pol_q = pp0 ** 2
     pol_p = y2_reduce(pol_p, x, y, Fx)
     pol_q = y2_reduce(pol_q, x, y, Fx)
     pol_p = (pol_p.apply(xs, 0))
     pol_q = (pol_q.apply(xs, 0))
-    return pol_p / pol_q
+    pol = pol_p / pol_q
+    if not isinstance(pol, UnivariatePolynomialRing):
+      return PU.element_class(PU, [pol])
+    return pol
 
 
-  p = [3]
-  N = 3
+  L = 2
+  N = 1
   t = {}
-  while N < math.sqrt(F.n) * 4:
-    np = int(gmpy.next_prime(p[-1]))
-    p += [np]
-    N *= np
+  factors = {}
   q = F.p ** F.degree()
   PR = BivariatePolynomialRing(F, ['x', 'y'])
   PU = UnivariatePolynomialRing(F, 'xs')
@@ -107,22 +110,30 @@ def schoof(F, E):
   Fx = x**3 + E.a*x + E.b
   xs = PU.gen()
 
-  for L in p:
+  while N < math.sqrt(F.n) * 4:
+    L = int(gmpy.next_prime(L))
     qbar = q % L
-    mod_poly = get_polynomial(L)
-    poly1 = get_polynomial(qbar + 1) % mod_poly
-    for tbar in xrange(1, (L-1)//2 + 1):
-      poly2 = get_polynomial(tbar) % mod_poly
+    mod_poly = division_polynomial(L, x, y).apply(xs, 0)
+    poly1 = get_polynomial(qbar + 1, x, y) % mod_poly
+    for tbar in xrange(0, L):
+      poly2 = get_polynomial(tbar, x, y) % mod_poly
       if poly1 == poly2:
-        print(tbar)
+        factors[L] = tbar
+        N *= L
         break
+    print(factors)
+
+  t = crt(map(lambda x: factors[x], factors.keys()), factors.keys())
+  if t > N // 2:
+    t = - (N - t)
+  return q + 1 - t
 
 
 
 
 if __name__ == '__main__':
-  p = 182687704666362864775460604089535377456991567941
+  p = 137
   F = FiniteField(p)
-  E = EllipticCurve(F, 4, 1)
+  E = EllipticCurve(F, 2, 17)
   print(schoof(F, E))
 
