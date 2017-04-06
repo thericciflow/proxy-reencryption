@@ -315,6 +315,13 @@ def test():
   assert_eq(str(y*(x + y)), 'xy+y^2', 'str(y*(x+y))')
   print(y**2 - x**3 + 3*x - 1)
 
+
+  x = ZZ(0xcafebabe)
+  y = ZZ(0xdeadbeef)
+  assert_eq(x+y, 7141620141, 'Integer Addition')
+  assert_eq(x-y, -330236977, 'Integer Subtract')
+  assert_eq(x*y, 12723420444339690338, 'Integer Multiplication')
+
   print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count))
   sys.exit(wa_count)

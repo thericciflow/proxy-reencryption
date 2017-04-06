@@ -37,8 +37,8 @@ class RingElement(object):
       x = x.x
     s.x = x
 
-  def change_ring(s, _field):
-    return s.__class__(_field, *tuple(s))
+  def change_ring(s, _ring):
+    return s.__class__(_ring, *tuple(s))
 
   def __mul__(s, rhs, mod=None):
     from six.moves import map
