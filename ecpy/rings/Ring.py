@@ -76,10 +76,10 @@ class RingElement(object):
     return s.ring._neg(tuple(s))
 
   def __radd__(s, lhs):
-    return s + lhs
+    return s.ring._add(s._to_tuple(lhs), tuple(s))
 
-  def __rsub__(s, lhs):
-    return -s + lhs
+  def __radd__(s, lhs):
+    return s.ring._add(s._to_tuple(lhs), tuple(s))
 
   def __ne__(s, rhs):
     return not (s == rhs)

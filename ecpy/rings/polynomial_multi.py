@@ -1,12 +1,13 @@
 from .polynomial_uni import UnivariatePolynomialElement
 from .polynomial_uni import UnivariatePolynomialRing
+from .Ring import Ring, RingElement
 from six.moves import map, xrange, zip_longest
 from ecpy.utils import memoize
 from ecpy.fields import QQ
 from copy import deepcopy
 import itertools
 
-class BivariatePolynomialRing(object):
+class BivariatePolynomialRing(Ring):
   '''
   Bivariate Polynomial Ring
   '''
@@ -19,11 +20,10 @@ class BivariatePolynomialRing(object):
     Example:
       PR = BivariatePolynomialRing(RR, ['x', 'y'])
     '''
+    Ring.__init__(s, BivariatePolynomialElement)
     assert len(gens) == 2
-    super(BivariatePolynomialRing, s).__init__()
     s.field = field
     s.gen_names = gens
-    s.element_class = BivariatePolynomialElement
 
   def gens(s):
     ret = []
@@ -38,10 +38,9 @@ class BivariatePolynomialRing(object):
     return '%s(%r)' % (s.__class__.__name__, s.field)
 
 
-class BivariatePolynomialElement(object):
+class BivariatePolynomialElement(RingElement):
   def __init__(s, poly_ring, args):
-    super(BivariatePolynomialElement, s).__init__()
-    s.ring = poly_ring
+    RingElement.__init__(s, poly_ring, args)
     if isinstance(args, BivariatePolynomialElement):
       s.coeffs = args.coeffs
     else:
@@ -62,34 +61,6 @@ class BivariatePolynomialElement(object):
       return BivariatePolynomialElement(s.ring, ret)
     else:
       return BivariatePolynomialElement(s.ring, [[s.coeffs[0][0] + rhs] + s.coeffs[0][1:]] + s.coeffs[1:])
-
-  def __divmod__(s, rhs):
-    assert rhs != 0
-    if isinstance(rhs, BivariatePolynomialElement):
-      assert len(rhs.coeffs) == 1, 'Only support (x/y polynomial) / (x only polynomial)'
-      q = 0
-      r = BivariatePolynomialElement(s.ring, s)
-      d = rhs.degree()
-      c = rhs[-1]
-      x, y = s.ring.gens()
-      while r.degree() >= d:
-        t = BivariatePolynomialElement(s.ring, [r[-1] / c])
-        q = q + t
-        r = r - t * rhs
-      return q, r
-    else:
-      q = BivariatePolynomialElement(s.ring, map(lambda y: map(lambda x: x / rhs, y), s.coeffs))
-      r = BivariatePolynomialElement(s.ring, map(lambda y: map(lambda x: x % rhs, y), s.coeffs))
-      return q, r
-
-  def __div__(s, rhs):
-    return divmod(s, rhs)[0]
-
-  def __truediv__(s, rhs):
-    return s.__div__(rhs)
-
-  def __floordiv__(s, rhs):
-    return s.__div__(rhs)
 
   def __eq__(s, rhs):
     if isinstance(rhs, BivariatePolynomialElement):
@@ -174,12 +145,6 @@ class BivariatePolynomialElement(object):
       return s + lhs
     else:
       return BivariatePolynomialElement(s.ring, [[lhs + s.coeffs[0][0]] + s.coeffs[0][1:]] + s.coeffs[1:])
-
-  def __repr__(s):
-    return "%s(%r)" % (s.__class__.__name__, s.coeffs)
-
-  def __rmul__(s, lhs):
-    return s * lhs
 
   def __rsub__(s, lhs):
     return lhs + (-1*s)
