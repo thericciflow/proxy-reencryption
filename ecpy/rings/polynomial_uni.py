@@ -1,9 +1,10 @@
 from copy import deepcopy
 from ecpy.fields import QQ
 from ecpy.utils import memoize
+from .Ring import Ring, RingElement
 from six.moves import map, xrange, zip_longest
 
-class UnivariatePolynomialRing(object):
+class UnivariatePolynomialRing(Ring):
   '''
   Univariate Polynomial Ring
   '''
@@ -12,10 +13,9 @@ class UnivariatePolynomialRing(object):
     Args:
       field : A base field class
     '''
-    super(UnivariatePolynomialRing, s).__init__()
+    Ring.__init__(s, UnivariatePolynomialElement)
     s.field = field
     s.gen_name = gen
-    s.element_class = UnivariatePolynomialElement
 
   def gen(s):
     return s.element_class(s, 0, 1) # x
@@ -23,21 +23,43 @@ class UnivariatePolynomialRing(object):
   def __str__(s):
     return 'Univariate Polynomial Ring over %s' % s.field
 
-  def __repr__(s):
-    return '%s(%r)' % (s.__class__.__name__, s.field)
+  def _add(s, A, B):
+    if len(A) == 1:
+      return s.element_class(s, [A + B[0]] + list(B[1:]))
+    elif len(B) == 1:
+      return s.element_class(s, [A[0] + B] + list(A[1:]))
+    ret = []
+    for x, y in zip_longest(A, B, fillvalue=0):
+      ret += [(x + y)]
+    return s.element_class(s, ret)
 
-  def __call__(s, *args, **kwargs):
-    return s.element_class(s, *args, **kwargs)
+  def _mul(s, A, B):
+    if len(A) == 1:
+      return s.element_class(s, map(lambda x: A[0] * x, B))
+    elif len(B) == 1:
+      return s.element_class(s, map(lambda x: x * B, A))
+    ret = [0]*(len(A)+len(B) - 1)
+    for x, y in enumerate(A):
+      for u, v in enumerate(B):
+        ret[x + u] += y * v
+    return s.element_class(s, ret)
+
+  def _neg(s, A):
+    return s.element_class(s, map(lambda x: -x, A))
+
+  def _equ(s, A, B):
+    if len(A) == 1 and len(B) == 1:
+      return A[0] == B[0]
+    return all([x == y for x, y in zip(A, B)])
 
 
 
-class UnivariatePolynomialElement(object):
+class UnivariatePolynomialElement(RingElement):
   def __init__(s, poly_ring, *args):
     """
     coeffs = [x^0, x^1, x^2, ... degree's coefficient]
     """
-    super(UnivariatePolynomialElement, s).__init__()
-    s.ring = poly_ring
+    RingElement.__init__(s, poly_ring, args)
     if len(args) == 1:
       v = args[0]
       if isinstance(v, UnivariatePolynomialElement):
@@ -50,17 +72,6 @@ class UnivariatePolynomialElement(object):
       s.coeffs = args
     s.trim()
     s.coeffs = list(map(s.ring.field, s.coeffs))
-
-  def __add__(s, rhs):
-    if isinstance(rhs, UnivariatePolynomialElement):
-      A = deepcopy(s.coeffs)
-      B = rhs.coeffs
-      ret = []
-      for x, y in zip_longest(A, B, fillvalue=0):
-        ret += [(x + y)]
-      return UnivariatePolynomialElement(s.ring, ret)
-    else:
-      return UnivariatePolynomialElement(s.ring, [s.coeffs[0] + rhs] + s.coeffs[1:])
 
   def __divmod__(s, rhs):
     assert rhs != 0
@@ -92,12 +103,6 @@ class UnivariatePolynomialElement(object):
   def __floordiv__(s, rhs):
     return s.__div__(rhs)
 
-  def __eq__(s, rhs):
-    if isinstance(rhs, UnivariatePolynomialElement):
-      return all([x == y for x, y in zip(s, rhs)])
-    else:
-      return len(s.coeffs) == 1 and s[0] == rhs
-
   def __getitem__(s, idx):
     return s.coeffs[idx]
 
@@ -106,33 +111,6 @@ class UnivariatePolynomialElement(object):
 
   def __len__(s):
     return len(s.coeffs)
-
-  def __mul__(s, rhs):
-    if isinstance(rhs, UnivariatePolynomialElement):
-      if rhs.apply(1) * s.apply(1) == 0:
-        return UnivariatePolynomialElement(s.ring, 0)
-      if rhs.degree() == 0:
-        return s * rhs[0]
-      elif s.degree() == 0:
-        return rhs * s[0]
-      if s.apply(0) == 0 and s.apply(1) == 1:
-        return rhs.shift(s.degree())
-      elif rhs.apply(0) == 0 and rhs.apply(1) == 1:
-        return s.shift(rhs.degree())
-      else:
-        ret = [0]*(len(s)+len(rhs) - 1)
-        for x, y in enumerate(s.coeffs):
-          for u, v in enumerate(rhs.coeffs):
-            ret[x + u] += y * v
-        return UnivariatePolynomialElement(s.ring, ret)
-    else:
-      return UnivariatePolynomialElement(s.ring, map(lambda x: rhs * x, s.coeffs))
-
-  def __ne__(s, rhs):
-    return not (s == rhs)
-
-  def __neg__(s):
-    return UnivariatePolynomialElement(s.ring, map(lambda x: -x, s.coeffs))
 
   def __mod__(s, rhs):
     return divmod(s, rhs)[1]
@@ -165,21 +143,6 @@ class UnivariatePolynomialElement(object):
           res.trim()
     return res
 
-  def __radd__(s, lhs):
-    if isinstance(lhs, UnivariatePolynomialElement):
-      return s + lhs
-    else:
-      return UnivariatePolynomialElement(s.ring, [s.coeffs[0] + lhs] + s.coeffs[1:])
-
-  def __repr__(s):
-    return "%s(%r)" % (s.__class__.__name__, s.coeffs)
-
-  def __rmul__(s, lhs):
-    return s * lhs
-
-  def __rsub__(s, lhs):
-    return lhs + (-1*s)
-
   def __str__(s):
     if len(s.coeffs) == 0:
       return "0"
@@ -202,9 +165,6 @@ class UnivariatePolynomialElement(object):
     if len(res) == 0:
       return '0'
     return "+".join(res[::-1]).replace("+-", "-")
-
-  def __sub__(s, rhs):
-    return s + (-1*rhs)
 
   @memoize
   def apply(s, x0):
