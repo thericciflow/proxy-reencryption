@@ -14,6 +14,9 @@ class Ring(object):
   def _add(s, a, b):
     raise NotImplementedError()
 
+  def _mul(s, a, b):
+    raise NotImplementedError()
+
   def _neg(s, a, b):
     raise NotImplementedError()
 
@@ -41,18 +44,10 @@ class RingElement(object):
     return s.__class__(_ring, *tuple(s))
 
   def __mul__(s, rhs, mod=None):
-    from six.moves import map
-    if rhs == 0:
-      return s.__class__(s.field, 0)
-    res = s
-    d = rhs
-    while d > 0:
-      res += s
-      d -= 1
-    return res
+    return s.ring._mul(tuple(s), s._to_tuple(rhs))
 
   def __rmul__(s, lhs):
-    return s * lhs
+    return s.ring._mul(s._to_tuple(lhs), tuple(s))
 
   def __getitem__(s, idx):
     return s._to_tuple(s)[idx]
@@ -78,8 +73,8 @@ class RingElement(object):
   def __radd__(s, lhs):
     return s.ring._add(s._to_tuple(lhs), tuple(s))
 
-  def __radd__(s, lhs):
-    return s.ring._add(s._to_tuple(lhs), tuple(s))
+  def __rsub__(s, lhs):
+    return s.ring._add(s._to_tuple(-rhs), tuple(s))
 
   def __ne__(s, rhs):
     return not (s == rhs)

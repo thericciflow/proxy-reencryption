@@ -31,11 +31,53 @@ class BivariatePolynomialRing(Ring):
     ret += [s.element_class(s, [[0], [1]])]
     return ret
 
+  def _add(s, A, B):
+    # A + B
+    if len(A) == 1 and len(A[0]) == 1:
+      A = A[0][0]
+      return s.element_class(s, [[A + B[0][0]] + B[0][1:]] + list(B[1:]))
+    elif len(B) == 1 and len(B[0]) == 1:
+      B = B[0][0]
+      return s.element_class(s, [[A[0][0] + B] + A[0][1:]] + list(A[1:]))
+    ret = []
+    for x, y in zip_longest(A, B, fillvalue=[0]):
+      t = []
+      for xs, ys in zip_longest(x, y, fillvalue=0):
+        t += [xs + ys]
+      ret += [t]
+    return s.element_class(s, ret)
+
+  def _mul(s, A, B):
+    if len(A) == 1 and len(A[0]) == 1:
+      A = A[0][0]
+      return s.element_class(s, map(lambda y: map(lambda x: A * x, y), B))
+    elif len(B) == 1 and len(B[0]) == 1:
+      B = B[0][0]
+      return s.element_class(s, map(lambda y: map(lambda x: x * B, y), A))
+    deg_total_1 = max([len(X) + len(Y) - 1 for X, Y in itertools.product(A, B)])
+    deg_total_2 = len(list(itertools.product(A, B)))
+    ret = [[0] * deg_total_1 for _ in xrange(deg_total_2)]
+    deg1 = 0
+    for X in A:
+      deg2 = 0
+      for Y in B:
+        for x, y in enumerate(X):
+          for u, v in enumerate(Y):
+            ret[deg1 + deg2][x + u] += y * v
+        deg2 += 1
+      deg1 += 1
+    return s.element_class(s, ret)
+
+  def _neg(s, A):
+    return s.element_class(s, map(lambda y: map(lambda x: -x, y), A))
+
+  def _equ(s, A, B):
+    if len(A) == 1 and len(A[0]) == 1 and len(B) == 1 and len(B[0]) == 1:
+      return A[0][0] == B[0][0]
+    return all([all([s == t for s, t in zip_longest(x, y, fillvalue=0)]) for x, y in zip(A, B)])
+
   def __str__(s):
     return 'Bivariate Polynomial Ring over %s' % s.field
-
-  def __repr__(s):
-    return '%s(%r)' % (s.__class__.__name__, s.field)
 
 
 class BivariatePolynomialElement(RingElement):
@@ -48,26 +90,6 @@ class BivariatePolynomialElement(RingElement):
     s.trim()
     s.coeffs = list(map(lambda y: list(map(s.ring.field, y)), s.coeffs))
 
-  def __add__(s, rhs):
-    if isinstance(rhs, BivariatePolynomialElement):
-      A = list(s.coeffs)
-      B = list(rhs.coeffs)
-      ret = []
-      for x, y in zip_longest(A, B, fillvalue=[0]):
-        t = []
-        for xs, ys in zip_longest(x, y, fillvalue=0):
-          t += [xs + ys]
-        ret += [t]
-      return BivariatePolynomialElement(s.ring, ret)
-    else:
-      return BivariatePolynomialElement(s.ring, [[s.coeffs[0][0] + rhs] + s.coeffs[0][1:]] + s.coeffs[1:])
-
-  def __eq__(s, rhs):
-    if isinstance(rhs, BivariatePolynomialElement):
-      return all([x == y for x, y in zip(s, rhs)])
-    else:
-      return len(s.coeffs) == 1 and s[0] == rhs
-
   def __getitem__(s, idx):
     return s.coeffs[idx]
 
@@ -77,44 +99,9 @@ class BivariatePolynomialElement(RingElement):
   def __len__(s):
     return len(s.coeffs)
 
-  def __mul__(s, rhs):
-    if isinstance(rhs, BivariatePolynomialElement):
-      if rhs.degree() == 0:
-        return s * rhs[0][0]
-      elif s.degree() == 0:
-        return rhs * s[0][0]
-      else:
-        PR = UnivariatePolynomialRing(s.ring.field)
-        A = s.coeffs
-        B = rhs.coeffs
-        deg_total_1 = max([len(X) + len(Y) - 1 for X, Y in itertools.product(A, B)])
-        deg_total_2 = len(list(itertools.product(A, B)))
-        ret = [[0] * deg_total_1 for _ in xrange(deg_total_2)]
-        deg1 = 0
-        for X in A:
-          deg2 = 0
-          for Y in B:
-            for x, y in enumerate(X):
-              for u, v in enumerate(Y):
-                ret[deg1 + deg2][x + u] += y * v
-            deg2 += 1
-          deg1 += 1
-        return BivariatePolynomialElement(s.ring, ret)
-    else:
-      return BivariatePolynomialElement(s.ring, map(lambda y: map(lambda x: rhs * x, y), s.coeffs))
-
-  def __ne__(s, rhs):
-    return not (s == rhs)
-
-  def __neg__(s):
-    return BivariatePolynomialElement(s.ring, map(lambda y: map(lambda x: -x, y), s.coeffs))
-
-  def __mod__(s, rhs):
-    return divmod(s, rhs)[1]
-
   def __pow__(s, rhs, mod=0):
     if rhs == 0:
-      return BivariatePolynomialElement(s.ring, [[1]])
+      return s.__class__(s.ring, [[1]])
     d = rhs
     if d < 0:
       x = 1 / s
@@ -125,7 +112,7 @@ class BivariatePolynomialElement(RingElement):
     if bits[0]:
       res = x
     else:
-      res = BivariatePolynomialElement(s.ring, [[1]])
+      res = s.__class__(s.ring, [[1]])
     b = 0
     for cur in bits[1:]:
       b += 1
@@ -139,15 +126,6 @@ class BivariatePolynomialElement(RingElement):
           res %= mod
           res.trim()
     return res
-
-  def __radd__(s, lhs):
-    if isinstance(lhs, BivariatePolynomialElement):
-      return s + lhs
-    else:
-      return BivariatePolynomialElement(s.ring, [[lhs + s.coeffs[0][0]] + s.coeffs[0][1:]] + s.coeffs[1:])
-
-  def __rsub__(s, lhs):
-    return lhs + (-1*s)
 
   def __str__(s):
     if len(s.coeffs) == 0:
@@ -188,9 +166,6 @@ class BivariatePolynomialElement(RingElement):
     if len(res) == 0:
       return '0'
     return "+".join(res).replace("+-", "-")
-
-  def __sub__(s, rhs):
-    return s + (-rhs)
 
   @memoize
   def apply(s, x0, y0):
@@ -240,3 +215,11 @@ class BivariatePolynomialElement(RingElement):
 
   def __hash__(s):
     return hash(''.join(map(str, s.coeffs)) + str(s.ring))
+
+  def _to_tuple(s, d):
+    if isinstance(d, s.__class__):
+      return tuple(d)
+    elif isinstance(d, tuple):
+      return d
+    else:
+      return ((d, ), )

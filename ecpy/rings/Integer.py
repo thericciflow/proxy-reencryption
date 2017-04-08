@@ -1,8 +1,8 @@
-from .Ring import Ring, RingElement
+from .CommutativeRing import CommutativeRing, CommutativeRingElement
 
-class Integer(Ring):
+class Integer(CommutativeRing):
   def __init__(s):
-    Ring.__init__(s, IntegerElement)
+    CommutativeRing.__init__(s, IntegerElement)
 
   def _add(s, a, b):
     return a[0] + b[0]
@@ -13,9 +13,9 @@ class Integer(Ring):
   def _equ(s, a, b):
     return len(a) == len(b) == 1 and a[0] == b[0]
 
-class IntegerElement(RingElement):
+class IntegerElement(CommutativeRingElement):
   def __init__(s, ring, x):
-    RingElement.__init__(s, ring, x)
+    CommutativeRingElement.__init__(s, ring, x)
 
   def __mul__(s, rhs, mod=None):
     import six
