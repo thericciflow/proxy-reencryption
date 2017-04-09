@@ -36,8 +36,6 @@ class Ring(object):
 class RingElement(object):
   def __init__(s, ring, x):
     s.ring = ring
-    if isinstance(x, RingElement):
-      x = x.x
     s.x = x
 
   def change_ring(s, _ring):
@@ -83,7 +81,7 @@ class RingElement(object):
     return s.ring._equ(tuple(s), s._to_tuple(rhs))
 
   def __repr__(s):
-    return "%r(%s)" % (s.group, s.x)
+    return "%r(%s)" % (s.ring, s.x)
 
   def __str__(s):
     return "%s" % s.x

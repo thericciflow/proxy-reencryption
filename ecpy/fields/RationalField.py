@@ -50,8 +50,8 @@ class RationalFieldElement(FieldElement):
       raise TypeError("Invalid Argument: '%s'" % args)
     super(RationalFieldElement, s).__init__(field, p)
     s.y = q
-    s.p = p / gcd(p, q)
-    s.q = q / gcd(p, q)
+    s.p = int(p) / gcd(p, q)
+    s.q = int(q) / gcd(p, q)
 
   def int(s):
     return int(s.real())

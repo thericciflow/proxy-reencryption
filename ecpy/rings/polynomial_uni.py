@@ -24,9 +24,9 @@ class UnivariatePolynomialRing(Ring):
 
   def _add(s, A, B):
     if len(A) == 1:
-      return s.element_class(s, [A + B[0]] + list(B[1:]))
+      return s.element_class(s, [A[0] + B[0]] + list(B[1:]))
     elif len(B) == 1:
-      return s.element_class(s, [A[0] + B] + list(A[1:]))
+      return s.element_class(s, [A[0] + B[0]] + list(A[1:]))
     ret = []
     for x, y in zip_longest(A, B, fillvalue=0):
       ret += [(x + y)]
@@ -36,7 +36,7 @@ class UnivariatePolynomialRing(Ring):
     if len(A) == 1:
       return s.element_class(s, map(lambda x: A[0] * x, B))
     elif len(B) == 1:
-      return s.element_class(s, map(lambda x: x * B, A))
+      return s.element_class(s, map(lambda x: x * B[0], A))
     ret = [0]*(len(A)+len(B) - 1)
     for x, y in enumerate(A):
       for u, v in enumerate(B):
@@ -66,11 +66,16 @@ class UnivariatePolynomialElement(RingElement):
       elif hasattr(v, "__iter__"):
         s.coeffs = list(v)
       else:
-        s.coeffs = [v + 0]
+        s.coeffs = [v]
     else:
       s.coeffs = args
     s.trim()
     s.coeffs = list(map(s.ring.field, s.coeffs))
+
+  def __rdivmod__(s, lhs):
+    if not isinstance(lhs, UnivariatePolynomialElement):
+      lhs = s.__class__(s.ring, lhs)
+    return divmod(lhs, s)
 
   def __divmod__(s, rhs):
     assert rhs != 0
@@ -113,6 +118,9 @@ class UnivariatePolynomialElement(RingElement):
 
   def __mod__(s, rhs):
     return divmod(s, rhs)[1]
+
+  def __rmod__(s, lhs):
+    return divmod(lhs, s)[1]
 
   def __pow__(s, rhs, mod=0):
     if rhs == 0:

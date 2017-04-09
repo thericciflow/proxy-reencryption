@@ -324,6 +324,27 @@ def test():
 
   QR = QuotientRing(ZZ, 5)
   print(QR)
+  x = QR(3)
+  y = QR(7)
+  assert_eq(x, 3, '3 mod 5')
+  assert_eq(y, 2, '7 mod 5')
+  assert_eq(x + y, 0, 'x+y')
+  assert_eq(x - y, 1, 'x-y')
+  assert_eq(x * y, 1, 'x*y')
+  assert_eq(x / y, 4, 'x/y')
+
+  PR = UnivariatePolynomialRing(ZZ)
+  x = PR.gen()
+  QR = QuotientRing(PR, x**2 + 1)
+  print(QR)
+  a = QR(1)
+  b = QR(x)
+  assert_eq(a, 1, 'a')
+  assert_eq(b, x, 'b')
+  assert_eq(a+b, x+1, 'a+b')
+  assert_eq(a*b, x, 'a*b')
+  assert_eq(b*b, -1, 'b^2')
+  assert_eq(b*b + a, 0, 'b^2 + a')
 
   print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count))
