@@ -4,7 +4,7 @@ from .Field import Field, FieldElement
 
 class Zmod(Field):
   def __init__(s, n):
-    s.element_class = ZmodElement
+    Field.__init__(s, ZmodElement)
     s.n = n
 
   def __repr__(s):
@@ -46,11 +46,11 @@ class Zmod(Field):
 
 class ZmodElement(FieldElement):
   def __init__(s, field, x):
+    FieldElement.__init__(s, field, x)
     if isinstance(x, s.__class__):
       x = x.x % (field.n)
     else:
       x = x % (field.n)
-    s.group = s.field = field
     s.x = x
 
   def __repr__(s):

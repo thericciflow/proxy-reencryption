@@ -3,7 +3,6 @@ from .polynomial_uni import UnivariatePolynomialRing
 from .Ring import Ring, RingElement
 from six.moves import map, xrange, zip_longest
 from ecpy.utils import memoize
-from ecpy.fields import QQ
 from copy import deepcopy
 import itertools
 

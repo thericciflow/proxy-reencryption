@@ -1,5 +1,4 @@
 from copy import deepcopy
-from ecpy.fields import QQ
 from ecpy.utils import memoize
 from .Ring import Ring, RingElement
 from six.moves import map, xrange, zip_longest

@@ -1,11 +1,12 @@
 from ecpy.utils import is_prime, modinv
 from .FiniteField import FiniteField
+from .Field import Field, FieldElement
 from .Zmod import Zmod, ZmodElement
 
 class ExtendedFiniteField(FiniteField):
   def __init__(s, p, poly="x^2+1"):
+    Field.__init__(s, ExtendedFiniteFieldElement)
     s.p = s.n = p
-    s.element_class = ExtendedFiniteFieldElement
     if poly == "x^2+1":
       assert p % 4 == 3
       s.t = 1
@@ -80,9 +81,9 @@ class ExtendedFiniteField(FiniteField):
 
 class ExtendedFiniteFieldElement(ZmodElement):
   def __init__(s, field, x, y=0):
+    FieldElement.__init__(s, field, x)
     if isinstance(x, s.__class__):
       x, y = x.x, x.y
-    s.group = s.field = field
     s.x = x % s.field.p
     s.y = y % s.field.p
 

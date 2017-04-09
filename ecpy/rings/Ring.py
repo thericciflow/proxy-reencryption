@@ -35,7 +35,7 @@ class Ring(object):
 
 class RingElement(object):
   def __init__(s, ring, x):
-    s.group = s.ring = ring
+    s.ring = ring
     if isinstance(x, RingElement):
       x = x.x
     s.x = x

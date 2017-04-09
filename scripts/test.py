@@ -322,6 +322,9 @@ def test():
   assert_eq(x-y, -330236977, 'Integer Subtract')
   assert_eq(x*y, 12723420444339690338, 'Integer Multiplication')
 
+  QR = QuotientRing(ZZ, 5)
+  print(QR)
+
   print("[+] %d Test(s) finished. %d Test(s) success, %d Test(s) fail." % (
       ac_count + wa_count, ac_count, wa_count))
   sys.exit(wa_count)

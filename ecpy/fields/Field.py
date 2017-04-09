@@ -1,27 +1,8 @@
-class Field(object):
+from ..rings.CommutativeRing import CommutativeRing, CommutativeRingElement 
+
+class Field(CommutativeRing):
   def __init__(s, element_class):
-    s.element_class = element_class
-
-  def __repr__(s):
-    return "%s()" % s.__class__.__name__
-
-  def __str__(s):
-    return s.__class__.__name__
-
-  def __call__(s, *x):
-    return s.element_class(s, *x)
-
-  def _add(s, a, b):
-    raise NotImplementedError()
-
-  def _neg(s, a, b):
-    raise NotImplementedError()
-
-  def _equ(s, a, b):
-    raise NotImplementedError()
-
-  def _mul(s, a, b):
-    raise NotImplementedError()
+    CommutativeRing.__init__(s, element_class)
 
   def _inv(s, a):
     raise NotImplementedError()
@@ -32,20 +13,10 @@ class Field(object):
   def _div(s, a, b):
     return s._mul(a, (s._inv(b)))
 
-  def order(s):
-    return 0
-
-  def _ord(s, a):
-    return 0
-
-
-  def degree(s):
-    return 1
-
-
-class FieldElement(object):
+class FieldElement(CommutativeRingElement):
   def __init__(s, field, x):
-    s.group = s.field = field
+    CommutativeRingElement.__init__(s, field, x)
+    s.field = field
     if isinstance(x, FieldElement):
       x = x.x
     s.x = x
@@ -110,52 +81,14 @@ class FieldElement(object):
   def __rmul__(s, lhs):
     return s * lhs
 
-  def __getitem__(s, idx):
-    return s._to_tuple(s)[idx]
-
-  def __len__(s):
-    return 1
-
-  def order(s):
-    return s.group._ord(tuple(s))
-
   def int(s):
     return int(s.x)
-
-  def __add__(s, rhs):
-    return s.group._add(tuple(s), s._to_tuple(rhs))
-
-  def __sub__(s, rhs):
-    return s.group._add(tuple(s), s._to_tuple(-rhs))
-
-  def __neg__(s):
-    return s.group._neg(tuple(s))
-
-  def __radd__(s, lhs):
-    return s + lhs
-
-  def __rsub__(s, lhs):
-    return -s + lhs
 
   def __ne__(s, rhs):
     return not (s == rhs)
 
   def __eq__(s, rhs):
-    return s.group._equ(tuple(s), s._to_tuple(rhs))
-
-  def __repr__(s):
-    return "%r(%s)" % (s.group, s.x)
-
-  def __str__(s):
-    return "%s" % s.x
-
-  def _to_tuple(s, d):
-    if isinstance(d, s.__class__):
-      return tuple(d)
-    elif isinstance(d, tuple):
-      return d
-    else:
-      return (d, )
+    return s.field._equ(tuple(s), s._to_tuple(rhs))
 
   def __iter__(s):
     return (s.x, ).__iter__()
