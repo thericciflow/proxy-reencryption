@@ -41,6 +41,12 @@ class QuotientRingElement(RingElement):
     y = s._lift(rhs)
     return s.__class__(s.ring, x * y)
 
+  def __truediv__(s, rhs):
+    return s.__div__(rhs)
+
+  def __floordiv__(s, rhs):
+    return s.__div__(rhs)
+
   def __div__(s, rhs):
     from ecpy.utils import egcd
     x = s.x
