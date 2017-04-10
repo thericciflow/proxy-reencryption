@@ -129,11 +129,56 @@ def schoof(F, E):
   return q + 1 - t
 
 
+class ECPoly(BivariatePolynomialRing):
+  def __init__(s, E):
+    from ecpy.elliptic_curve.EllipticCurve import FiniteFieldEllipticCurve
+    from ecpy.rings.polynomial_multi import BivariatePolynomialElement
+    assert isinstance(E, FiniteFieldEllipticCurve)
+    s.field = E.field
+    BivariatePolynomialRing.__init__(s, s.field, ['x', 'y'])
+    s.element_class = BivariatePolynomialElement
+    s.PR = BivariatePolynomialRing(s.field, ['xs', 'ys'])
+    xs, ys = s.PR.gens()
+    s.curve_poly = xs**3 + E.a * xs + E.b
+
+  def y2_reduce(s, pol):
+    '''
+    Reduce `pol` modulo (y^2 - Fx)
+      <=> pol over F_q[x, y] / (y^2 - Fx)
+    '''
+    x, y = s.gens()
+    xs, ys = s.PR.gens()
+    pol = s.PR(tuple(pol))
+    if pol.degree() < 2:
+      return pol
+    assert all([len(t) == 1 and t[0] == 0 for t in pol[1::2]])
+    for i in xrange(1, (len(pol) - 1) // 2 + 1):
+      y2 = (sum(map(lambda t: xs**t[0] * t[1], enumerate(pol[2 * i]))))
+      pol = pol - (ys**(2*i) * y2)  + (y2 * s.curve_poly ** i)
+    return pol
+
+  def _add(s, A, B):
+    res = BivariatePolynomialRing._add(s, A, B)
+    return s.element_class(s, s.y2_reduce(res))
+
+  def _mul(s, A, B):
+    res = BivariatePolynomialRing._mul(s, A, B)
+    return s.element_class(s, s.y2_reduce(res))
+
+  def _equ(s, A, B):
+    A = tuple(s.y2_reduce(s.element_class(s, A)))
+    B = tuple(s.y2_reduce(s.element_class(s, B)))
+    return s.element_class(s, BivariatePolynomialRing._equ(s, A, B))
 
 
 if __name__ == '__main__':
   p = 137
   F = FiniteField(p)
   E = EllipticCurve(F, 2, 17)
+  '''
   print(schoof(F, E))
+  '''
+  EP = ECPoly(E)
+  x, y = EP.gens()
+  print(y**2 - x**3 - 2*x - 17)
 

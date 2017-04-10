@@ -34,10 +34,10 @@ class BivariatePolynomialRing(Ring):
     # A + B
     if len(A) == 1 and len(A[0]) == 1:
       A = A[0][0]
-      return s.element_class(s, [[A + B[0][0]] + B[0][1:]] + list(B[1:]))
+      return s.element_class(s, [[A + B[0][0]] + list(B[0][1:])] + list(B[1:]))
     elif len(B) == 1 and len(B[0]) == 1:
       B = B[0][0]
-      return s.element_class(s, [[A[0][0] + B] + A[0][1:]] + list(A[1:]))
+      return s.element_class(s, [[A[0][0] + B] + list(A[0][1:])] + list(A[1:]))
     ret = []
     for x, y in zip_longest(A, B, fillvalue=[0]):
       t = []
