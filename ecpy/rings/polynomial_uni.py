@@ -86,14 +86,13 @@ class UnivariatePolynomialElement(RingElement):
         r = UnivariatePolynomialElement(s.ring, map(lambda x: x % rhs[0], s.coeffs))
         return q, r
       q = UnivariatePolynomialElement(s.ring, 0)
-      r = UnivariatePolynomialElement(s.ring, s)
+      r = s
       d = rhs.degree()
       c = rhs[-1]
       while r.degree() >= d:
         t = UnivariatePolynomialElement(s.ring, [r[-1] / c]).shift(r.degree() - d)
         q = q + t
         r = r - t * rhs
-      print repr(q), repr(r)
       return q, r
     else:
       q = UnivariatePolynomialElement(s.ring, map(lambda x: x / rhs, s.coeffs))

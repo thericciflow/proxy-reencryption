@@ -18,6 +18,9 @@ class QuotientRingElement(RingElement):
     RingElement.__init__(s, ring, x)
     s.x = s.x % ring.modulo
 
+  def lift(s):
+    return s._lift(s)
+
   def _lift(s, t):
     if isinstance(t, QuotientRingElement):
       assert t.ring == s.ring
@@ -63,3 +66,8 @@ class QuotientRingElement(RingElement):
 
   def __str__(s):
     return str(s.x)
+
+  def __iter__(s):
+    if hasattr(s.x, '__iter__'):
+      return iter(s.x)
+    return RingElement.__iter__(s)

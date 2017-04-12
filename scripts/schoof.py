@@ -193,7 +193,11 @@ class ECPolyElement(BivariatePolynomialElement):
       pol = PR(pol[0])
       div = PR(div[0])
       p, q = divmod(pol, div)
-      return s.ring.element_class(s.ring, [p]), s.ring.element_class(s.ring, [q])
+      if not hasattr(p, '__iter__'):
+        p = [p]
+      if not hasattr(q, '__iter__'):
+        q = [q]
+      return s.ring.element_class(s.ring, [list(p)]), s.ring.element_class(s.ring, [list(q)])
     elif len(div) == 1:
       PR = UnivariatePolynomialRing(s.ring.field, 'xs')
       res_p = []
@@ -211,6 +215,9 @@ class ECPolyElement(BivariatePolynomialElement):
       return s.ring.element_class(s.ring, res_p), s.ring.element_class(s.ring, res_q)
 
   def __rmod__(s, lhs):
+    from ecpy.rings.QuotientRing import QuotientRingElement
+    if isinstance(lhs, QuotientRingElement) and isinstance(lhs.ring.base_ring, ECPolyElement):
+      return lhs.ring(lhs.lift() % s)
     return ECPolyElement(s.ring, lhs) % s
 
   def __mod__(s, rhs):
@@ -227,6 +234,9 @@ if __name__ == '__main__':
   EP_poly = ECPoly(E)
   x, y = EP_poly.gens()
   EP = QuotientRing(EP_poly, torsion_polynomial(5, E, x, y))
+  print(EP(x**2))
+  print(list(EP(x**2)))
+  0/0
   EK = EllipticCurve(EP, 2, 17)
   P = (EK(x**p, y**p))
   P3 = 3*P

@@ -88,7 +88,7 @@ class BivariatePolynomialElement(RingElement):
     if isinstance(args, BivariatePolynomialElement):
       s.coeffs = args.coeffs
     elif hasattr(args, '__iter__'):
-      s.coeffs = args
+      s.coeffs = list(args)
     else:
       s.coeffs = [[args]]
     s.trim()
