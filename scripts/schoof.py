@@ -214,11 +214,32 @@ class ECPolyElement(BivariatePolynomialElement):
         res_q += [list(q)]
       return s.ring.element_class(s.ring, res_p), s.ring.element_class(s.ring, res_q)
 
+  def __rtruediv__(s, lhs):
+    return s.__rdiv__(lhs)
+
+  def __rfloordiv__(s, lhs):
+    return s.__rdiv__(lhs)
+
+  def __rdiv__(s, lhs):
+    from ecpy.rings.QuotientRing import QuotientRingElement
+    if isinstance(lhs, QuotientRingElement) and isinstance(lhs.ring.base_ring, ECPolyElement):
+      return lhs.ring(lhs.lift() / s)
+    return ECPolyElement(s.ring, lhs) / s
+
   def __rmod__(s, lhs):
     from ecpy.rings.QuotientRing import QuotientRingElement
     if isinstance(lhs, QuotientRingElement) and isinstance(lhs.ring.base_ring, ECPolyElement):
       return lhs.ring(lhs.lift() % s)
     return ECPolyElement(s.ring, lhs) % s
+
+  def __truediv__(s, rhs):
+    return s.__div__(rhs)
+
+  def __floordiv__(s, rhs):
+    return s.__div__(rhs)
+
+  def __div__(s, rhs):
+    return divmod(s, rhs)[0]
 
   def __mod__(s, rhs):
     return divmod(s, rhs)[1]
@@ -233,10 +254,10 @@ if __name__ == '__main__':
   '''
   EP_poly = ECPoly(E)
   x, y = EP_poly.gens()
-  EP = QuotientRing(EP_poly, torsion_polynomial(5, E, x, y))
+  EP = QuotientRing(EP_poly, torsion_polynomial(7, E, x, y))
+  print(EP)
   EK = EllipticCurve(EP, 2, 17)
-  P = (EK(x**p, y**p))
-  P3 = 3*P
-  print(repr(P3.x == 0))
-  print(repr(P3.y == 1))
-  print(repr(P3.z == 0))
+  P = EK(x, y)
+  print(P)
+  print(2*P)
+  print(3*P)
