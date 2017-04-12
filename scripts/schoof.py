@@ -181,4 +181,3 @@ if __name__ == '__main__':
   EP = ECPoly(E)
   x, y = EP.gens()
   print(y**2 - x**3 - 2*x - 17)
-
