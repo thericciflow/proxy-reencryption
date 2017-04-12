@@ -234,9 +234,6 @@ if __name__ == '__main__':
   EP_poly = ECPoly(E)
   x, y = EP_poly.gens()
   EP = QuotientRing(EP_poly, torsion_polynomial(5, E, x, y))
-  print(EP(x**2))
-  print(list(EP(x**2)))
-  0/0
   EK = EllipticCurve(EP, 2, 17)
   P = (EK(x**p, y**p))
   P3 = 3*P
