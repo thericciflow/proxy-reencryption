@@ -75,6 +75,9 @@ class BivariatePolynomialRing(Ring):
       return A[0][0] == B[0][0]
     return all([all([s == t for s, t in zip_longest(x, y, fillvalue=0)]) for x, y in zip(A, B)])
 
+  def __repr__(s):
+    return '%s(%r, %r)' % (s.__class__.__name__, s.field, s.gen_names)
+
   def __str__(s):
     return 'Bivariate Polynomial Ring over %s' % s.field
 
@@ -84,8 +87,10 @@ class BivariatePolynomialElement(RingElement):
     RingElement.__init__(s, poly_ring, args)
     if isinstance(args, BivariatePolynomialElement):
       s.coeffs = args.coeffs
-    else:
+    elif hasattr(args, '__iter__'):
       s.coeffs = args
+    else:
+      s.coeffs = [[args]]
     s.trim()
     s.coeffs = list(map(lambda y: list(map(s.ring.field, y)), s.coeffs))
 

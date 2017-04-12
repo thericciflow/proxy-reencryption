@@ -47,9 +47,10 @@ class UnivariatePolynomialRing(Ring):
     return s.element_class(s, map(lambda x: -x, A))
 
   def _equ(s, A, B):
+    from six.moves import zip_longest
     if len(A) == 1 and len(B) == 1:
       return A[0] == B[0]
-    return all([x == y for x, y in zip(A, B)])
+    return all([x == y for x, y in zip_longest(A, B, fillvalue=0)])
 
 
 
@@ -84,7 +85,7 @@ class UnivariatePolynomialElement(RingElement):
         q = UnivariatePolynomialElement(s.ring, map(lambda x: x / rhs[0], s.coeffs))
         r = UnivariatePolynomialElement(s.ring, map(lambda x: x % rhs[0], s.coeffs))
         return q, r
-      q = 0
+      q = UnivariatePolynomialElement(s.ring, 0)
       r = UnivariatePolynomialElement(s.ring, s)
       d = rhs.degree()
       c = rhs[-1]
@@ -92,6 +93,7 @@ class UnivariatePolynomialElement(RingElement):
         t = UnivariatePolynomialElement(s.ring, [r[-1] / c]).shift(r.degree() - d)
         q = q + t
         r = r - t * rhs
+      print repr(q), repr(r)
       return q, r
     else:
       q = UnivariatePolynomialElement(s.ring, map(lambda x: x / rhs, s.coeffs))

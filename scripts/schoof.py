@@ -1,5 +1,6 @@
 from __future__ import print_function, division
 from ecpy import *
+from ecpy.rings.polynomial_multi import BivariatePolynomialElement
 import math
 import gmpy
 
@@ -136,7 +137,7 @@ class ECPoly(BivariatePolynomialRing):
     assert isinstance(E, FiniteFieldEllipticCurve)
     s.field = E.field
     BivariatePolynomialRing.__init__(s, s.field, ['x', 'y'])
-    s.element_class = BivariatePolynomialElement
+    s.element_class = ECPolyElement
     s.PR = BivariatePolynomialRing(s.field, ['xs', 'ys'])
     xs, ys = s.PR.gens()
     s.curve_poly = xs**3 + E.a * xs + E.b
@@ -151,7 +152,7 @@ class ECPoly(BivariatePolynomialRing):
     pol = s.PR(tuple(pol))
     if pol.degree() < 2:
       return pol
-    assert all([len(t) == 1 and t[0] == 0 for t in pol[1::2]])
+    #assert all([len(t) == 1 and t[0] == 0 for t in pol[1::2]])
     for i in xrange(1, (len(pol) - 1) // 2 + 1):
       y2 = (sum(map(lambda t: xs**t[0] * t[1], enumerate(pol[2 * i]))))
       pol = pol - (ys**(2*i) * y2)  + (y2 * s.curve_poly ** i)
@@ -168,7 +169,52 @@ class ECPoly(BivariatePolynomialRing):
   def _equ(s, A, B):
     A = tuple(s.y2_reduce(s.element_class(s, A)))
     B = tuple(s.y2_reduce(s.element_class(s, B)))
-    return s.element_class(s, BivariatePolynomialRing._equ(s, A, B))
+    return BivariatePolynomialRing._equ(s, A, B)
+
+class ECPolyElement(BivariatePolynomialElement):
+  def __divmod__(s, rhs):
+    pol = s
+    div = rhs
+    if all([len(t) == 1 for t in div]):
+      res = list(pol.coeffs)
+      if len(div) == 1:
+        if len(div[0]) == 1:
+          return pol.ring.element_class(pol.ring, map(lambda y: map(lambda x: x / div[0][0], y), res))
+      for i, t in enumerate(div):
+        #assert len(pol[0]) == 1 and pol[0][0] == 0
+        t = t[0]
+        if t == 0:
+          continue
+        res = res[i:]
+        res = map(lambda y: list(map(lambda x: x / t, y)), res)
+      return (s.ring.element_class(pol.ring, res), s.ring.element_class(s.ring, 0))
+    elif len(div) == len(pol) and len(pol) == 1:
+      PR = UnivariatePolynomialRing(s.ring.field, 'xs')
+      pol = PR(pol[0])
+      div = PR(div[0])
+      p, q = divmod(pol, div)
+      return s.ring.element_class(s.ring, [p]), s.ring.element_class(s.ring, [q])
+    elif len(div) == 1:
+      PR = UnivariatePolynomialRing(s.ring.field, 'xs')
+      res_p = []
+      res_q = []
+      v = PR(div[0])
+      for pol_y in pol:
+        u = PR(pol_y)
+        p, q = divmod(u, v)
+        if not hasattr(p, '__iter__'):
+          p = [p]
+        if not hasattr(q, '__iter__'):
+          q = [q]
+        res_p += [list(p)]
+        res_q += [list(q)]
+      return s.ring.element_class(s.ring, res_p), s.ring.element_class(s.ring, res_q)
+
+  def __rmod__(s, lhs):
+    return ECPolyElement(s.ring, lhs) % s
+
+  def __mod__(s, rhs):
+    return divmod(s, rhs)[1]
 
 
 if __name__ == '__main__':
@@ -178,6 +224,12 @@ if __name__ == '__main__':
   '''
   print(schoof(F, E))
   '''
-  EP = ECPoly(E)
-  x, y = EP.gens()
-  print(y**2 - x**3 - 2*x - 17)
+  EP_poly = ECPoly(E)
+  x, y = EP_poly.gens()
+  EP = QuotientRing(EP_poly, torsion_polynomial(5, E, x, y))
+  EK = EllipticCurve(EP, 2, 17)
+  P = (EK(x**p, y**p))
+  P3 = 3*P
+  print(repr(P3.x == 0))
+  print(repr(P3.y == 1))
+  print(repr(P3.z == 0))
