@@ -177,6 +177,7 @@ class ECPolyElement(BivariatePolynomialElement):
     div = rhs
     if all([len(t) == 1 for t in div]):
       res = list(pol.coeffs)
+      rem = []
       if len(div) == 1:
         if len(div[0]) == 1:
           return pol.ring.element_class(pol.ring, map(lambda y: map(lambda x: x / div[0][0], y), res))
@@ -185,9 +186,10 @@ class ECPolyElement(BivariatePolynomialElement):
         t = t[0]
         if t == 0:
           continue
+        rem += res[:i]
         res = res[i:]
         res = map(lambda y: list(map(lambda x: x / t, y)), res)
-      return (s.ring.element_class(pol.ring, res), s.ring.element_class(s.ring, 0))
+      return (s.ring.element_class(pol.ring, res), s.ring.element_class(s.ring, rem))
     elif len(div) == len(pol) and len(pol) == 1:
       PR = UnivariatePolynomialRing(s.ring.field, 'xs')
       pol = PR(pol[0])
@@ -254,10 +256,17 @@ if __name__ == '__main__':
   '''
   EP_poly = ECPoly(E)
   x, y = EP_poly.gens()
-  EP = QuotientRing(EP_poly, torsion_polynomial(7, E, x, y))
+  print(x+y)
+  print(y**2 * (x**3+1) + y*(x**2-1) + 3)
+  print((y**2 * (x**3+1) + y*(x**2-1) + 3) % y)
+  print(x+y)
+  EP = QuotientRing(EP_poly, torsion_polynomial(3, E, x, y))
   print(EP)
   EK = EllipticCurve(EP, 2, 17)
-  P = EK(x, y)
+  xs, ys = EP(x), EP(y)
+  P = EK(xs, ys)
+  print(xs)
   print(P)
   print(2*P)
   print(3*P)
+  print(4*P)
