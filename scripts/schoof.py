@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 from ecpy import *
 from ecpy.rings.polynomial_multi import BivariatePolynomialElement
+from ecpy.rings.CommutativeRing import CommutativeRing
 import math
 import gmpy
 
@@ -130,7 +131,7 @@ def schoof(F, E):
   return q + 1 - t
 
 
-class ECPoly(BivariatePolynomialRing):
+class ECPoly(BivariatePolynomialRing, CommutativeRing):
   def __init__(s, E):
     from ecpy.elliptic_curve.EllipticCurve import FiniteFieldEllipticCurve
     from ecpy.rings.polynomial_multi import BivariatePolynomialElement
@@ -167,6 +168,12 @@ class ECPoly(BivariatePolynomialRing):
     return s.element_class(s, s.y2_reduce(res))
 
   def _equ(s, A, B):
+    a_is_none = len(A) == 1 and len(A[0]) == 1 and A[0][0] is None
+    b_is_none = len(B) == 1 and len(B[0]) == 1 and B[0][0] is None
+    if a_is_none and B[0][0] is not None:
+        return False
+    if b_is_none and A[0][0] is not None:
+        return False
     A = tuple(s.y2_reduce(s.element_class(s, A)))
     B = tuple(s.y2_reduce(s.element_class(s, B)))
     return BivariatePolynomialRing._equ(s, A, B)
@@ -175,12 +182,14 @@ class ECPolyElement(BivariatePolynomialElement):
   def __divmod__(s, rhs):
     pol = s
     div = rhs
+    if s == rhs:
+      return s.__class__(s.ring, [[1]])
     if all([len(t) == 1 for t in div]):
       res = list(pol.coeffs)
       rem = []
       if len(div) == 1:
         if len(div[0]) == 1:
-          return pol.ring.element_class(pol.ring, map(lambda y: map(lambda x: x / div[0][0], y), res))
+          return pol.ring.element_class(pol.ring, map(lambda y: map(lambda x: x / div[0][0], y), res)), 0
       for i, t in enumerate(div):
         #assert len(pol[0]) == 1 and pol[0][0] == 0
         t = t[0]
@@ -241,9 +250,13 @@ class ECPolyElement(BivariatePolynomialElement):
     return s.__div__(rhs)
 
   def __div__(s, rhs):
+    if not isinstance(rhs, ECPolyElement):
+      rhs = s._to_tuple(rhs)
     return divmod(s, rhs)[0]
 
   def __mod__(s, rhs):
+    if not isinstance(rhs, ECPolyElement):
+      rhs = s._to_tuple(rhs)
     return divmod(s, rhs)[1]
 
 
@@ -260,10 +273,11 @@ if __name__ == '__main__':
   print(y**2 * (x**3+1) + y*(x**2-1) + 3)
   print((y**2 * (x**3+1) + y*(x**2-1) + 3) % y)
   print(x+y)
-  EP = QuotientRing(EP_poly, torsion_polynomial(3, E, x, y))
+  EP = FractionField(QuotientRing(EP_poly, torsion_polynomial(3, E, x, y)))
   print(EP)
   EK = EllipticCurve(EP, 2, 17)
-  xs, ys = EP(x), EP(y)
+  xs = EP(x)
+  ys = EP(y)
   P = EK(xs, ys)
   print(xs)
   print(P)
