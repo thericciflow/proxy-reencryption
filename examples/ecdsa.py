@@ -1,15 +1,9 @@
 from ecpy import EllipticCurve, FiniteField, gcd, modinv
+from ecpy import EllipticCurveRepository
 
-# secp256k1 curve
-p = 2**256 - 2**32 - 2**9 - 2**8 - 2**7 - 2**6 - 2**4 - 1
-a = 0
-b = 7
-n = 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
+F, E, G, n = EllipticCurveRepository('secp256k1')
 secret = 0xdeadbeef
 
-F = FiniteField(p)
-E = EllipticCurve(F, a, b)
-G = E(0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798, 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8)
 Q = secret * G
 
 public_info = (E, n, G)
