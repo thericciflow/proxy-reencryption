@@ -23,6 +23,8 @@ struct EC {
   template <class E>
   void sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const;
   template <class E>
+  void neg(EC_elem<E>& ret, const EC_elem<E>& a) const;
+  template <class E>
   void mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const;
   template <class E>
   bool equ(const EC_elem<E>& a, const EC_elem<E>& b) const;
@@ -179,14 +181,23 @@ void EC<T>::sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
 
 template <class T>
 template <class E>
+void EC<T>::neg(EC_elem<E>& ret, const EC_elem<E>& a) const {
+  const static E zero {0};
+  EC_elem<E> a_ { a };
+  base.sub(a_.y, zero, a_.y); // -a
+  ret = a;
+}
+
+template <class T>
+template <class E>
 void EC<T>::mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const {
   const static E zero {0};
   const static E one  {1};
   mpz_class m = b;
-  if (b < 0) {
+  if (m < 0) {
     m = -m;
-  }
-  if (m == 0) {
+    neg(ret, a);
+  } else if (m == 0) {
     ret = {zero, one, zero};
   } else if (m == 1) {
     ret = {a};
@@ -203,9 +214,6 @@ void EC<T>::mul(EC_elem<E>& ret, const EC_elem<E>& a, const mpz_class& b) const 
       m >>= 1;
     }
     ret = Q;
-  }
-  if (b < 0) {
-    base.sub(ret.y, zero, ret.y);
   }
 }
 
