@@ -128,7 +128,7 @@ void weil_pairing(E& ret, const EC<T>& curve, const EC_elem<E>& P, const EC_elem
   curve.sub(t, P, S);
   miller(fqps, curve, Q, t, m);
 
-  curve.sub(t, EC_elem<E> {0, 1, 0}, S);
+  curve.neg(t, S);
   miller(fqs, curve, Q, t, m);
 
   curve.base.mul(u, fpqs, fqs);

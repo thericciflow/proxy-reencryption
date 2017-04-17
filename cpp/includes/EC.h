@@ -173,9 +173,8 @@ void EC<T>::add(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const
 template <class T>
 template <class E>
 void EC<T>::sub(EC_elem<E>& ret, const EC_elem<E>& a, const EC_elem<E>& b) const {
-  const static E zero {0};
-  EC_elem<E> b_ { b };
-  base.sub(b_.y, zero, b_.y); // -b
+  EC_elem<E> b_ {b};
+  neg(b_, b_);
   add(ret, a, b_); // a-b
 }
 
@@ -185,7 +184,7 @@ void EC<T>::neg(EC_elem<E>& ret, const EC_elem<E>& a) const {
   const static E zero {0};
   EC_elem<E> a_ { a };
   base.sub(a_.y, zero, a_.y); // -a
-  ret = a;
+  ret = a_;
 }
 
 template <class T>
