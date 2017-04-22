@@ -46,14 +46,6 @@ def egcd(a, b):
   return (b, x, y)
 
 
-def __modinv(a, m):
-  if gcd(a, m) != 1:
-    return 0
-  if a < 0:
-    a %= m
-  return egcd(a, m)[1] % m
-
-
 def lcm(*a):
   from six.moves import reduce
   """
@@ -167,7 +159,7 @@ def is_prime(x):
   return _is_prime(x)
 
 
-def modinv(a, n):
+def modinv(a, m):
   """
   Calculate Modular Inverse.
   - Find x satisfy ax \equiv 1 \mod m
@@ -176,7 +168,11 @@ def modinv(a, n):
     a: target number
     n: modulus
   """
-  return __modinv(a, n)
+  if gcd(a, m) != 1:
+    return 0
+  if a < 0:
+    a %= m
+  return egcd(a, m)[1] % m
 
 @memoize
 def prime_factorization(n):
