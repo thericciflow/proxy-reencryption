@@ -3,14 +3,14 @@ from ecpy.utils.util import is_enable_native, _native
 from ecpy.utils import modular_square_root
 from random import randint
 
-def EllipticCurve(field, a, b):
+def EllipticCurve(field, *args, **kwargs):
   """
   Return Elliptic Curve Instance.
   """
   if isinstance(field, FiniteField):
-    return FiniteFieldEllipticCurve(field, a, b)
+    return FiniteFieldEllipticCurve(field, *args, **kwargs)
   else:
-    return GenericEllipticCurve(field, a, b)
+    return GenericEllipticCurve(field, *args, **kwargs)
 
 
 class GenericEllipticCurve(object):
@@ -40,6 +40,7 @@ class GenericEllipticCurve(object):
     """
     x = s.field(x)
     y = s.field(y)
+    z = s.field(z)
     return y * y * z == x * x * x + s.a * x * z * z + s.b * z * z * z
 
   def determinant(s):
@@ -131,7 +132,7 @@ class GenericEllipticCurvePoint(object):
   def __init__(s, group, x, y, z=1):
 
     def F(x):
-      if type(x) == tuple:
+      if isinstance(x, tuple):
         return group.field(*x)
       return group.field(x)
 
@@ -149,16 +150,6 @@ class GenericEllipticCurvePoint(object):
       Is self equals to O?
     """
     return s.inf
-
-  def order(s):
-    i = 0
-    t = s
-    while i <= s.group.field.order() ** s.group.field.degree():
-      t *= s
-      if t.is_infinity():
-        return i
-      i += 1
-    return 0
 
   def change_group(s, _group):
     return s.__class__(_group, *tuple(s))
@@ -192,11 +183,8 @@ class GenericEllipticCurvePoint(object):
 
   def __mul__(s, rhs):
     """
-    Multiple Operation Wrapper
+    Multiplication Operation
     """
-    return s.mult_binary(rhs)
-
-  def mult_binary(s, rhs):
     from six.moves import map
     d = rhs
     if d < 0:
@@ -218,33 +206,6 @@ class GenericEllipticCurvePoint(object):
         res += x
     if b == -1:
       res = -res
-    return res
-
-  def mult_m_ary(s, rhs, power=2):
-    from six.moves import xrange
-    k = s.group.field(rhs).int()
-    if k == 0:
-      return s.group.O
-    elif k == 1:
-      return s
-    elif k == 2:
-      return s + s
-    m = 2**power
-    r = k
-    expanded_k = []
-    while r != 0:
-      expanded_k = [r % m] + expanded_k
-      r //= m
-    Pi = []
-    Pi += [s.group.O]
-    for i in xrange(1, m):
-      Pi += [Pi[-1] + s]
-    res = s.group.O
-    for x in expanded_k:
-      for _ in xrange(power):
-        res = res + res
-      if x != 0:
-        res += Pi[x]
     return res
 
   def __neg__(s):
