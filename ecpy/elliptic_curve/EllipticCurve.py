@@ -339,7 +339,7 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     if is_enable_native:
       s.__mul_method__ = s._mul_native
     else:
-      s.__mul_method__ = s._mul
+      s.__mul_method__ = super(FiniteFieldEllipticCurvePoint, s).__mul__
 
   def _mul_native(s, rhs):
     P = tuple(s)
@@ -349,9 +349,6 @@ class FiniteFieldEllipticCurvePoint(GenericEllipticCurvePoint):
     s.group.ec.mul(R, P, m)
     R = FiniteFieldEllipticCurvePoint(s.group, *R.to_python(), normalize=True)
     return R
-
-  def _mul(s, rhs):
-      return s.mult_binary(rhs)
 
   def __mul__(s, rhs):
     return s.__mul_method__(rhs)
