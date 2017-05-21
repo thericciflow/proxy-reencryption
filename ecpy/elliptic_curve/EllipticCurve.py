@@ -12,6 +12,22 @@ def EllipticCurve(field, *args, **kwargs):
   else:
     return GenericEllipticCurve(field, *args, **kwargs)
 
+def EC_from_j_invariant(field, j0):
+  """
+  Return Elliptic Curve Instance which has j-invariant is `j0`.
+  """
+  assert isinstance(field, FiniteField)
+  R = randint(1, field.n)
+  if j0 == 0:
+    return FiniteFieldEllipticCurve(field, 0, R)
+  if j0 == 1728:
+    return FiniteFieldEllipticCurve(field, R, 0)
+  ADR = 3 * j0 * R**2
+  BDR = 2 * j0 * R**3
+  u = 1728 - j0
+  uinv = 1/field(u)
+  return FiniteFieldEllipticCurve(field, ADR * uinv, BDR * uinv)
+
 
 class GenericEllipticCurve(object):
   """
