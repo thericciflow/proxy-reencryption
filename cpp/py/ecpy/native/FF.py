@@ -1,20 +1,9 @@
 from .library import *
 
-class FF(object):
+class FF(NativeProxy):
   def __init__(s, p):
     s.p = p
-    s.ptr = lib.FF_create(c_char_p(str(p).encode('us-ascii')))
-
-  def __to_string(s, bufsize):
-    b = create_string_buffer(bufsize)
-    lib.FF_to_string(s.ptr, b, bufsize)
-    b = b.value
-    if len(b) == 0: # not enough buffer size
-      return s.__to_string(2*bufsize)
-    return b
-
-  def __str__(s):
-    return str(s.__to_string(1024).decode('us-ascii'))
+    NativeProxy.__init__(s, lib.FF_create(c_char_p(str(p).encode('us-ascii'))), lib.FF_to_string, lib.FF_delete)
 
   def add(s, ret, a, b):
     assert isinstance(ret, FF_elem) and isinstance(a, FF_elem) and isinstance(b, FF_elem)
@@ -36,27 +25,10 @@ class FF(object):
     assert isinstance(ret, FF_elem) and isinstance(a, FF_elem)
     lib.FF_pow(s.ptr, ret.ptr, a.ptr, c_char_p(str(b).encode('us-ascii')))
 
-  def __del__(s):
-    lib.FF_delete(s.ptr)
-
-class FF_elem(object):
+class FF_elem(NativeProxy):
   def __init__(s, v):
-    s.ptr = lib.FF_elem_create(c_char_p(str(v).encode('us-ascii')))
     s.v = v
-
-  def __to_string(s, bufsize):
-    b = create_string_buffer(bufsize)
-    lib.FF_elem_to_string(s.ptr, b, bufsize)
-    b = b.value
-    if len(b) == 0: # not enough buffer size
-      return s.__to_string(2*bufsize)
-    return b
-
-  def __str__(s):
-    return str(s.__to_string(1024).decode('us-ascii'))
+    NativeProxy.__init__(s, lib.FF_elem_create(c_char_p(str(v).encode('us-ascii'))), lib.FF_elem_to_string, lib.FF_elem_delete)
 
   def to_python(s):
     return int(str(s))
-
-  def __del__(s):
-    lib.FF_elem_delete(s.ptr)

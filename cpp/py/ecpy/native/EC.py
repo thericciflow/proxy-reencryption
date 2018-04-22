@@ -3,56 +3,40 @@ from .FF import FF, FF_elem
 from .EF import EF, EF_elem
 import ast
 
-class EC(object):
+class EC(NativeProxy):
   def __init__(s, base, a, b):
     s.base = base
     s.a = a
     s.b = b
     if isinstance(base, FF):
-      s.ptr = lib.EC_FF_create(to_char_ptr(str(a)), to_char_ptr(str(b)), base.ptr)
+      ptr = lib.EC_FF_create(to_char_ptr(str(a)), to_char_ptr(str(b)), base.ptr)
+      tostring_func = lib.EC_FF_to_string
+      del_func = lib.EC_FF_delete
+      s.add_func = lib.EC_FF_add
+      s.sub_func = lib.EC_FF_sub
+      s.mul_func = lib.EC_FF_mul
       s.type = 1
     elif isinstance(base, EF):
-      s.ptr = lib.EC_EF_create(to_char_ptr(str(a)), to_char_ptr(str(b)), base.ptr, to_char_ptr(base.poly))
+      ptr = lib.EC_EF_create(to_char_ptr(str(a)), to_char_ptr(str(b)), base.ptr, to_char_ptr(base.poly))
+      tostring_func = lib.EC_EF_to_string
+      del_func = lib.EC_EF_delete
+      s.add_func = lib.EC_EF_add
+      s.sub_func = lib.EC_EF_sub
+      s.mul_func = lib.EC_EF_mul
       s.type = 2
-
-  def __to_string(s, bufsize):
-    b = create_string_buffer(bufsize)
-    cond = {
-        1 : lib.EC_FF_to_string,
-        2 : lib.EC_EF_to_string
-    }
-    cond[s.type](s.ptr, b, bufsize)
-    b = b.value
-    if len(b) == 0: # not enough buffer size
-      return s.__to_string(2*bufsize)
-    return b
-
-  def __str__(s):
-    return s.__to_string(1024).decode('us-ascii')
+    NativeProxy.__init__(s, ptr, tostring_func, del_func)
 
   def add(s, ret, a, b):
     assert isinstance(ret, EC_elem) and isinstance(a, EC_elem) and isinstance(b, EC_elem)
-    cond = {
-        1 : lib.EC_FF_add,
-        2 : lib.EC_EF_add
-    }
-    cond[s.type](s.ptr, ret.ptr, a.ptr, b.ptr)
+    s.add_func(s.ptr, ret.ptr, a.ptr, b.ptr)
 
   def sub(s, ret, a, b):
     assert isinstance(ret, EC_elem) and isinstance(a, EC_elem) and isinstance(b, EC_elem)
-    cond = {
-        1 : lib.EC_FF_sub,
-        2 : lib.EC_EF_sub
-    }
-    cond[s.type](s.ptr, ret.ptr, a.ptr, b.ptr)
+    s.sub_func(s.ptr, ret.ptr, a.ptr, b.ptr)
 
   def mul(s, ret, a, b):
     assert isinstance(ret, EC_elem) and isinstance(a, EC_elem)
-    cond = {
-        1 : lib.EC_FF_mul,
-        2 : lib.EC_EF_mul
-    }
-    cond[s.type](s.ptr, ret.ptr, a.ptr, to_char_ptr(str(b)))
+    s.mul_func(s.ptr, ret.ptr, a.ptr, to_char_ptr(str(b)))
 
   def div(s, ret, a, b):
     raise NotImplementedError()
@@ -60,14 +44,7 @@ class EC(object):
   def pow(s, ret, a, b):
     raise NotImplementedError()
 
-  def __del__(s):
-    cond = {
-        1 : lib.EC_FF_delete,
-        2 : lib.EC_EF_delete
-    }
-    cond[s.type](s.ptr)
-
-class EC_elem(object):
+class EC_elem(NativeProxy):
   def __init__(s, curve, x, y, z=1):
     from six import integer_types
     def conv(x):
@@ -94,35 +71,18 @@ class EC_elem(object):
       y = conv(y)
     if isinstance(z, integer_types + (tuple, )):
       z = conv(z)
-    cond = {
-      1 : lib.EC_elem_FF_create, 
-      2 : lib.EC_elem_EF_create, 
-    }
-    s.ptr = cond[curve.type](x.ptr, y.ptr, z.ptr)
+
+    if s.curve.type == 1:
+      ptr = lib.EC_elem_FF_create(x.ptr, y.ptr, z.ptr)
+      tostring_func = lib.EC_elem_FF_to_string
+      del_func = lib.EC_elem_FF_delete
+    elif s.curve.type == 2:
+      ptr = lib.EC_elem_EF_create(x.ptr, y.ptr, z.ptr)
+      tostring_func = lib.EC_elem_EF_to_string
+      del_func = lib.EC_elem_EF_delete
+
+    NativeProxy.__init__(s, ptr, tostring_func, del_func)
 
   def to_python(s):
     r = str(s).lstrip("EC_elem").replace("EF_elem", "").replace("FF_elem", "")
     return tuple(ast.literal_eval(r))
-
-  def __to_string(s, bufsize):
-    b = create_string_buffer(bufsize)
-    cond = {
-      1 : lib.EC_elem_FF_to_string, 
-      2 : lib.EC_elem_EF_to_string, 
-    }
-    cond[s.curve.type](s.ptr, b, bufsize)
-    b = b.value
-    if len(b) == 0: # not enough buffer size
-      return s.__to_string(2*bufsize)
-    return b
-
-  def __str__(s):
-    return str(s.__to_string(1024).decode('us-ascii'))
-
-  def __del__(s):
-    cond = {
-      1 : lib.EC_elem_FF_delete, 
-      2 : lib.EC_elem_EF_delete, 
-    }
-    cond[s.curve.type](s.ptr)
-
