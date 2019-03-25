@@ -93,5 +93,5 @@ this software released under MIT License. Please see /LICENSE.
 
 =======
 # proxy-reencryption
-Sami is the man
->>>>>>> 1919442d0d8ccb92a9a036c3332d834f6a032db1
+AFGH proxy-reencryption example in examples/afgh.py
+(A single-hop unidirectional PRE scheme using pairings)
