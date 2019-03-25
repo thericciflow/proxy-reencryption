@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from ecpy import EllipticCurve, ExtendedFiniteField, symmetric_tate_pairing
 import hashlib
 import random
@@ -52,6 +55,7 @@ def encrypt(E, P, sP, pubkey, m, l):
 def decrypt(E, K, c, l):
   # c1, c2 = r*P, m xor e_l(secret * P, Q) ^ r = e_l(P, Q) ^ (secret * r)
   # a = e_l(c1, K) = e_l(r*P, secret * Q) = e_l(P, Q) ^ (secret * r)
+  print symmetric_tate_pairing(E, c[0], K, l)
   return c[1] ^ H(E.field(symmetric_tate_pairing(E, c[0], K, l)))
 
 

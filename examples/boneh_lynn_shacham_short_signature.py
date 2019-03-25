@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from ecpy import ExtendedFiniteField, EllipticCurve, MapToPoint
 from ecpy import symmetric_tate_pairing
 import hashlib
@@ -45,28 +48,28 @@ def verify(sig, msg):
 def main():
   global secret, E, F, l, P, sP
 
-  while True:
+  while(True):
     print "What to do?"
-    print "Sign -> s, Verify -> v, Quit -> q :",
+    print "Sign -> s, Verify -> v, Quit -> q :"
     t = raw_input().strip().lower()
-    if t == "s":
-      print "[+] Message? :",
+    if(t == "s"):
+      print "[+] Message? :"
       m = raw_input().strip()
       sig = cPickle.dumps(tuple(sign(m))).encode("zlib").encode("base64")
       sig = sig.replace("\n", "")
       print "[+] Signature of %s: %s" % (m, sig)
-    elif t == "v":
+    elif(t == "v"):
       print "Signature? :",
       x, y, z = cPickle.loads(raw_input().strip()
                               .decode("base64").decode("zlib"))
       sig = E(x, y)
       print "Message? :",
       m = raw_input().strip()
-      if verify(sig, m):
+      if(verify(sig, m)):
         print "[+] Verify: Passed."
       else:
         print "[+] Verify: Invalid Signature!"
-    elif t == "q":
+    elif(t == "q"):
       print "[+] Quit"
       break
 

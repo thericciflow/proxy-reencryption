@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from ecpy import EllipticCurve, FiniteField, gcd, modinv
 from ecpy import EllipticCurveRepository
 
