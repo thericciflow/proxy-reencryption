@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ecpy
 [![Code Climate](https://codeclimate.com/github/elliptic-shiho/ecpy/badges/gpa.svg)](https://codeclimate.com/github/elliptic-shiho/ecpy)
 [![Build Status](http://travis-ci.org/elliptic-shiho/ecpy.svg?branch=master)](https://travis-ci.org/elliptic-shiho/ecpy)
@@ -90,3 +91,7 @@ Cybozu Labs Youth (5th, 6th) - http://labs.cybozu.co.jp/youth.html
 # License
 this software released under MIT License. Please see /LICENSE.
 
+=======
+# proxy-reencryption
+Sami is the man
+>>>>>>> 1919442d0d8ccb92a9a036c3332d834f6a032db1
